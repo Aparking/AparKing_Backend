@@ -1,2 +1,13 @@
+#settings
 local_settings.py
+
+
+#Environments
 venv/
+
+#cache de datos
+__pycache__
+
+
+#migraciones
+**/migrations/**
