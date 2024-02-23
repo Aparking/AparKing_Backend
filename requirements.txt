@@ -1,2 +1,4 @@
 Django==5.0.2
 psycopg2==2.9.9
+djangorestframework==3.14.0
+django-cors-headers==4.3.1

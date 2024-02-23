@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     "apps.garagement",
     "apps.parking",
     "apps.payment",
-    
+    'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
