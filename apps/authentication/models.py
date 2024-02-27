@@ -19,3 +19,11 @@ class CustomUser(AbstractUser):
     birth_date = models.DateField(blank=False, null=False)
     gender = models.CharField(max_length=1, choices=Gender.choices())
     phone = PhoneNumberField(blank=False, null=False)
+
+class Vehicle(model.Model):
+    carModel = models.CharField(max_length=100, blank=False, null=False)
+    color = models.CharField(max_length=25, blank=False, null=False)
+    height = models.DecimalField(max_digits=6, decimal_places=2)
+    width = models.DecimalField(max_digits=6, decimal_places=2)
+    length = models.DecimalField(max_digits=6, decimal_places=2)
+    
