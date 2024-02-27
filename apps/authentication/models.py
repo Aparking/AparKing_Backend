@@ -5,6 +5,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from .enums import Gender
 
 class CustomUser(AbstractUser):
+    email = models.EmailField(unique=True, blank=False, null=False)
     dni = models.CharField(max_length=9, 
                            unique=True, 
                            blank=False, 
