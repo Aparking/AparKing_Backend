@@ -28,7 +28,7 @@ def register(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
-            customer, created = BaseUser.objects.get_or_create(email=user.email, name=form.cleaned_data['name'])
+            customer, created = CustomUser.objects.get_or_create(email=user.email, name=form.cleaned_data['name'])
             customer.user = user
             customer.save()
             login(request, user)

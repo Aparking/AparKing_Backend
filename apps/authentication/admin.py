@@ -1,5 +1,4 @@
 from django.contrib import admin
-from .models import BaseUser, AparkingUser
+from .models import CustomUser
 # Register your models here.
-admin.site.register(BaseUser)
-admin.site.register(AparkingUser)
+admin.site.register(CustomUser)
