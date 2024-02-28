@@ -10,7 +10,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -42,3 +41,36 @@ jobs:
         with:
           project-token: ${{ secrets.CODACY_API_TOKEN }}
           upload: true
+
+  database_check:
+    needs: build
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16.2
+        env:
+          POSTGRES_USER: aparking
+          POSTGRES_PASSWORD: aparking
+          POSTGRES_DB: aparking_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.10
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+     - name: Run migrations (unnecessary)
+      run: |
+        cd decide
+        python manage.py makemigrations
+        python manage.py migrate
