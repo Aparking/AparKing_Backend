@@ -43,6 +43,8 @@ jobs:
           upload: true
 
   database-check:
+    name: Database check
+    runs-on: ubuntu-latest
     services:
       postgres:
         image: postgres:16.2
