@@ -40,6 +40,16 @@ jobs:
     - name: Run Tests
       run: |
         python manage.py test
+    - name: Setup Database
+      env:
+        POSTGRES_USER: user
+        POSTGRES_PASSWORD: password
+        POSTGRES_DB: mydb
+      run: |
+        python manage.py wait_for_db
+        python manage.py makemigrations
+        python manage.py migrate
+
    
 
   codacy-analysis:
