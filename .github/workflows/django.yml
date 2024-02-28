@@ -42,9 +42,9 @@ jobs:
         python manage.py test
     - name: Setup Database
       env:
-        POSTGRES_USER: user
-        POSTGRES_PASSWORD: password
-        POSTGRES_DB: mydb
+        POSTGRES_USER: aparking
+        POSTGRES_PASSWORD: aparking
+        POSTGRES_DB: aparking_db
       run: |
         python manage.py makemigrations
         python manage.py migrate
