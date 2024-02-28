@@ -42,7 +42,7 @@ jobs:
           project-token: ${{ secrets.CODACY_API_TOKEN }}
           upload: true
 
-  database_check:
+  database-check:
     needs: build
     runs-on: ubuntu-latest
     services:
