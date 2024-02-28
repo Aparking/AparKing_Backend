@@ -40,16 +40,7 @@ jobs:
     - name: Run Tests
       run: |
         python manage.py test
-    - name: Run migrations (unnecessary)
-     env:
-        DATABASE_NAME: aparking_db
-        DATABASE_USER: aparking
-        DATABASE_PASSWORD: aparking
-        DATABASE_HOST: localhost
-        DATABASE_PORT: 5432
-      run: |
-        python manage.py makemigrations
-        python manage.py migrate
+   
 
   codacy-analysis:
     name: Codacy Analysis
