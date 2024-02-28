@@ -7,24 +7,23 @@ from .enums import Gender
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True, blank=False, null=False)
     dni = models.CharField(max_length=9, 
-                           unique=True, 
-                           blank=False, 
-                           null=False,
-                           validatos=[
-                               RegexValidator(
+                            unique=True, 
+                            blank=False, 
+                            null=False,
+                            validators=[
+                                RegexValidator(
                                     regex='^\d{8}[a-zA-Z]$',
                                     message='Introducza un DNI válido',
                                     code='invalid_dni'
-                               )
-                           ])
+                                )
+                            ])
     birth_date = models.DateField(blank=False, null=False)
-    gender = models.CharField(max_length=1, choices=Gender.choices())
+    gender = models.CharField(max_length=6, choices=Gender.choices())
     phone = PhoneNumberField(blank=False, null=False)
 
-class Vehicle(model.Model):
+class Vehicle(models.Model):
     carModel = models.CharField(max_length=100, blank=False, null=False)
     color = models.CharField(max_length=25, blank=False, null=False)
     height = models.DecimalField(max_digits=6, decimal_places=2)
     width = models.DecimalField(max_digits=6, decimal_places=2)
     length = models.DecimalField(max_digits=6, decimal_places=2)
-    

@@ -11,3 +11,4 @@ __pycache__
 
 #migraciones
 **/migrations/**
+!**/migrations/__init__.py
