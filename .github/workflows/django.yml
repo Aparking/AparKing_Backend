@@ -42,7 +42,6 @@ jobs:
         python manage.py test
     - name: Run migrations (unnecessary)
       run: |
-        cd decide
         python manage.py makemigrations
         python manage.py migrate
 
