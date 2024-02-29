@@ -62,7 +62,7 @@ class Book(models.Model):
         verbose_name_plural = "Reservas"
         indexes = [
             models.Index(fields=['user']),
-            models.Index(fields=['garage']),
+            models.Index(fields=['availability']),
             models.Index(fields=['status']),
         ]
     
