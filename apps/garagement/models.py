@@ -4,6 +4,8 @@ from django.core.validators import FileExtensionValidator, MinValueValidator
 from django.forms import ValidationError
 
 from apps.authentication.models import CustomUser
+from apps.garagement.enums import GarageStatus
+
 
 class Address(models.Model):
     # Es el número asignado a un edificio a lo largo de una calle o una vía
@@ -37,7 +39,6 @@ class Garage(models.Model):
     height = models.DecimalField(max_digits=6, decimal_places=2)
     width = models.DecimalField(max_digits=6, decimal_places=2)
     length = models.DecimalField(max_digits=6, decimal_places=2)
-    category = models.CharField(max_length=16, choices=Category.choices(), blank=False, null=False)
     price = models.DecimalField(decimal_places=2, max_digits=8, blank=False, null=False, validators=[MinValueValidator(0)], help_text='Ingresa un valor positivo')  
     creation_date = models.DateField(auto_now_add=True, blank=False, null=False)
     modification_date = models.DateField(auto_now=True, blank=False, null=False)
@@ -51,8 +52,8 @@ class Garage(models.Model):
         return self.comments.aggregate(models.Avg('rating'))['rating__avg']
 
     class Meta:
-        verbose_name = "Alojamiento"
-        verbose_name_plural = "Alojamientos"
+        verbose_name = "Garaje"
+        verbose_name_plural = "Garajes"
         indexes = [
             models.Index(fields=['name']),
             models.Index(fields=['owner']),
@@ -88,4 +89,19 @@ class Image(models.Model):
     def __str__(self):
         return f"{self.garage} - {self.alt}"  
     
-#ToDo: Availability entity
+class Availability(models.Model):
+    start_date=models.DateTimeField(blank=False, null=False)
+    end_date=models.DateTimeField(blank=False, null=False)
+    status = models.CharField(max_length=16, choices=GarageStatus.choices(), default=GarageStatus.AVAILABLE, blank=False, null=False)
+    garage = models.ForeignKey(Garage, on_delete=models.CASCADE, blank=False, null=False) 
+
+    class Meta:
+        verbose_name = "Disponibilidad"
+        verbose_name_plural = "Disponibilidades"
+        
+    def clean(self):
+        if self.start_date and self.end_date and self.start_date > self.end_date:
+            raise ValidationError('La fecha de inicio no puede ser mayor que la fecha de fin')
+
+    def __str__(self):
+        return f"({self.status}) - Garage: {self.garage}"
