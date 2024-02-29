@@ -3,12 +3,10 @@ name: Django CI
 on:
   push:
     branches: 
-    - master
-    - develop
+    - '**'
   pull_request:
     branches: 
-    - master
-    - develop
+    - '**'
 
 jobs:
   build:
@@ -31,3 +29,16 @@ jobs:
     - name: Run Tests
       run: |
         python manage.py test
+
+  codacy-analysis:
+    name: Codacy Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run Codacy Analysis
+        uses: codacy/codacy-analysis-cli-action@master
+        with:
+          project-token: ${{ secrets.CODACY_API_TOKEN }}
+          upload: true
