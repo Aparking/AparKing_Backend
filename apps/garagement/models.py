@@ -57,7 +57,6 @@ class Garage(models.Model):
         indexes = [
             models.Index(fields=['name']),
             models.Index(fields=['owner']),
-            models.Index(fields=['category']),
         ]
 
     def clean(self):
