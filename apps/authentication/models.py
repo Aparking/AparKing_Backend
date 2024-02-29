@@ -15,10 +15,10 @@ class CustomUser(AbstractUser):
                            unique=True, 
                            blank=False, 
                            null=False,
-                           validatos=[
+                           validators=[
                                RegexValidator(
                                     regex='^\d{8}[a-zA-Z]$',
-                                    message='Introducza un DNI válido',
+                                    message='Introduzca un DNI válido',
                                     code='invalid_dni'
                                )
                            ])
