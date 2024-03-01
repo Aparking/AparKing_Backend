@@ -11,7 +11,7 @@ from django.http import HttpRequest
 from django.shortcuts import render
 from django.db.models import Q
 
-from apps.parking.models import Parking, ParkingType
+from apps.parking.models import Parking, ParkingType, ParkingSize
 from apps.parking.forms import ParkingForm
 from apps.parking.serializers import ParkingSerializer
 from apps.parking.filters import ParkingFilter
@@ -44,14 +44,24 @@ def create_parking(request: HttpRequest):
     data = request.POST.copy()
     coordenates = Coordenates.from_request(request)
     data["location"] = coordenates.get_point() 
-    form = ParkingForm(data)
-    if form.is_valid():
-        errors = ParkingValidator(form).validate()
+    parking = Parking(
+        location=data["location"],
+        size=ParkingSize[data["size"]],
+        parking_type=ParkingType[data["parking_type"]],
+        is_transfer=False,
+        is_asignment=False,
+        notified_by=request.user       
+    )
+    if parking:
+        errors = ParkingValidator(parking).validate()
         if len(errors) > 0:
             return Response({'error': errors}, status=status.HTTP_409_CONFLICT)
-        parking = form.save()
-        serializer = ParkingSerializer(parking, many=False)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response({'error': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+        parking = parking.save()
+        return Response(ParkingSerializer(parking).data, status=status.HTTP_201_CREATED)
+    return Response({'error': parking.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['PUT'])
+@login_required
+def assign_parking(request: HttpRequest, room_name):
+    return None
 

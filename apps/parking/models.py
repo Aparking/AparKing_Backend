@@ -28,8 +28,8 @@ class City(models.Model):
 
 
 class Parking(models.Model):
-    notified_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=False, blank=False)
-    booked_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    notified_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=False, blank=False, related_name="parking_notified_by")
+    booked_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True, related_name="parking_booked_by")
     message = models.CharField(blank = True, null=True)
     location = models.PointField(srid=4326)
     size = EnumChoiceField(ParkingSize, default=ParkingSize.MEDIUM, null=False, blank=False)
