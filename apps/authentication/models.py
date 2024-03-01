@@ -27,7 +27,7 @@ class CustomUser(AbstractUser):
                                )
                            ])
     birth_date = models.DateField(blank=False, null=False)
-    gender = models.CharField(max_length=1, choices=Gender.choices())
+    gender = models.CharField(max_length=16, choices=Gender.choices())
     photo = models.URLField(blank=True, null=True)
     phone = PhoneNumberField(blank=False, null=False)
 
