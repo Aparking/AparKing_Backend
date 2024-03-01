@@ -97,6 +97,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+DATABASES = {
+	'default': {
+		'ENGINE': 'django.db.backends.postgresql',
+		'NAME': 'aparking_db',
+		'USER': 'aparking',
+		'PASSWORD': 'aparking',
+		'HOST': 'localhost',
+		'PORT': '5432',
+	}
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/

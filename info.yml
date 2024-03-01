@@ -1,0 +1,64 @@
+project:
+  name: 'ISPP-2024-L1-11'
+  owner: 'L2'
+  teamId: '11'
+  identities: {}
+  notifications:
+    email: 'aparking.g11@gmail.com'
+  members:
+    member1:
+      name: 'Jose Javier'
+      surname: 'Alcobendas Santos' 
+      githubUsername: 'JoseJavierAlcobendas'
+    member2:
+      name: 'Mario'
+      surname: 'Aroca Páez' 
+      githubUsername: 'MarioArocaPaez'
+    member3:
+      name: 'Enrique'
+      surname: 'Caballero Muñoz' 
+      githubUsername: 'silvglad'
+    member4:
+      name: 'Virgilio'
+      surname: 'Oliva Alonso' 
+      githubUsername: 'virolialo'
+    member5:
+      name: 'Alberto'
+      surname: 'Perea León' 
+      githubUsername: '3ralon'
+    member6:
+      name: 'Alejandro'
+      surname: 'Pérez Vázquez' 
+      githubUsername: 'alepervaz'
+    member7:
+      name: 'Juan Carlos'
+      surname: 'Ramírez López' 
+      githubUsername: 'JuanCarlosRL'
+    member8:
+      name: 'Laura'
+      surname: 'Roldán Merat' 
+      githubUsername: 'laurolmer'
+    member9:
+      name: 'Pedro Jesús'
+      surname: 'Ruiz Aguilar' 
+      githubUsername: 'PedroRuizAguilar'
+    member10:
+      name: 'Ismael'
+      surname: 'Ruiz Jurado' 
+      githubUsername: 'IsmaelRuizJurado'
+    member11:
+      name: 'Carmen'
+      surname: 'Ruiz Porcel' 
+      githubUsername: 'CarmenRuizPorcel'
+    member12:
+      name: 'Iván'
+      surname: 'Sánchez San José' 
+      githubUsername: 'ivasansan1'
+    member13:
+      name: 'Sergio'
+      surname: 'Santiago Sánchez' 
+      githubUsername: 'sergiosant02'
+    member14:
+      name: 'María'
+      surname: 'Vico Martín' 
+      githubUsername: 'marvicmar'
