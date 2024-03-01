@@ -4,6 +4,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 from enumchoicefield import EnumChoiceField
 from enum import Enum
+
+from apps.authentication.models import CustomUser
 # Create your models here.
 
 class ParkingType(Enum):
@@ -26,6 +28,8 @@ class City(models.Model):
 
 
 class Parking(models.Model):
+    notified_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=False, blank=False)
+    booked_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     message = models.CharField(blank = True, null=True)
     location = models.PointField(srid=4326)
     size = EnumChoiceField(ParkingSize, default=ParkingSize.MEDIUM, null=False, blank=False)
@@ -35,6 +39,10 @@ class Parking(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Creation date")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Update date")
+    
+    class Meta:
+        verbose_name = "Aparcamiento"
+        verbose_name_plural = "Aparcamientos"
 
     def get_lat_long(self):
         latitud = self.location.y

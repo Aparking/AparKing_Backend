@@ -18,6 +18,8 @@ from apps.parking.filters import ParkingFilter
 from apps.parking.coordenates import Coordenates
 from apps.parking.validators import ParkingValidator
 
+from django.contrib.auth.decorators import login_required
+
 
 channel_layer = get_channel_layer()
 
@@ -29,6 +31,7 @@ def room(request, room_name):
     return render(request, "parking/room.html", {"room_name": room_name})
 
 @api_view(['POST'])
+@login_required
 def get_parking_near(request: HttpRequest):
     filter = ParkingFilter.from_request(request)
     near = filter.get_queryset()
@@ -36,6 +39,7 @@ def get_parking_near(request: HttpRequest):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
+@login_required
 def create_parking(request: HttpRequest):
     data = request.POST.copy()
     coordenates = Coordenates.from_request(request)
