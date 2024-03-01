@@ -18,7 +18,6 @@ class AuthTestCase(APITestCase):
         url = reverse('login')
         data = {'password': self.password, 'email': self.email}
         response = self.client.post(url, data, format='json')
-        # Asegúrate de verificar la respuesta correcta según tu implementación
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'success')
 
@@ -26,7 +25,6 @@ class AuthTestCase(APITestCase):
         url = reverse('register')
         data = {'username': 'newuser', 'email': 'newuser@admin.com', 'password': 'newpassword', 'dni': '12345679Z', 'phone': '+34600000000', 'birth_date': '1990-01-01'}
         response = self.client.post(url, data, format='json')
-        # Asegúrate de verificar la respuesta correcta según tu implementación
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'success')
 
@@ -35,7 +33,6 @@ class AuthTestCase(APITestCase):
         self.client.login(email=self.email, password=self.password)
         # Luego, prueba el logout
         url = reverse('logout')
-        response = self.client.get(url)  # Asegúrate de que tu endpoint de logout acepte una petición GET
-        # Asegúrate de verificar la respuesta correcta según tu implementación
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'success')
