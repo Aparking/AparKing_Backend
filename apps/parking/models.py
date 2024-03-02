@@ -1,24 +1,10 @@
-#from django.db import models
 from django.contrib.gis.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator 
 
 from enumchoicefield import EnumChoiceField
-from enum import Enum
 
 from apps.authentication.models import CustomUser
-# Create your models here.
-
-class ParkingType(Enum):
-    ASSIGNMENT = "ASSIGNMENT"
-    FREE = "FREE"
-    PRIVATE = "PRIVATE"
-
-class ParkingSize(Enum):
-    SMALL = "SMALL"
-    MEDIUM = "MEDIUM"
-    LARGE = "LARGE"
-    
-
+from apps.parking.enums import ParkingSize, ParkingType
 class City(models.Model):
     name = models.CharField(null=False, blank=False)
     name_ascii = models.CharField(null=True, blank=True)
@@ -28,7 +14,7 @@ class City(models.Model):
 
 
 class Parking(models.Model):
-    notified_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=False, blank=False, related_name="parking_notified_by")
+    notified_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True, related_name="parking_notified_by")
     booked_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True, related_name="parking_booked_by")
     message = models.CharField(blank = True, null=True)
     location = models.PointField(srid=4326)

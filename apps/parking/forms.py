@@ -5,4 +5,4 @@ from apps.parking.models import Parking, ParkingSize, ParkingType
 class ParkingForm(forms.ModelForm):
     class Meta:
         model = Parking
-        fields = ['location', 'size', 'parking_type']
+        fields = '__all__'
