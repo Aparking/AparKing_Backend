@@ -43,10 +43,14 @@ def room(request, room_name):
 @api_view(['POST'])
 @login_required
 def get_parking_near(request: HttpRequest):
-    filter = ParkingFilter.from_request(request)
-    near = filter.get_queryset()
-    serializer = ParkingSerializer(near, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    filter_parking = ParkingFilter.from_request(request)
+    near = filter_parking.get_queryset()
+    coordenates = Coordenates.from_request(request)
+    city_near = City.objects.annotate(distance=Distance('location', coordenates.get_point())).order_by('distance').first()
+    serializer = ParkingSerializer(near, many=True).data
+    group: str = f"{city_near.location.y}_{city_near.location.x}"
+    serializer.append({'group': group})
+    return Response(serializer, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @login_required
