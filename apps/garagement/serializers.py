@@ -1,31 +1,30 @@
 from apps.garagement.models import Address, Availability, Garage, Image
 from rest_framework import serializers
+from . import validations
 
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
        model = Address
        fields = '__all__'
        
+    def validate(self, attrs):
+        return validations.validate_address_data(attrs)
+       
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
        model = Image
        fields ='__all__'
        
-    def create(self, validated_data):
-        return super().create(validated_data)
+    def validate(self, attrs):
+        return validations.validate_image_data(attrs)
 
 class AvailabilitySerializer(serializers.ModelSerializer):
     class Meta:
        model = Availability
        fields = '__all__'
-
-    def create(self, validated_data):
-        return super().create(validated_data)
-
-    def validate(self, data):
-        if data['end_date'] <= data['start_date']:
-            raise serializers.ValidationError("end_date must be later than start_date")
-        return data
+       
+    def validate(self, attrs):
+        return validations.validate_availability_data(attrs)
     
 class GarageSerializer(serializers.ModelSerializer):
     address = AddressSerializer()
@@ -34,10 +33,8 @@ class GarageSerializer(serializers.ModelSerializer):
         model = Garage
         fields = '__all__'
 
-    def validate(self, data):
-        if data['end_date'] <= data['start_date']:
-            raise serializers.ValidationError("end_date must be later than start_date")
-        return data
+    def validate(self, attrs):
+        return validations.validate_garage_data(attrs)
     
     def create(self, validated_data):
         address_data = validated_data.pop('address')
