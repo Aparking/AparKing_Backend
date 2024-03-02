@@ -34,13 +34,29 @@ class GarageSerializer(serializers.ModelSerializer):
         model = Garage
         fields = '__all__'
 
+    def validate(self, data):
+        if data['end_date'] <= data['start_date']:
+            raise serializers.ValidationError("end_date must be later than start_date")
+        return data
+    
     def create(self, validated_data):
         address_data = validated_data.pop('address')
         address = Address.objects.create(**address_data)
         garage = Garage.objects.create(address=address, **validated_data)
         return garage
     
-    def validate(self, data):
-        if data['end_date'] <= data['start_date']:
-            raise serializers.ValidationError("end_date must be later than start_date")
-        return data
+    def update(self, instance, validated_data):
+        address_data = validated_data.pop('address', None)
+        if validated_data:
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
+            instance.save()
+
+        if address_data:
+            address = instance.address
+            for attr, value in address_data.items():
+                setattr(address, attr, value)
+            address.save()
+
+        return instance
+    
