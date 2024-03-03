@@ -111,8 +111,6 @@ class ParkingTestCase(APITestCase):
         data = {
             "latitude": "42.3851",
             "longitude": "2.1734",
-            "parking_size": "SMALL",
-            "parking_type": "FREE",
         }
 
         response = self.client.post(get_parking_near_url, data, format='json')
