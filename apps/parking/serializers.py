@@ -15,6 +15,6 @@ class ParkingSerializer(serializers.ModelSerializer):
 
     def get_location(self, obj):
         if obj.location:
-            return obj.location.y, obj.location.x
+            return {'latitude': obj.location.x, 'longitude': obj.location.y}
         else:
             return None
