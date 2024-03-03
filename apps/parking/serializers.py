@@ -1,13 +1,12 @@
-from rest_framework import serializers
 from apps.parking.models import Parking
-from apps.parking.enums import ParkingType, ParkingSize
+from rest_framework_gis.serializers import GeoFeatureModelSerializer, GeometrySerializerMethodField
 
-class ParkingSerializer(serializers.ModelSerializer):
-    location = serializers.SerializerMethodField()
+class ParkingSerializer(GeoFeatureModelSerializer):
 
     class Meta:
         model = Parking
         fields = '__all__'
+        geo_field = 'location'
 
     def create(self, validated_data):
         

@@ -11,3 +11,4 @@ channels_redis
 django-enumchoicefield
 geoalchemy2
 pandas
+djangorestframework-gis
