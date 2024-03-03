@@ -28,12 +28,13 @@ class CreditTestCase(TestCase):
         
 class MemberShipTestCase(TestCase):
     def setUp(self):
-        # self.user = CustomUser.objects.create(username='testuser', email='test@example.com', dni='12345678A',
-        #                                    birth_date=datetime.date(1990, 1, 1), gender="M", phone='+123456789')
+        self.user = CustomUser.objects.create(username='testuser', email='test@example.com', dni='12345678A',
+                                            birth_date=datetime.date(1990, 1, 1), gender="M", phone='+123456789')
         self.membership = MemberShip.objects.create(start_date=timezone.now(),
                                                     end_date=timezone.now() + datetime.timedelta(days=30),
-                                                    type=MemberType.KING
-                                                  )
+                                                    type=MemberType.KING,
+                                                    user=self.user                                                  
+                                                    )
 
     def test_membership_start_date(self):
         self.assertIsNotNone(self.membership.start_date)
@@ -44,5 +45,10 @@ class MemberShipTestCase(TestCase):
     def test_membership_type(self):
         self.assertEqual(self.membership.type, MemberType.KING)
 
-    # def test_membership_user(self):
-    #     self.assertEqual(self.membership.user, self.user)
+    def test_membership_user(self):
+        self.assertEqual(self.membership.user, self.user)
+        
+    def test_membership_creation_and_retrieval(self):
+        memberships = MemberShip.objects.filter(user=self.user)
+        self.assertEqual(memberships.count(), 1)
+        self.assertEqual(memberships[0].type, 'King')
