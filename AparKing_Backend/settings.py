@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "apps.parking",
     "apps.payment",
     'rest_framework',
+    'rest_framework_gis',
     'corsheaders',
 ]
 
