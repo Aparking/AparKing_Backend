@@ -55,20 +55,45 @@ def get_parking_near(request: HttpRequest):
 @api_view(['POST'])
 @login_required
 def create_parking(request: HttpRequest):
-    serializer = ParkingSerializer(data=request.data)
+    """
+    Crea un nuevo aparcamiento y lo notifica a los usuarios cercanos.
+
+    Esta función espera una solicitud POST con un cuerpo JSON que describe el nuevo aparcamiento. El aparcamiento se crea basado en los datos proporcionados y se notifica a los usuarios cercanos sobre su disponibilidad.
+
+    Parámetros:
+    - request (HttpRequest): La solicitud HTTP. Debe contener un cuerpo JSON con la ubicación, el tamaño y el tipo de aparcamiento.
+
+    Retorna:
+    - JsonResponse: En caso de éxito, retorna un JsonResponse con el ID del aparcamiento creado. Si falla la validación o surge algún error, retorna un mensaje de error.
+
+    Ejemplo de cuerpo de solicitud JSON esperado:
+    ```json
+    {
+        "location": {
+            "type": "Point",
+            "coordinates": [42.3851, 2.1734]
+        },
+        "size": "MEDIUM",
+        "parking_type": "FREE"
+    }
+    ```
+
+    Campos del JSON:
+    - location (dict): Un objeto que especifica el tipo de geometría ('Point') y las coordenadas del punto (latitud, longitud).
+    - size (str): El tamaño del aparcamiento, que puede ser "SMALL", "MEDIUM" o "LARGE".
+    - parking_type (str): El tipo de aparcamiento, que puede ser "FREE" o "ASSIGNMENT".
+
+    Nota: Las coordenadas se deben proporcionar en el orden [latitud, longitud].
+    """
+    data = request.data
+    data["notified_by"] = request.user.id
+    serializer = ParkingSerializer(data=data)
     if serializer.is_valid():
-        validated_data = serializer.validated_data
-        parking_instance = Parking(**validated_data)
-        errors = ParkingValidator(parking_instance).validate()
-        if len(errors) > 0:
-            return Response({'error': errors}, status=status.HTTP_409_CONFLICT)
-        parking = serializer.save(notified_by=request.user)
+        parking = serializer.save()
         manage_send_parking_created(NoticationsSocket.PARKING_NOTIFIED.value, ParkingSerializer(parking).data, parking.location)
         return JsonResponse({'id': parking.id}, status=status.HTTP_201_CREATED)
     else:
         return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
 
 @api_view(['PUT'])
 @login_required
