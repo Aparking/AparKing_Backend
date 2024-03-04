@@ -14,4 +14,7 @@ pandas
 djangorestframework-gis
 django-countries
 django-phonenumbers
+django-countries
+django-phonenumbers
+django-phonenumber-field
 Pillow
