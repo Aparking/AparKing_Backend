@@ -38,10 +38,12 @@ class AvailabilityRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly, IsAdminUser]
     
 class AvailableGaragesListAPIView(ListCreateAPIView):
-    available_availabilities = Availability.objects.filter(status=GarageStatus.AVAILABLE)
-    queryset = [availability.garage for availability in available_availabilities]
     serializer_class = GarageSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        available_availabilities = Availability.objects.filter(status=GarageStatus.AVAILABLE)
+        return [availability.garage for availability in available_availabilities]
     
 class MyGaragesListAPIView(ListCreateAPIView):
     queryset = Garage.objects.all()
@@ -52,10 +54,10 @@ class MyGaragesListAPIView(ListCreateAPIView):
         return self.queryset.filter(owner=self.request.user)
     
 class MyAvailableGaragesListAPIView(ListCreateAPIView):
-    available_availabilities = Availability.objects.filter(status=GarageStatus.AVAILABLE)
-    queryset = [availability.garage for availability in available_availabilities]
     serializer_class = GarageSerializer
     permission_classes = [IsAuthenticated]
-    
+
     def get_queryset(self):
-        return self.queryset.filter(owner=self.request.user)
+        available_availabilities = Availability.objects.filter(status=GarageStatus.AVAILABLE, owner=self.request.user)
+        return [availability.garage for availability in available_availabilities]
+
