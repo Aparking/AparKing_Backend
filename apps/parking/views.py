@@ -13,12 +13,10 @@ from django.shortcuts import render
 from django.db.models import Q
 
 from apps.parking.models import Parking, City
-from apps.parking.enums import ParkingType, ParkingSize, NoticationsSocket
-from apps.parking.forms import ParkingForm
+from apps.parking.enums import ParkingType, NoticationsSocket
 from apps.parking.serializers import ParkingSerializer
 from apps.parking.filters import ParkingFilter
 from apps.parking.coordenates import Coordenates
-from apps.parking.validators import ParkingValidator
 
 from django.contrib.auth.decorators import login_required
 
@@ -33,7 +31,6 @@ def manage_send_parking_created(type: str, message: dict, coordenates: Point):
                 group, {"type": type, "message": message}
             )
 
-# Create your views here.
 def index(request):
     return render(request, "parking/index.html")
 

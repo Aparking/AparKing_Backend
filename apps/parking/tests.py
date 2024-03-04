@@ -2,7 +2,7 @@ from django.contrib.gis.geos import Point
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from apps.authentication.models import CustomUser
-from apps.parking.models import Parking, ParkingSize, ParkingType
+from apps.parking.models import City, Parking, ParkingSize, ParkingType
 
 class ParkingTestCase(APITestCase):
 
@@ -104,6 +104,14 @@ class ParkingTestCase(APITestCase):
             parking_type=ParkingType.FREE,
             is_asignment=False,
             notified_by=self.user
+        )
+
+        City.objects.create(
+            name="Barcelona",
+            name_ascii="Barcelona",
+            alternative_name="Barna",
+            location=Point(2.1734, 42.3851, srid=4326),
+            country_code="ES"
         )
         
         get_parking_near_url = reverse('near')

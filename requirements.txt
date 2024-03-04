@@ -12,3 +12,4 @@ django-enumchoicefield
 geoalchemy2
 pandas
 djangorestframework-gis
+tqdm
