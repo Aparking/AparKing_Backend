@@ -4,21 +4,31 @@ from django.core.validators import RegexValidator
 from phonenumber_field.modelfields import PhoneNumberField
 from .enums import Gender
 
+# Create your models here.
+from django.db import models
+from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
+from phonenumber_field.modelfields import PhoneNumberField
+
+from apps.authentication.enums import Gender
+
+
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True, blank=False, null=False)
     dni = models.CharField(max_length=9, 
-                            unique=True, 
-                            blank=False, 
-                            null=False,
-                            validators=[
-                                RegexValidator(
+                           unique=True, 
+                           blank=False, 
+                           null=False,
+                           validators=[
+                               RegexValidator(
                                     regex='^\d{8}[a-zA-Z]$',
-                                    message='Introducza un DNI válido',
+                                    message='Introduzca un DNI válido',
                                     code='invalid_dni'
-                                )
-                            ])
+                               )
+                           ])
     birth_date = models.DateField(blank=False, null=False)
-    gender = models.CharField(max_length=6, choices=Gender.choices())
+    gender = models.CharField(max_length=16, choices=Gender.choices())
+    photo = models.URLField(blank=True, null=True)
     phone = PhoneNumberField(blank=False, null=False)
 
 class Vehicle(models.Model):
