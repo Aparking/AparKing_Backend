@@ -1,7 +1,13 @@
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from apps.authentication.models import CustomUser
+from django.test import TestCase, Client
+from rest_framework import status
 
+from django.test import TestCase, Client
+from rest_framework import status
+from apps.authentication.serializers import UserSerializer
+from datetime import date
 class AuthTestCase(APITestCase):
 
     email = 'admin@admin.com'
@@ -36,3 +42,51 @@ class AuthTestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'success')
+
+
+
+
+class UsersListTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    def test_get_users_list(self):
+        # Crear algunos usuarios de prueba
+        user1 = CustomUser.objects.create(username="user1", email="user1@example.com", 
+                                           dni="12345678A", birth_date=date(1990, 1, 1), 
+                                            phone="+123456789")
+        user2 = CustomUser.objects.create(username="user2", email="user2@example.com", 
+                                           dni="23456789B", birth_date=date(1995, 1, 1), 
+                                            phone="+234567890")
+
+        # Realizar una solicitud GET sin parámetros de filtro
+        response = self.client.get('/api/users')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Verificar que se devuelvan todos los usuarios
+        expected_data = UserSerializer([user1, user2], many=True).data
+        self.assertEqual(response.json(), expected_data)
+
+        # Realizar una solicitud GET con un parámetro de filtro
+        response = self.client.get('/api/users', {'username': 'user1'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Verificar que se devuelva solo el usuario filtrado
+        expected_data = UserSerializer([user1], many=True).data
+        self.assertEqual(response.json(), expected_data)
+
+    def test_delete_users_list(self):
+        # Crear algunos usuarios de prueba
+        CustomUser.objects.create(username="user1", email="user1@example.com", 
+                                  dni="12345678A", birth_date=date(1990, 1, 1), 
+                                  phone="+123456789")
+        CustomUser.objects.create(username="user2", email="user2@example.com", 
+                                  dni="23456789B", birth_date=date(1995, 1, 1), 
+                                   phone="+234567890")
+
+        # Realizar una solicitud DELETE
+        response = self.client.delete('/api/users')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # Verificar que todos los usuarios se hayan eliminado
+        self.assertEqual(CustomUser.objects.count(), 0)
