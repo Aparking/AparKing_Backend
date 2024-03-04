@@ -69,7 +69,7 @@ def get_parking_near(request: HttpRequest):
     coordenates = Coordenates.from_request(request)
     city_near = City.objects.annotate(distance=Distance('location', coordenates.get_point())).order_by('distance').first()
     serializer = ParkingSerializer(near, many=True).data
-    group: str = f"{city_near.location.y}_{city_near.location.x}"
+    group: str = f"{city_near.location.y}_{city_near.location.x}".replace('.', 'p').replace('-', 'm') if city_near else "withoutData"
     res = {'group': group, 'parkingData': serializer}
     return Response(res, status=status.HTTP_200_OK)
 
