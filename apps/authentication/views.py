@@ -1,5 +1,4 @@
 from django.http import JsonResponse
-from django.shortcuts import render
 from rest_framework.decorators import api_view
 from apps.authentication.models import CustomUser
 from rest_framework import status

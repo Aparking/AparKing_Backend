@@ -3,9 +3,6 @@ from rest_framework.test import APITestCase
 from apps.authentication.models import CustomUser
 from django.test import TestCase, Client
 from rest_framework import status
-
-from django.test import TestCase, Client
-from rest_framework import status
 from apps.authentication.serializers import UserSerializer
 from datetime import date
 class AuthTestCase(APITestCase):
@@ -46,25 +43,30 @@ class AuthTestCase(APITestCase):
 
 
 
-class UsersListTestCase(TestCase):
+class UsersListTestCase(APITestCase):
     def setUp(self):
-        self.client = Client()
+        super().setUp()
+        # Crear un usuario administrador para las pruebas
+        self.admin = CustomUser.objects.create_superuser(username='admin', email='admin@admin.com', password='admin', dni='12345678Z', phone='+34600000000', birth_date='1990-01-01')
 
     def test_get_users_list(self):
+        # Autenticar como usuario administrador
+        self.client.force_login(self.admin)
+        
         # Crear algunos usuarios de prueba
         user1 = CustomUser.objects.create(username="user1", email="user1@example.com", 
                                            dni="12345678A", birth_date=date(1990, 1, 1), 
-                                            phone="+123456789")
+                                           phone="+123456789")
         user2 = CustomUser.objects.create(username="user2", email="user2@example.com", 
                                            dni="23456789B", birth_date=date(1995, 1, 1), 
-                                            phone="+234567890")
-
+                                           phone="+234567890")
+        
         # Realizar una solicitud GET sin parámetros de filtro
         response = self.client.get('/api/users')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Verificar que se devuelvan todos los usuarios
-        expected_data = UserSerializer([user1, user2], many=True).data
+        expected_data = UserSerializer([self.admin,user1, user2], many=True).data
         self.assertEqual(response.json(), expected_data)
 
         # Realizar una solicitud GET con un parámetro de filtro
@@ -76,13 +78,16 @@ class UsersListTestCase(TestCase):
         self.assertEqual(response.json(), expected_data)
 
     def test_delete_users_list(self):
+        # Autenticar como usuario administrador
+        self.client.force_login(self.admin)
+        
         # Crear algunos usuarios de prueba
         CustomUser.objects.create(username="user1", email="user1@example.com", 
                                   dni="12345678A", birth_date=date(1990, 1, 1), 
                                   phone="+123456789")
         CustomUser.objects.create(username="user2", email="user2@example.com", 
                                   dni="23456789B", birth_date=date(1995, 1, 1), 
-                                   phone="+234567890")
+                                  phone="+234567890")
 
         # Realizar una solicitud DELETE
         response = self.client.delete('/api/users')
