@@ -53,6 +53,7 @@ jobs:
           echo "DJANGO_SECRET_KEY=django-insecure-!eb&x8z=%ac03t5%cs-0+9kk&r%rh%3u#yjsxzt*558c971@&b" >> $GITHUB_ENV
           echo "DJANGO_DEBUG=True" >> $GITHUB_ENV
           echo "DJANGO_SETTINGS_OVERRIDE=AparKing_Backend.docker_settings" >> $GITHUB_ENV
+          echo "DB_HOST=localhost" >> $GITHUB_ENV
           echo "GDAL_LIBRARY_PATH=/usr/lib/libgdal.so" >> $GITHUB_ENV
           echo "GEOS_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/libgeos_c.so" >> $GITHUB_ENV
 
