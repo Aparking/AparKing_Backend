@@ -42,8 +42,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y binutils gdal-bin libgdal-dev libproj-dev libpq-dev build-essential git
-          find / -name 'libgdal.*'
-          find / -name 'libgeos_c.*'
+          find / -name "libgdal.*" -print 2>/dev/null
+          find / -name "libgeos_c.*" -print 2>/dev/null
 
       - name: Install Dependencies
         run: |
@@ -54,7 +54,7 @@ jobs:
         run: |
           echo "DJANGO_SECRET_KEY=django-insecure-!eb&x8z=%ac03t5%cs-0+9kk&r%rh%3u#yjsxzt*558c971@&b" >> $GITHUB_ENV
           echo "DJANGO_DEBUG=True" >> $GITHUB_ENV
-          echo "DJANGO_SETTINGS_OVERRIDE=AparKing_Backend.docker_settings" >> $GITHUB_ENV
+          echo "DJANGO_SETTINGS_OVERRIDE=AparKing_Backend.actions_settings" >> $GITHUB_ENV
 
       - name: Run Migrations
         run: |
