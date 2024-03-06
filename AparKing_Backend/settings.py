@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,13 +20,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!eb&x8z=%ac03t5%cs-0+9kk&r%rh%3u#yjsxzt*558c971@&b'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-!eb&x8z=%ac03t5%cs-0+9kk&r%rh%3u#yjsxzt*558c971@&b')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -150,7 +150,22 @@ AUTHENTICATION_BACKENDS = ['apps.authentication.backends.EmailBackend']
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-try:
-    from .local_settings import *
-except ImportError:
-    pass
+
+# Obtén el nombre del archivo de configuración desde una variable de entorno
+SETTINGS_OVERRIDE = os.environ.get('DJANGO_SETTINGS_OVERRIDE')
+
+if SETTINGS_OVERRIDE:
+    try:
+        module = __import__(SETTINGS_OVERRIDE, globals(), locals(), ['*'])
+        for setting in dir(module):
+            if setting.isupper():
+                locals()[setting] = getattr(module, setting)
+    except ModuleNotFoundError as e:
+        raise ImportError(f"No se pudo importar las configuraciones desde '{SETTINGS_OVERRIDE}'. {e}")
+
+# Intenta cargar desde local_settings.py
+else:
+    try:
+        from .local_settings import *
+    except ImportError:
+        pass
