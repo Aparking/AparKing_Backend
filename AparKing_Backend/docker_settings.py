@@ -1,3 +1,5 @@
+import os
+
 DEBUG = True
 DATABASES = {
 	'default': {
@@ -19,5 +21,5 @@ CHANNEL_LAYERS = {
     },
 }
 
-GDAL_LIBRARY_PATH = '/usr/lib/x86_64-linux-gnu/libgdal.so'
-GEOS_LIBRARY_PATH = '/usr/lib/x86_64-linux-gnu/libgeos_c.so'
+GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH', '/usr/lib/x86_64-linux-gnu/libgdal.so')
+GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH', '/usr/lib/x86_64-linux-gnu/libgeos_c.so')
