@@ -30,6 +30,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.auth',
     "apps.authentication",
     'django.contrib.admin',
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "django.contrib.gis",
     "apps.booking",
     "apps.garagement",
     "apps.parking",
@@ -76,7 +78,18 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'AparKing_Backend.wsgi.application'
+ASGI_APPLICATION = "AparKing_Backend.asgi.application"
 
+CSRF_USE_SESSIONS = True
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 
 # Password validation
@@ -99,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 DATABASES = {
 	'default': {
-		'ENGINE': 'django.db.backends.postgresql',
+		'ENGINE': 'django.contrib.gis.db.backends.postgis',
 		'NAME': 'aparking_db',
 		'USER': 'aparking',
 		'PASSWORD': 'aparking',
