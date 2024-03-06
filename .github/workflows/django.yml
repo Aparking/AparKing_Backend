@@ -38,6 +38,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install OS Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y binutils gdal-bin libgdal-dev libproj-dev libpq-dev build-essential git
+          rm -rf /var/lib/apt/lists/*
+
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
