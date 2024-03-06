@@ -4,7 +4,7 @@ djangorestframework==3.14.0
 django-cors-headers==4.3.1
 django-phonenumber-field[phonenumbers]
 numpy
-GDAL==3.6.2
+GDAL==3.6.2 || ==3.4.1
 channels
 daphne
 channels_redis
