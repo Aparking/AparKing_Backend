@@ -9,6 +9,6 @@ urlpatterns = [
     path('login/', views.auth_login, name='login'),
     path('register/', views.register, name='register'),
     path('logout/', views.auth_logout, name='logout'),
-      path('api/users', views.users_list),
-    #path(r'^api/users/(?P<pk>[0-9]+)$', views.users_detail),
+    path('api/users', views.users_list),
+    path('api/users/<int:pk>/', views.users_detail)
 ]
