@@ -30,7 +30,6 @@ services:
       DJANGO_SECRET_KEY: django-insecure-!eb&x8z=%ac03t5%cs-0+9kk&r%rh%3u#yjsxzt*558c971@&b #Cambiar por una clave segura
       DJANGO_DEBUG: 'True'
       DJANGO_SETTINGS_OVERRIDE: AparKing_Backend.docker_settings
-      DATABASE_URL: postgres://postgres:postgres@database:5432/aparking_db
       DEBUG: 1
     volumes:
       - .:/app
@@ -47,7 +46,6 @@ services:
       dockerfile: Dockerfile.dev
     command: sh ./migrationsInit.sh
     environment:
-      DATABASE_URL: postgres://postgres:postgres@database:5432/aparking_db
       DJANGO_SECRET_KEY: django-insecure-!eb&x8z=%ac03t5%cs-0+9kk&r%rh%3u#yjsxzt*558c971@&b #Cambiar por una clave segura
       DJANGO_DEBUG: 'True'
       DJANGO_SETTINGS_OVERRIDE: AparKing_Backend.docker_settings
