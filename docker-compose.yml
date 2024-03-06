@@ -44,7 +44,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    command: sh ./migrationsInit.sh
+    command: python manage.py makemigrations && python manage.py migrate --noinput && python importCSV.py
     environment:
       DJANGO_SECRET_KEY: django-insecure-!eb&x8z=%ac03t5%cs-0+9kk&r%rh%3u#yjsxzt*558c971@&b #Cambiar por una clave segura
       DJANGO_DEBUG: 'True'
