@@ -26,6 +26,10 @@ def progress_bar(duration, step=0.1, final_delay=1):
         pbar.update(100 - pbar.n)
 
 def import_cities(file_path):
+    if City.objects.exists():
+        print("Los datos ya existen en la base de datos. Omitiendo la importación.")
+        return
+    
     col_names = ['id', 'name', 'name_ascii', 'alternative_name', 'latitude', 'longitude', 'country_code']
     df = pd.read_csv(file_path, header=None, names=col_names, delimiter=';')
     

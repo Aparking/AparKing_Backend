@@ -63,6 +63,8 @@ def get_parking_near(request: HttpRequest):
     near = filter_parking.get_queryset()
     coordenates = Coordenates.from_request(request)
     city_near = City.objects.annotate(distance=Distance('location', coordenates.get_point())).order_by('distance').first()
+    if not city_near:
+        return Response({'error': 'No city found'}, status=status.HTTP_404_NOT_FOUND)
     serializer = ParkingSerializer(near, many=True).data
     group: str = f"{city_near.location.y}_{city_near.location.x}"
     serializer.append({'group': group})
