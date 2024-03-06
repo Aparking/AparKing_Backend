@@ -42,6 +42,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y binutils gdal-bin libgdal-dev libproj-dev libpq-dev build-essential git
+          find / -name 'libgdal.*'
+          find / -name 'libgeos_c.*'
 
       - name: Install Dependencies
         run: |
