@@ -13,12 +13,10 @@ from django.shortcuts import render
 from django.db.models import Q
 
 from apps.parking.models import Parking, City
-from apps.parking.enums import ParkingType, ParkingSize, NoticationsSocket
-from apps.parking.forms import ParkingForm
+from apps.parking.enums import ParkingType, NoticationsSocket
 from apps.parking.serializers import ParkingSerializer
 from apps.parking.filters import ParkingFilter
 from apps.parking.coordenates import Coordenates
-from apps.parking.validators import ParkingValidator
 
 from django.contrib.auth.decorators import login_required
 
@@ -33,7 +31,6 @@ def manage_send_parking_created(type: str, message: dict, coordenates: Point):
                 group, {"type": type, "message": message}
             )
 
-# Create your views here.
 def index(request):
     return render(request, "parking/index.html")
 
@@ -68,6 +65,8 @@ def get_parking_near(request: HttpRequest):
     near = filter_parking.get_queryset()
     coordenates = Coordenates.from_request(request)
     city_near = City.objects.annotate(distance=Distance('location', coordenates.get_point())).order_by('distance').first()
+    if not city_near:
+        return Response({'error': 'No city found'}, status=status.HTTP_404_NOT_FOUND)
     serializer = ParkingSerializer(near, many=True).data
     group: str = f"{city_near.location.y}_{city_near.location.x}".replace('.', 'p').replace('-', 'm') if city_near else "withoutData"
     res = {'group': group, 'parkingData': serializer}
