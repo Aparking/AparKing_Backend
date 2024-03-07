@@ -9,7 +9,8 @@ on:
       - "**"
 
 jobs:
-  build:
+  tests:
+    name: Tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -23,7 +24,7 @@ jobs:
           POSTGRES_PASSWORD: aparking
           POSTGRES_DB: aparking_db
         ports:
-          - 5432:5432
+          - 5433:5433
         options: >-
           --health-cmd pg_isready
           --health-interval 10s

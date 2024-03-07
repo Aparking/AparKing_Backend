@@ -9,9 +9,9 @@ services:
     image: postgis/postgis:14-3.4
     restart: always
     expose:
-      - "5432"
+      - "5433"
     ports:
-      - "5432:5432"
+      - "5433:5433"
     volumes:
       - postgresql-data:/var/lib/postgresql/data
     environment:
