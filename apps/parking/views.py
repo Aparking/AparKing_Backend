@@ -38,7 +38,7 @@ def room(request, room_name):
     return render(request, "parking/room.html", {"room_name": room_name})
 
 @api_view(['POST'])
-#@login_required
+@login_required
 def get_parking_near(request: HttpRequest):
     """
     Obtiene los aparcamientos cercanos a las coordenadas proporcionadas en la solicitud.
@@ -73,7 +73,7 @@ def get_parking_near(request: HttpRequest):
     return Response(res, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
-#@login_required
+@login_required
 def create_parking(request: HttpRequest):
     """
     Crea un nuevo aparcamiento y lo notifica a los usuarios cercanos.

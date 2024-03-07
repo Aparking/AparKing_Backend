@@ -7,6 +7,7 @@ ENV PYTHONUNBUFFERED 1
 
 # gdal para GeoDjango y libpq-dev para psycopg2
 RUN apt-get update && apt-get install -y \
+    netcat-traditional \
     binutils \
     gdal-bin \
     libgdal-dev \
