@@ -16,3 +16,6 @@ tqdm
 django-countries
 django-phonenumbers
 Pillow
+
+
+# Cualquier requisito que se añada debe ser agregado también en el archivo actionsRequirements.txt
