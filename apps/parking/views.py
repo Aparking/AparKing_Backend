@@ -38,7 +38,7 @@ def room(request, room_name):
     return render(request, "parking/room.html", {"room_name": room_name})
 
 @api_view(['POST'])
-@login_required
+#@login_required
 def get_parking_near(request: HttpRequest):
     """
     Obtiene los aparcamientos cercanos a las coordenadas proporcionadas en la solicitud.
@@ -60,18 +60,20 @@ def get_parking_near(request: HttpRequest):
     ```
     """
     filter_parking = ParkingFilter.from_request(request)
+    if not filter_parking:
+        return JsonResponse({'error': 'Invalid request'}, status=status.HTTP_400_BAD_REQUEST)
     near = filter_parking.get_queryset()
     coordenates = Coordenates.from_request(request)
     city_near = City.objects.annotate(distance=Distance('location', coordenates.get_point())).order_by('distance').first()
     if not city_near:
         return Response({'error': 'No city found'}, status=status.HTTP_404_NOT_FOUND)
     serializer = ParkingSerializer(near, many=True).data
-    group: str = f"{city_near.location.y}_{city_near.location.x}"
-    serializer.append({'group': group})
-    return Response(serializer, status=status.HTTP_200_OK)
+    group: str = f"{city_near.location.y}_{city_near.location.x}".replace('.', 'p').replace('-', 'm') if city_near else "withoutData"
+    res = {'group': group, 'parkingData': serializer}
+    return Response(res, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
-@login_required
+#@login_required
 def create_parking(request: HttpRequest):
     """
     Crea un nuevo aparcamiento y lo notifica a los usuarios cercanos.

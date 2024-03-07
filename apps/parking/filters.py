@@ -14,12 +14,13 @@ class ParkingFilter:
 
     @staticmethod
     def from_request(request: HttpRequest):
-        location = Coordenates.from_request(request).get_point()
+        location = Coordenates.from_request(request)
         if location:
+            location_point = location.get_point()
             size = ParkingSize[request.POST.get('parking_size').upper()] if request.POST.get('parking_size') else None
             parking_type = ParkingType[request.POST.get('parking_type').upper()] if request.POST.get('parking_type') else None
             quantity = int(request.POST.get('quantity')) if request.POST.get('quantity') else None
-            return ParkingFilter(location, size, parking_type, quantity)
+            return ParkingFilter(location_point, size, parking_type, quantity)
         return None
     
     def get_queryset(self):

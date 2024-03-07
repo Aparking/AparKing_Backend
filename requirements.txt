@@ -13,3 +13,6 @@ geoalchemy2
 pandas
 djangorestframework-gis
 tqdm
+django-countries
+django-phonenumbers
+Pillow
