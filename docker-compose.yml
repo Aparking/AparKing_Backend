@@ -25,7 +25,15 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    command: python manage.py runserver 0.0.0.0:3000
+    command: >
+      sh -c "
+        while ! nc -z database 5432; do
+          echo 'Waiting for PostgreSQL database to become available...'
+          sleep 5;
+        done;
+        echo 'Migrations complete. Starting backend...';
+        python manage.py runserver 0.0.0.0:3000
+      "
     environment:
       DJANGO_SECRET_KEY: django-insecure-!eb&x8z=%ac03t5%cs-0+9kk&r%rh%3u#yjsxzt*558c971@&b #Cambiar por una clave segura
       DJANGO_DEBUG: 'True'
@@ -44,7 +52,15 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    command: python manage.py makemigrations && python manage.py migrate --noinput && python importCSV.py
+    command: >
+      sh -c "
+        while ! nc -z database 5432; do
+          echo 'Waiting for PostgreSQL database to become available...'
+          sleep 5;
+        done;
+        echo 'PostgreSQL is available. Proceeding with migrations...';
+        python manage.py makemigrations && python manage.py migrate --noinput && python importCSV.py
+      "
     environment:
       DJANGO_SECRET_KEY: django-insecure-!eb&x8z=%ac03t5%cs-0+9kk&r%rh%3u#yjsxzt*558c971@&b #Cambiar por una clave segura
       DJANGO_DEBUG: 'True'
