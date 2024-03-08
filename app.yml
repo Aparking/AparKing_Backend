@@ -3,12 +3,38 @@ env: flex
 service: aparking-backend
 
 env_variables:
-  IMAGE_URL: gcr.io/aparking-g11-s1/aparking-backend
-  DJANGO_SETTINGS_MODULE: AparKing_Backend.settings
+  BACKEND_IMAGE_URL: gcr.io/aparking-g11-s1/aparking_backend-backend:latest
+  MIGRATIONS_IMAGE_URL: gcr.io/aparking-g11-s1/aparking_backend-migrations:latest
+  DJANGO_SETTINGS_OVERRIDE: AparKing_Backend.settings
 
 automatic_scaling:
   min_instances: 1
   max_instances: 2
 
-instance:
-  entrypoint: gunicorn AparKing_Backend.wsgi:application -b 0.0.0.0:$PORT
+handlers:
+- url: /.*
+  script: gunicorn AparKing_Backend.wsgi:application -b 0.0.0.0:$PORT
+
+instances:
+- name: backend
+  image: $BACKEND_IMAGE_URL
+  command: >
+    sh -c "
+      while ! nc -z database 5432; do
+        echo 'Waiting for PostgreSQL database to become available...'
+        sleep 5;
+      done;
+      echo 'Migrations complete. Starting backend...';
+      python manage.py runserver 0.0.0.0:3000
+    "
+
+- name: migrations
+  image: $MIGRATIONS_IMAGE_URL
+  command: sh -c "
+    while ! nc -z database 5432; do
+      echo 'Waiting for PostgreSQL database to become available...'
+      sleep 5;
+    done;
+    echo 'PostgreSQL is available. Proceeding with migrations...';
+    python manage.py makemigrations && python manage.py migrate --noinput && python importCSV.py
+    "
