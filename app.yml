@@ -3,8 +3,8 @@ env: flex
 service: aparking-backend
 
 env_variables:
-  BACKEND_IMAGE_URL: gcr.io/aparking-g11-s1/aparking_backend-backend:latest
-  MIGRATIONS_IMAGE_URL: gcr.io/aparking-g11-s1/aparking_backend-migrations:latest
+  BACKEND_IMAGE_URL: eu.gcr.io/aparking-g11-s1/aparking_backend-backend:latest
+  MIGRATIONS_IMAGE_URL: eu.gcr.io/aparking-g11-s1/aparking_backend-migrations:latest
   DJANGO_SETTINGS_OVERRIDE: AparKing_Backend.settings
 
 automatic_scaling:
