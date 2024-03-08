@@ -1,0 +1,14 @@
+runtime: custom
+env: flex
+service: aparking-backend
+
+env_variables:
+  IMAGE_URL: gcr.io/aparking-g11-s1/aparking-backend
+  DJANGO_SETTINGS_MODULE: AparKing_Backend.settings
+
+automatic_scaling:
+  min_instances: 1
+  max_instances: 2
+
+instance:
+  entrypoint: gunicorn AparKing_Backend.wsgi:application -b 0.0.0.0:$PORT
