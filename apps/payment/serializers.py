@@ -9,5 +9,5 @@ class CreditSerializer(serializers.ModelSerializer):
 class MemberShipSerializer(serializers.ModelSerializer):
     class Meta:
         model = MemberShip
-        fields = ['id', 'start_date', 'end_date', 'type', 'user','price']
+        fields = ['start_date', 'end_date', 'type', 'user','price']
 
