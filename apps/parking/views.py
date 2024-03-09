@@ -38,7 +38,7 @@ def room(request, room_name):
     return render(request, "parking/room.html", {"room_name": room_name})
 
 @api_view(['POST'])
-@login_required
+#@login_required
 def get_parking_near(request: HttpRequest):
     """
     Obtiene los aparcamientos cercanos a las coordenadas proporcionadas en la solicitud.
@@ -73,7 +73,7 @@ def get_parking_near(request: HttpRequest):
     return Response(res, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
-@login_required
+#@login_required
 def create_parking(request: HttpRequest):
     """
     Crea un nuevo aparcamiento y lo notifica a los usuarios cercanos.
@@ -106,17 +106,18 @@ def create_parking(request: HttpRequest):
     Nota: Las coordenadas se deben proporcionar en el orden [latitud, longitud].
     """
     data = request.data
-    data["notified_by"] = request.user.id
+   # data["notified_by"] = request.user.id
     serializer = ParkingSerializer(data=data)
     if serializer.is_valid():
         parking = serializer.save()
         manage_send_parking_created(NoticationsSocket.PARKING_NOTIFIED.value, ParkingSerializer(parking).data, parking.location)
         return JsonResponse({'id': parking.id}, status=status.HTTP_201_CREATED)
     else:
+        print('serializer:',serializer.errors)
         return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['PUT'])
-@login_required
+#@login_required
 def assign_parking(request: HttpRequest, parking_id: int):
     """
     Asigna un aparcamiento a un usuario.
@@ -144,7 +145,7 @@ def assign_parking(request: HttpRequest, parking_id: int):
         return JsonResponse({"message": "The parking doesn't exist"}, status=404)
 
 @api_view(['PUT'])
-@login_required
+#@login_required
 def transfer_parking(request: HttpRequest, parking_id: int):
     """
     Transfiere un aparcamiento asignado a otro usuario.
@@ -170,7 +171,7 @@ def transfer_parking(request: HttpRequest, parking_id: int):
         return JsonResponse({"message": "The parking doesn't exist"}, status=404)
     
 @api_view(['DELETE'])
-@login_required
+#@login_required
 def delete_parking(request: HttpRequest, parking_id: int):
     """
     Elimina un aparcamiento.
@@ -194,3 +195,24 @@ def delete_parking(request: HttpRequest, parking_id: int):
         return JsonResponse({"message": "Parking deleted"}, status=200)
     except Parking.DoesNotExist:
         return JsonResponse({"message": "The parking doesn't exist"}, status=404)
+    
+
+@api_view(['GET'])
+def create_parking_data(request: HttpRequest):
+    """
+    Crea un objeto que contiene los datos de la creación de aparcamientos.
+
+    Esta función se utiliza para crear un objeto que contiene los datos de los aparcamientos.
+
+    Parámetros:
+    - request (HttpRequest): La solicitud HTTP.
+
+    Retorna:
+    - JsonResponse: Un JsonResponse con los datos de los aparcamientos.
+
+    Ejemplo de uso:
+    Para obtener"""
+    return JsonResponse({
+        "parking_types": [i.name for i in ParkingSize],
+        "parking_sizes": [i.name for i in ParkingType],
+    })
