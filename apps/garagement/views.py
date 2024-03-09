@@ -42,7 +42,7 @@ class AvailableGaragesListAPIView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        available_availabilities = Availability.objects.filter(status=GarageStatus.AVAILABLE)
+        available_availabilities = Availability.objects.filter(status="AVAILABLE")
         return [availability.garage for availability in available_availabilities]
     
 class MyGaragesListAPIView(ListCreateAPIView):
@@ -58,6 +58,6 @@ class MyAvailableGaragesListAPIView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        available_availabilities = Availability.objects.filter(status=GarageStatus.AVAILABLE, owner=self.request.user)
+        available_availabilities = Availability.objects.filter(status="AVAILABLE", owner=self.request.user)
         return [availability.garage for availability in available_availabilities]
 
