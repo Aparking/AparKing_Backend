@@ -43,7 +43,7 @@ def auth_login(request) -> Response:
     if serializer.is_valid():
         user = serializer.validated_data
         login(request, user)
-        return Response({'status': 'success'})
+        return Response({'status': 'success', 'user': UserSerializer(user).data})
     else:
         return Response(serializer.errors, status=400)
 
