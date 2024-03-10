@@ -1,7 +1,6 @@
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from apps.authentication.models import CustomUser
-from django.test import TestCase, Client
 from rest_framework import status
 from apps.authentication.serializers import UserSerializer
 from datetime import date
