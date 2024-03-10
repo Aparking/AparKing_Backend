@@ -19,7 +19,7 @@ class Parking(models.Model):
     message = models.CharField(blank = True, null=True)
     location = models.PointField(srid=4326)
     size = EnumChoiceField(Size, default=Size.SUV, null=False, blank=False)
-    is_asignment = models.BooleanField(default = False, null=False, blank=False)
+    is_assignment = models.BooleanField(default = False, null=False, blank=False)
     is_transfer = models.BooleanField(default = False, null=False, blank=False)
     parking_type = EnumChoiceField(ParkingType, default=ParkingType.FREE, null=False, blank=False) 
 

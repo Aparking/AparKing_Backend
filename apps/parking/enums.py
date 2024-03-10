@@ -13,12 +13,11 @@ class Size(Enum):
     @classmethod
     def choices(cls):
         return tuple((i.name, i.value) for i in cls)
-from enum import Enum
-
+    
 class ParkingType(Enum):
-    ASSIGNMENT = "ASSIGNMENT"
-    FREE = "FREE"
-    PRIVATE = "PRIVATE"
+    ASSIGNMENT = "Cesión"
+    FREE = "Libre"
+    PRIVATE = "Privado"
     
 class NoticationsSocket(Enum):
     PARKING_DELETED = "notify.parking.deleted"

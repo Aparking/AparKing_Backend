@@ -13,23 +13,35 @@ from django.shortcuts import render
 from django.db.models import Q
 
 from apps.parking.models import Parking, City
-from apps.parking.enums import ParkingType, NoticationsSocket
+from apps.parking.enums import ParkingType, NoticationsSocket, Size
 from apps.parking.serializers import ParkingSerializer
 from apps.parking.filters import ParkingFilter
 from apps.parking.coordenates import Coordenates
 
 from django.contrib.auth.decorators import login_required
+import logging
 
-channel_layer = get_channel_layer()
+logger = logging.getLogger(__name__)
+
 
 
 def manage_send_parking_created(type: str, message: dict, coordenates: Point):
-    city_near = City.objects.annotate(distance=Distance('location', coordenates)).order_by('distance').first()
-    if city_near:
-        group: str = f"{city_near.location.y}_{city_near.location.x}"
+    city_near = City.objects.annotate(distance=Distance('location', coordenates)).order_by('distance').first() 
+    group: str = f"{city_near.location.y}_{city_near.location.x}".replace('.', 'p').replace('-', 'm') if city_near else "withoutData"
+    try:
+        channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
-                group, {"type": type, "message": message}
-            )
+        group,
+        {
+                "type": type,
+                "message": message
+            }
+        )
+
+       
+        
+    except Exception as e:
+        raise e
 
 def index(request):
     return render(request, "parking/index.html")
@@ -135,11 +147,11 @@ def assign_parking(request: HttpRequest, parking_id: int):
     Para asignar un aparcamiento, se debe enviar una solicitud PUT a '/assign/{parking_id}', donde '{parking_id}' es el ID del aparcamiento a asignar.
     """
     try:
-        parking = Parking.objects.get(pk=parking_id, is_asignment=False)
-        parking.is_asignment = True
-        parking.booked_by = request.user
+        parking = Parking.objects.get(pk=parking_id, is_assignment=False)
+        parking.is_assignment = True
+        #parking.booked_by = request.user
         parking.save()
-        manage_send_parking_created(NoticationsSocket.PARKING_BOOKED.value, parking.id, parking.location)
+        manage_send_parking_created(NoticationsSocket.PARKING_BOOKED.value, ParkingSerializer(parking).data, parking.location)
         return JsonResponse({"message": "Parking assigned"}, status=200)
     except Parking.DoesNotExist:
         return JsonResponse({"message": "The parking doesn't exist"}, status=404)
@@ -163,7 +175,7 @@ def transfer_parking(request: HttpRequest, parking_id: int):
     Para transferir un aparcamiento, se debe enviar una solicitud PUT a '/transfer/{parking_id}', donde '{parking_id}' es el ID del aparcamiento a transferir.
     """
     try:
-        parking = Parking.objects.get(pk=parking_id, is_asignment=True, parking_type=ParkingType.ASSIGNMENT, is_transfer=False, notified_by=request.user)
+        parking = Parking.objects.get(pk=parking_id, is_assignment=True, parking_type=ParkingType.ASSIGNMENT, is_transfer=False, notified_by=request.user)
         parking.is_transfer = True
         parking.save()
         return JsonResponse({"message": "Parking assigned"}, status=200)
@@ -189,8 +201,8 @@ def delete_parking(request: HttpRequest, parking_id: int):
     Para eliminar un aparcamiento, se debe enviar una solicitud DELETE a '/delete/{parking_id}', donde '{parking_id}' es el ID del aparcamiento a eliminar.
     """
     try:
-        parking = Parking.objects.get(pk=parking_id, is_asignment=False, notified_by=request.user)
-        manage_send_parking_created(NoticationsSocket.PARKING_DELETED.value, parking.id, parking.location)
+        parking = Parking.objects.get(pk=parking_id, is_assignment=False)
+        manage_send_parking_created(NoticationsSocket.PARKING_DELETED.value, ParkingSerializer(parking).data, parking.location)
         parking.delete()
         return JsonResponse({"message": "Parking deleted"}, status=200)
     except Parking.DoesNotExist:
@@ -212,7 +224,8 @@ def create_parking_data(request: HttpRequest):
 
     Ejemplo de uso:
     Para obtener"""
-    return JsonResponse({
-        "parking_types": [i.name for i in ParkingSize],
-        "parking_sizes": [i.name for i in ParkingType],
+    res = JsonResponse({
+        "parking_types": [(i.name, i.value) for i in ParkingType],
+        "parking_sizes": [(i.name, i.value )for i in Size],
     })
+    return res
