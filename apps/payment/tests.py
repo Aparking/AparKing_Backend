@@ -5,7 +5,6 @@ from django.utils import timezone
 from apps.authentication.models import CustomUser
 from apps.authentication.serializers import UserSerializer
 from apps.payment.enums import MemberType
-from rest_framework.test import APIClient
 from rest_framework import status
 import json
 from apps.payment.models import Credit, MemberShip

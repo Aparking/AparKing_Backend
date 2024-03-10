@@ -1,8 +1,6 @@
 from django.utils import timezone
-from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from apps.payment.enums import MemberType
 from dateutil.relativedelta import relativedelta
 from apps.payment.models import Credit, MemberShip
 
