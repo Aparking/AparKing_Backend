@@ -1,0 +1,29 @@
+FROM python:3.10-slim
+
+ENV APP_HOME /app
+WORKDIR $APP_HOME
+
+ENV PYTHONUNBUFFERED 1
+
+# gdal para GeoDjango y libpq-dev para psycopg2
+RUN apt-get update && apt-get install -y \
+    netcat-traditional \
+    binutils \
+    gdal-bin \
+    libgdal-dev \
+    libproj-dev \
+    libpq-dev \
+    build-essential \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Configura variables de entorno para GDAL
+ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
+ENV C_INCLUDE_PATH=/usr/include/gdal
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+WORKDIR $APP_HOME
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:3000"]
