@@ -6,3 +6,4 @@ django-countries
 django-phonenumbers
 django-phonenumber-field
 Pillow
+python-dateutil
