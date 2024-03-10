@@ -16,12 +16,11 @@ from rest_framework.decorators import api_view, permission_classes
 class GarageListCreateAPIView(ListCreateAPIView):
     queryset = Garage.objects.all()
     serializer_class = GarageSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     
     #TODO - Custom garage create method to include images
-    def post(self, request):
-        pass
-    
+    # def post(self, request):
+    #     pass  
     
 class GarageRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Garage.objects.all()
@@ -29,7 +28,7 @@ class GarageRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     # permission_classes = [IsAuthenticated, IsOwnerOrReadOnly, IsAdminUser]
     
 @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def get_images_by_garage(request, pk):
     try:
         images = Image.objects.filter(garage=pk)
@@ -44,12 +43,12 @@ def get_images_by_garage(request, pk):
 class ImageListCreateAPIView(ListCreateAPIView):
     queryset = Image.objects.all()
     serializer_class = ImageSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     
 class ImageRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Image.objects.all()
     serializer_class = ImageSerializer
-    # permission_classes = [IsAuthenticated, IsOwnerOrReadOnly, IsAdminUser]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly, IsAdminUser]
     
 class AvailabilityListCreateAPIView(ListCreateAPIView):
     queryset = Availability.objects.all()
