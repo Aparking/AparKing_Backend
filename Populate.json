@@ -1,0 +1,641 @@
+[
+    {
+        "model": "authentication.customUser",
+        "pk":1,
+        "fields":{
+            "username": "sosimomari",
+            "email": "domitilaroca@yahoo.com",
+            "dni":"47859612T",
+            "password": "K_5%CIfh39",
+            "first_name": "Dani",
+            "last_name": "Correa",
+            "gender": "M",
+            "is_active": false,
+            "is_staff": false,
+            "date_joined": "2023-01-1T16:46:52.327Z",
+            "birth_date": "2024-02-27",
+            "phone": "+1612348729"
+
+        }
+    },
+    {
+        "model": "authentication.customUser",
+        "pk":2,
+        "fields":{
+            "username": "maria-jesusrobles",
+            "email": "jose-miguelsantana@yahoo.com",
+            "dni":"15243678P",
+            "password": "Y&L9oLM4(2",
+            "first_name": "Teobaldo",
+            "last_name": "Soto",
+            "gender": "F",
+            "is_active": true,
+            "is_staff": false,
+            "date_joined": "2023-10-19T16:46:52.327Z",
+            "birth_date": "2023-03-29",
+            "phone": "+1678954120"
+        }
+    },
+    {
+        "model": "authentication.customUser",
+        "pk":3,
+        "fields":{
+            "username": "candelariaramirez",
+            "email": "carrillojulian@hotmail.com",
+            "dni":"74859632G",
+            "password": "Q0H*Imht!#",
+            "first_name": "Benita",
+            "last_name": "Ibañez",
+            "gender": "O",
+            "is_active": false,
+            "is_staff": true,
+            "date_joined": "2023-01-24T16:46:52.327Z",
+            "birth_date": "2022-04-29",
+            "phone": "+16044011234"
+        }
+    },
+    {
+        "model": "authentication.customUser",
+        "pk":4,
+        "fields":{
+            "username": "lorenzo82",
+            "email": "reigfabiana@quintanilla.es",
+            "dni":"52614398M",
+            "password": "9dGV_UEe^N",
+            "first_name": "Vicente",
+            "last_name": "Marín",
+            "gender": "M",
+            "is_active": true,
+            "is_staff": false,
+            "date_joined": "2022-04-17T16:46:52.327Z",
+            "birth_date": "2023-03-27",
+            "phone": "+1608796413"
+        }
+    },
+
+    {
+        "model": "garagement.address",
+        "pk":1,
+        "fields":{
+            "street_number": "63",
+            "unit_number": "8",
+            "address_line": "Plaza de Raquel Zurita 2 Puerta 6",
+            "city": "Sevilla",
+            "postal_code": "41008",
+            "region": "Andalucía",
+            "country": "ES"
+        }
+    },
+    {
+        "model": "garagement.address",
+        "pk":2,
+        "fields":{ 
+            "street_number": "2",
+            "unit_number": "12",
+            "address_line": "Cañada de Lucía González 59",
+            "city": "Sevilla",
+            "postal_code": "41002",
+            "region": "Andalucía",
+            "country": "ES"
+        }
+    },
+    
+    {
+        "model": "garagement.address",
+        "pk":3,
+        "fields":{ 
+            "street_number": "67",
+            "unit_number": "31",
+            "address_line": "Alameda Tadeo Rozas 37 Puerta 5 ",
+            "city": "Sevilla",
+            "postal_code": "41007",
+            "region": "Andalucía",
+            "country": "ES"
+        }
+    },
+    {
+        "model": "garagement.address",
+        "pk":4,
+        "fields":{ 
+            "street_number": "67",
+            "unit_number": "33",
+            "address_line": "Cuesta de Roque Gimeno 47 Puerta 0 ",
+            "city": "Sevilla",
+            "postal_code": "41005",
+            "region": "Andalucía",
+            "country": "ES"
+        }
+    }, 
+    {
+        "model": "authentication.vehicle",
+        "pk":1,
+        "fields":{ 
+            "carModel": "xdVOR-312",
+            "color": "Blanco floral",
+            "height": 188,
+            "width": 222,
+            "length": 418
+        }
+    }, 
+    {
+        "model": "authentication.vehicle",
+        "pk":2,
+        "fields":{ 
+            "carModel": "NfTGW-394",
+            "color": "Lavanda",
+            "height": 157,
+            "width": 227,
+            "length": 454
+        }
+    },
+    {
+        "model": "authentication.vehicle",
+        "pk":3,
+        "fields":{ 
+            "carModel": "dOSHQ-567",
+            "color": "Rosa profundo",
+            "height": 168,
+            "width": 219,
+            "length": 468
+        }
+    },
+    {
+        "model": "authentication.vehicle",
+        "pk":4,
+        "fields":{ 
+            "carModel": "qTEnv-977",
+            "color": "Gris oscuro",
+            "height": 141,
+            "width": 163,
+            "length": 393
+        }
+    },
+    {
+        "model": "parking.parking",
+        "pk": 1,
+        "fields": {
+            "notified_by": null,
+            "booked_by": null,
+            "message": null,
+            "location": "POINT(-5.9844589 37.3890924)",
+            "size": "MEDIUM",
+            "is_asignment": false,
+            "is_transfer": true,
+            "parking_type": "FREE",
+            "created_at": "2022-04-09T00:00:00Z",
+            "updated_at": "2022-04-10T00:00:00Z"
+        }
+    },
+    {
+        "model": "parking.parking",
+        "pk": 2,
+        "fields": {
+            "notified_by": null,
+            "booked_by": null,
+            "message": null,
+            "location": "POINT(-5.970110 37.392529)",
+            "size": "MEDIUM",
+            "is_asignment": true,
+            "is_transfer": true,
+            "parking_type": "FREE",
+            "created_at": "2022-11-26T00:00:00Z",
+            "updated_at": "2022-11-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "parking.parking",
+        "pk": 3,
+        "fields": {
+            "notified_by": null,
+            "booked_by": null,
+            "message": null,
+            "location": "POINT(-6.0018345 37.4032200)",
+            "size": "MEDIUM",
+            "is_asignment": false,
+            "is_transfer": true,
+            "parking_type": "FREE",
+            "created_at": "2023-08-12T00:00:00Z",
+            "updated_at": "2023-08-13T00:00:00Z"
+        }
+    },
+    {
+        "model": "parking.parking",
+        "pk": 4,
+        "fields": {
+            "notified_by": null,
+            "booked_by": null,
+            "message": null,
+            "location": "POINT(-5.962654 37.377222)",
+            "size": "MEDIUM",
+            "is_asignment": true,
+            "is_transfer": true,
+            "parking_type": "FREE",
+            "created_at": "2022-05-13T00:00:00Z",
+            "updated_at": "2022-05-14T00:00:00Z"
+        }
+    },
+    {
+        "model": "parking.city",
+        "pk": 1,
+        "fields": {
+            "name": "Sevilla",
+            "name_ascii": "Seville",
+            "alternative_name": "Hisbalis",
+            "location": "POINT(-5.9844589 37.3890924)",
+            "country_code": "ES"
+        }
+    },
+    {
+        "model": "parking.city",
+        "pk": 2,
+        "fields": {
+            "name": "Triana",
+            "name_ascii": "Triana",
+            "alternative_name": "Triana de Sevilla",
+            "location": "POINT(-6.0060401 37.3830435)",
+            "country_code": "ES"
+        }
+    },
+    {
+        "model": "parking.city",
+        "pk": 3,
+        "fields": {
+            "name": "Nervión",
+            "name_ascii": "Nervion",
+            "alternative_name": "Distrito de Nervión",
+            "location": "POINT(-5.9704413 37.3826198)",
+            "country_code": "ES"
+        }
+    },
+    {
+        "model": "parking.city",
+        "pk": 4,
+        "fields": {
+            "name": "Los Remedios",
+            "name_ascii": "Los Remedios",
+            "alternative_name": "Barrio de Los Remedios",
+            "location": "POINT(-6.0006573 37.3769914)",
+            "country_code": "ES"
+        }
+    },
+    {
+        "model": "payment.credit",
+        "pk":1,
+        "fields":{ 
+            "value": 7226,
+            "creation_date": "2024-03-02",
+            "user":1
+        }
+    },
+    {
+        "model": "payment.credit",
+        "pk":2,
+        "fields":{ 
+            "value": 1883,
+            "creation_date": "2022-12-06",
+            "user":2
+        }
+    },
+    {
+        "model": "payment.credit",
+        "pk":3,
+        "fields":{ 
+            "value": 6422,
+            "creation_date": "2022-11-11",
+            "user":3
+        }
+    },
+    {
+        "model": "payment.credit",
+        "pk":4,
+        "fields":{ 
+            "value": 1323,
+            "creation_date": "2023-02-08",
+            "user":4
+        }
+    },
+    {
+        "model": "garagement.garage",
+        "pk":1,
+        "fields":{ 
+            "name": "Machado PLC",
+            "description": "Quality-focused zero tolerance customer loyalty",
+            "price": 41438,
+            "creation_date": "2023-09-11",
+            "modification_date": "2022-10-24",
+            "is_active": false,
+            "height": 231,
+            "width": 230,
+            "length": 560,
+            "owner":1,
+            "address":1
+        }
+    },
+    {
+        "model": "garagement.garage",
+        "pk":2,
+        "fields":{ 
+            "name": "Vilaplana-Sevilla",
+            "description": "Public-key scalable firmware",
+            "price": 8735,
+            "creation_date": "2022-10-05",
+            "modification_date": "2022-09-04",
+            "is_active": true,
+            "height": 298,
+            "width": 229,
+            "length": 580,
+            "owner":2,
+            "address":2
+        }
+    },
+    {
+        "model": "garagement.garage",
+        "pk":3,
+        "fields":{ 
+            "name": "Cabeza and Sons",
+            "description": "Upgradable intangible encryption",
+            "price": 82750,
+            "creation_date": "2022-08-24",
+            "modification_date": "2022-10-15",
+            "is_active": false,
+            "height": 246,
+            "width": 214,
+            "length": 450,
+            "owner":3,
+            "address":3
+        }
+    },
+    {
+        "model": "garagement.garage",
+        "pk":4,
+        "fields":{ 
+            "name": "Agudo, Villalba and Romero",
+            "description": "Business-focused bottom-line info-mediaries",
+            "price": 55499,
+            "creation_date": "2023-07-22",
+            "modification_date": "2022-10-05",
+            "is_active": true,
+            "height": 296,
+            "width": 209,
+            "length": 567,
+            "owner":4,
+            "address":4
+        }
+    },
+    {
+        "model": "booking.book",
+        "pk":1,
+        "fields":{ 
+            "payment_method": "Transferencia",
+            "status": "Checked Out",
+            "user":1,
+            "availability":1
+        }
+    },
+    {
+        "model": "booking.book",
+        "pk":2,
+        "fields":{ 
+            "payment_method": "Tarjeta",
+            "status": "Available",
+            "user":2,
+            "availability":2
+        }
+    },
+    {
+        "model": "booking.book",
+        "pk":3,
+        "fields":{ 
+            "payment_method": "Transferencia",
+            "status": "Checked Out",
+            "user":3,
+            "availability":3
+        }
+    },
+    {
+        "model": "booking.book",
+        "pk":4,
+        "fields":{ 
+            "payment_method": "Transferencia",
+            "status": "Checked Out",
+            "user":4,
+            "availability":4
+        }
+    },
+    {
+        "model": "booking.claim",
+        "pk":1,
+        "fields":{ 
+            "title": "Reparaciones en el garaje de la Alameda",
+            "description": "Usuarios reportan daños en el pavimento del garaje de la Alameda. Solicitan reparaciones para mejorar la seguridad y accesibilidad.",
+            "publication_date": "2024-02-16",
+            "status": "Cerrado",
+            "user":1,
+            "garage":1
+        }
+    },
+    {
+        "model": "booking.claim",
+        "pk":2,
+        "fields":{ 
+            "title": "Ampliación del garaje en Nervión",
+            "description": "Propuesta para aumentar la capacidad del garaje en Nervión debido a la alta demanda de estacionamiento en la zona.",
+            "publication_date": "2022-09-25",
+            "status": "Abierto",
+            "user":2,
+            "garage":2
+        }
+    },
+    {
+        "model": "booking.claim",
+        "pk":3,
+        "fields":{ 
+            "title": "Mejoras en el sistema de reservas online",
+            "description": "Usuarios solicitan una interfaz más intuitiva y rápida para el sistema de reservas online de plazas de garaje.",
+            "publication_date": "2022-07-03",
+            "status": "Cerrado",
+            "user":3,
+            "garage":3
+        }
+    },
+    {
+        "model": "booking.claim",
+        "pk":4,
+        "fields":{ 
+            "title": "Ofertas especiales para residentes de Triana",
+            "description": "Iniciativa para ofrecer descuentos y promociones en el alquiler de plazas de garaje a los residentes de Triana.",
+            "publication_date": "2022-06-21",
+            "status": "Abierto",
+            "user":4,
+            "garage":4
+        }
+    },
+    {
+        "model": "booking.comment",
+        "pk":1,
+        "fields":{ 
+            "title": "Facilidad de uso del sistema de reservas",
+            "description": "El sistema de reservas es fácil de usar y muy conveniente. Hacer la reserva desde el móvil y pagar online ahorra mucho tiempo.",
+            "publication_date": "2022-03-25",
+            "rating": 5,
+            "user":1,
+            "garage":1
+        }
+    },
+    {
+        "model": "booking.comment",
+        "pk":2,
+        "fields":{ 
+            "title": "Seguridad en el garaje del centro",
+            "description": "Me siento seguro dejando mi coche en el garaje del centro. El sistema de vigilancia y el personal son excelentes.",
+            "publication_date": "2023-03-07",
+            "rating": 4,
+            "user":2,
+            "garage":2
+        }
+    },
+    {
+        "model": "booking.comment",
+        "pk":3,
+        "fields":{ 
+            "title": "Precios competitivos en Los Remedios",
+            "description": "Los precios de alquiler de plazas de garaje en Los Remedios son muy competitivos. Buen valor por el servicio recibido.",
+            "publication_date": "2023-08-18",
+            "rating": 4,
+            "user":3,
+            "garage":3
+        }
+    },
+    {
+        "model": "booking.comment",
+        "pk":4,
+        "fields":{ 
+            "title": "Accesibilidad del garaje de Plaza de España",
+            "description": "El acceso al garaje cerca de la Plaza de España es muy cómodo. Siempre encuentro plaza cuando la necesito, y el proceso es muy ágil.",
+            "publication_date": "2023-12-02",
+            "rating": 3,
+            "user":4,
+            "garage":4
+        }
+    },
+    {
+        "model": "garagement.image",
+        "pk":1,
+        "fields":{ 
+            "image": "/sevilla/garaje-alameda.jpg",
+            "alt": "Vista interior del garaje en la Alameda, amplio y seguro.",
+            "publication_date": "2023-11-06",
+            "garage":1
+        }
+    },
+    {
+        "model": "garagement.image",
+        "pk":2,
+        "fields":{ 
+            "image": "/sevilla/nervion-garaje.jpg",
+            "alt": "Entrada al garaje de Nervión, con tecnología de acceso moderna.",
+            "publication_date": "2023-09-19",
+            "garage":2
+        }
+    },
+    {
+        "model": "garagement.image",
+        "pk":3,
+        "fields":{ 
+            "image": "/sevilla/triana-garaje.jpg",
+            "alt": "Plazas disponibles en el garaje de Triana, ideal para residentes.",
+            "publication_date": "2022-07-21",
+            "garage":3
+        }
+    },
+    {
+        "model": "garagement.image",
+        "pk":4,
+        "fields":{ 
+            "image": "/sevilla/plaza-espana-garaje.jpg",
+            "alt": "Espacio de estacionamiento seguro cerca de la Plaza de España.",
+            "publication_date": "2023-11-16",
+            "garage":4
+        }
+    },
+    {
+        "model": "garagement.availability",
+        "pk":1,
+        "fields":{ 
+            "start_date": "2023-05-04T16:00:00.007Z",
+            "end_date": "2023-06-20T16:00:00.007Z",
+            "status": "No disponible",
+            "garage":1
+        }
+    },
+    {
+        "model": "garagement.availability",
+        "pk":2,
+        "fields":{ 
+            "start_date": "2023-10-15T16:00:00.007Z",
+            "end_date": "2023-11-15T16:00:00.007Z",
+            "status": "No disponible",
+            "garage":2
+        }
+    },
+    {
+        "model": "garagement.availability",
+        "pk":3,
+        "fields":{ 
+            "start_date": "2022-11-04T16:00:00.007Z",
+            "end_date": "2022-12-15T16:00:00.007Z",
+            "status": "Disponible",
+            "garage":3
+        }
+    },
+    {
+        "model": "garagement.availability",
+        "pk":4,
+        "fields":{ 
+            "start_date": "2023-04-01T16:00:00.007Z",
+            "end_date": "2023-04-30T16:00:00.007Z",
+            "status": "Reservado",
+            "garage":4
+        }
+    },
+    {
+        "model": "payment.memberShip",
+        "pk": 1,
+        "fields": {
+            "start_date": "2024-01-01T00:00:00Z",
+            "end_date": "2024-12-31T23:59:59Z",
+            "type": "PREMIUM",
+            "user": 1
+        }
+    },
+    {
+        "model": "payment.memberShip",
+        "pk": 2,
+        "fields": {
+            "start_date": "2024-01-01T00:00:00Z",
+            "end_date": "2024-06-30T23:59:59Z",
+            "type": "STANDARD",
+            "user": 2
+        }
+    },
+    {
+        "model": "payment.memberShip",
+        "pk": 3,
+        "fields": {
+            "start_date": "2024-01-01T00:00:00Z",
+            "end_date": "2024-03-31T23:59:59Z",
+            "type": "BASIC",
+            "user": 3
+        }
+    },
+    {
+        "model": "payment.memberShip",
+        "pk": 4,
+        "fields": {
+            "start_date": "2024-01-01T00:00:00Z",
+            "end_date": "2024-12-31T23:59:59Z",
+            "type": "PREMIUM",
+            "user": 4
+        }
+    }
+]
