@@ -14,7 +14,9 @@ def pricingPlan(request) -> Response:
     user_data = data.get('user', {})
     plan_type = data.get('type', None)
     price = data.get('price', 0.00)
+    
     # Crear membresía para el usuario
+    print('**********************************************************************+',user_data.get('id'))
     MemberShip.objects.create(
         user_id=user_data.get('id'),  # Asignar el ID del usuario
         type=plan_type,
