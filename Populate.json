@@ -176,7 +176,6 @@
         "fields": {
             "notified_by": null,
             "booked_by": null,
-            "message": null,
             "location": "POINT(-5.9844589 37.3890924)",
             "size": "MEDIUM",
             "is_asignment": false,
@@ -192,7 +191,6 @@
         "fields": {
             "notified_by": null,
             "booked_by": null,
-            "message": null,
             "location": "POINT(-5.970110 37.392529)",
             "size": "MEDIUM",
             "is_asignment": true,
@@ -208,7 +206,6 @@
         "fields": {
             "notified_by": null,
             "booked_by": null,
-            "message": null,
             "location": "POINT(-6.0018345 37.4032200)",
             "size": "MEDIUM",
             "is_asignment": false,
@@ -224,7 +221,6 @@
         "fields": {
             "notified_by": null,
             "booked_by": null,
-            "message": null,
             "location": "POINT(-5.962654 37.377222)",
             "size": "MEDIUM",
             "is_asignment": true,
@@ -232,50 +228,6 @@
             "parking_type": "FREE",
             "created_at": "2022-05-13T00:00:00Z",
             "updated_at": "2022-05-14T00:00:00Z"
-        }
-    },
-    {
-        "model": "parking.city",
-        "pk": 1,
-        "fields": {
-            "name": "Sevilla",
-            "name_ascii": "Seville",
-            "alternative_name": "Hisbalis",
-            "location": "POINT(-5.9844589 37.3890924)",
-            "country_code": "ES"
-        }
-    },
-    {
-        "model": "parking.city",
-        "pk": 2,
-        "fields": {
-            "name": "Triana",
-            "name_ascii": "Triana",
-            "alternative_name": "Triana de Sevilla",
-            "location": "POINT(-6.0060401 37.3830435)",
-            "country_code": "ES"
-        }
-    },
-    {
-        "model": "parking.city",
-        "pk": 3,
-        "fields": {
-            "name": "Nervión",
-            "name_ascii": "Nervion",
-            "alternative_name": "Distrito de Nervión",
-            "location": "POINT(-5.9704413 37.3826198)",
-            "country_code": "ES"
-        }
-    },
-    {
-        "model": "parking.city",
-        "pk": 4,
-        "fields": {
-            "name": "Los Remedios",
-            "name_ascii": "Los Remedios",
-            "alternative_name": "Barrio de Los Remedios",
-            "location": "POINT(-6.0006573 37.3769914)",
-            "country_code": "ES"
         }
     },
     {
