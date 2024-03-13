@@ -5,6 +5,7 @@ from rest_framework import status
 from django.contrib.auth.decorators import user_passes_test
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.parsers import JSONParser
 from django.contrib.auth import login, logout
 from .serializers import LoginSerializer, RegisterSerializer,UserSerializer
 
@@ -31,12 +32,44 @@ def users_list(request):
         users_serializer = UserSerializer(users, many=True)
         # Devuelve los datos de los usuarios serializados en forma de respuesta JSON
         return JsonResponse(users_serializer.data, safe=False)
+
+    elif request.method == 'POST':
+        user_data = JSONParser().parse(request)
+        user_serializer = UserSerializer(data=user_data)
+        if user_serializer.is_valid():
+            user_serializer.save()
+            return JsonResponse(user_serializer.data, status=status.HTTP_201_CREATED) 
+        return JsonResponse(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     elif request.method == 'DELETE':
         # Elimina todos los usuarios de la base de datos
         count = CustomUser.objects.all().delete()
         # Devuelve un mensaje indicando cuántos usuarios se eliminaron con éxito
         return JsonResponse({'message': '{} Users were deleted successfully!'.format(count[0])}, status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def users_detail(request, pk):
+    try: 
+        user = CustomUser.objects.get(pk=pk) 
+    except CustomUser.DoesNotExist: 
+        return JsonResponse({'message': 'The user does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET': 
+        user_serializer = UserSerializer(user) 
+        return JsonResponse(user_serializer.data)
+
+    elif request.method == 'PUT': 
+        user_data = JSONParser().parse(request) 
+        user_serializer = UserSerializer(user, data=user_data) 
+        if user_serializer.is_valid(): 
+            user_serializer.save() 
+            return JsonResponse(user_serializer.data) 
+        return JsonResponse(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    elif request.method == 'DELETE': 
+        user.delete() 
+        return JsonResponse({'message': 'User was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+
 @api_view(['POST'])
 def auth_login(request) -> Response:
     serializer = LoginSerializer(data=request.data)
