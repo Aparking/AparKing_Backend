@@ -2,7 +2,7 @@ from django.utils import timezone
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from apps.payment.enums import MemberType
+from rest_framework import status
 from dateutil.relativedelta import relativedelta
 from apps.payment.models import Credit, MemberShip
 
@@ -11,12 +11,14 @@ from apps.payment.models import Credit, MemberShip
 def pricingPlan(request) -> Response:
     data = request.data
     # Obtener datos del usuario y el plan elegido
-    user_data = data.get('user', {})
+    user_data = data.get('user', None)
     plan_type = data.get('type', None)
-    price = data.get('price', 0.00)
+    price = data.get('price', None)
+
+    if user_data==None or data.get('type', None) is None or data.get('price', None) is None:
+        return Response({'status': 'error', 'message': 'Invalid user data'},status=status.HTTP_400_BAD_REQUEST)
     
     # Crear membresía para el usuario
-    print('**********************************************************************+',user_data.get('id'))
     MemberShip.objects.create(
         user_id=user_data.get('id'),  # Asignar el ID del usuario
         type=plan_type,
@@ -29,8 +31,10 @@ def pricingPlan(request) -> Response:
         credits = 100  # Asignar 100 créditos
     elif plan_type == 'King':  # Si el plan es King
         credits = 200  # Asignar 200 créditos
-    else:  # Si el plan es gratuito u otro tipo no especificado
+    elif plan_type == 'Gratuita':  # Si el plan es gratuito u otro tipo no especificado
         credits = 0  # No asignar créditos
+    else:
+        return Response({'status': 'error', 'message': 'Invalid plan type'},status=status.HTTP_400_BAD_REQUEST)
     # Crear créditos para el usuario
     Credit.objects.create(
         user_id=user_data.get('id'),  # Asignar el ID del usuario

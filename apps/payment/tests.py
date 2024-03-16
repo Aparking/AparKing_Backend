@@ -95,3 +95,34 @@ class PricingPlanTestCase(TestCase):
         credits = Credit.objects.filter(user_id=user.id).first()
         self.assertIsNotNone(credits)
         self.assertEqual(credits.value, 100)  # Según el tipo de plan 'Noble'
+
+    def test_pricingPlan_invalid_user(self):
+        # Datos para la solicitud de pricingPlan con un usuario inválido
+        user_data = {}
+        data = {
+            'type': 'Noble',
+            'price': '3.99'
+        }
+        data_json = json.dumps(data)
+
+        # Realizamos una solicitud POST a la vista 'pricingPlan'
+        response = self.client.post('/pricing-plan/', data_json, content_type='application/json')
+        # Verificamos que la solicitud haya fallado (código de estado 400)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_pricingPlan_invalid_type(self):
+        # Datos para la solicitud de pricingPlan con un tipo de plan inválido
+        user = CustomUser.objects.create_user(username='test', email='test@gmail.com', password='pbkdf2_sha256$720000$inITLGUIGyLddqe2uVcLzu$WRymtYgVsN8bq5q14fxJthCk1Kf3txgPubSjp8Q9n9U=', dni='31016814K', phone='+34664030994', birth_date='2024-03-01', is_staff=False)
+        user_serializer = UserSerializer(user)
+        user_data = user_serializer.data
+        data = {
+            'user': user_data,
+            'type': 1111111111111,  # Este tipo de plan no existe
+            'price': '3.99'
+        }
+        data_json = json.dumps(data)
+
+        # Realizamos una solicitud POST a la vista 'pricingPlan'
+        response = self.client.post('/pricing-plan/', data_json, content_type='application/json')
+        # Verificamos que la solicitud haya fallado (código de estado 400)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
