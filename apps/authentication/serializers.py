@@ -2,6 +2,13 @@ from apps.authentication.models import CustomUser
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'email', 'dni', 'birth_date', 'gender', 'photo', 'phone','password','is_staff']
+
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
