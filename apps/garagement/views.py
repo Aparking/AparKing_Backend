@@ -43,7 +43,7 @@ class GarageListCreateAPIView(ListCreateAPIView):
             )
 
             # Creating garage object
-            ivan= CustomUser.objects.get(username="ivan")
+          
             garage = Garage.objects.create(
                 
                 name = garage_data["garage"]["name"],
@@ -55,10 +55,8 @@ class GarageListCreateAPIView(ListCreateAPIView):
                 creation_date = garage_data["garage"]["creation_date"],
                 modification_date = garage_data["garage"]["modification_date"],
                 is_active = garage_data["garage"]["is_active"],
-                owner = ivan,
+                owner = request.user,
                 address = address,
-
-
             )
 
             # Creating image object associated with the garage
