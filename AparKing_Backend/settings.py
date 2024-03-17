@@ -49,15 +49,22 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'AparKing_Backend.urls'
+
+CORS_ALLOW_ORIGINS = [
+        "http://localhost:8100", 
+        "http://127.0.0.1:8100",
+        "http://127.0.0.1:8000",
+
+]
 CORS_ALLOW_ALL_ORIGINS = True
 
 TEMPLATES = [
