@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ViewSet
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
@@ -19,7 +20,24 @@ class GarageViewSet(ViewSet):
         pass
 
     def retrieve(self, request, pk=None):
-        pass
+        garage = get_object_or_404(self.queryset, pk=pk)
+        garage_images = Image.objects.filter(garage=garage)
+        garage_address = Address.objects.get(pk=garage.address.id)
+        garage_availability = Availability.objects.filter(garage=garage)
+
+        garage_serializer = GarageSerializer(garage)
+        garage_images_serializer = ImageSerializer(garage_images, many=True)
+        garage_address_serializer = AddressSerializer(garage_address)
+        garage_availability_serializer = AvailabilitySerializer(
+            garage_availability, many=True
+        )
+
+        item_data = garage_serializer.data
+        item_data["images"] = garage_images_serializer.data
+        item_data["address"] = garage_address_serializer.data
+        item_data["availability"] = garage_availability_serializer.data
+
+        return Response(item_data, status=status.HTTP_200_OK)
 
     def update(self, request, pk=None):
         pass
