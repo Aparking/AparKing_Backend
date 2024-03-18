@@ -13,7 +13,8 @@ class GarageViewSet(ViewSet):
     queryset = Garage.objects.all()
 
     def list(self, request):
-        pass
+        serializer = GarageSerializer(self.queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request):
         pass
