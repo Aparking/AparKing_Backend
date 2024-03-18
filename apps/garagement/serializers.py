@@ -1,6 +1,5 @@
 from apps.garagement.models import Address, Availability, Garage, Image
 from rest_framework import serializers
-from . import validations
 
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -8,17 +7,13 @@ class AddressSerializer(serializers.ModelSerializer):
         model = Address
         fields = "__all__"
 
-    def validate(self, attrs):
-        return validations.validate_address_data(attrs)
-
 
 class ImageSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(max_length=None, use_url=True)
+
     class Meta:
         model = Image
-        fields = "__all__"
-
-    def validate(self, attrs):
-        return validations.validate_image_data(attrs)
+        fields = ["image", "alt"]
 
 
 class AvailabilitySerializer(serializers.ModelSerializer):
@@ -26,44 +21,58 @@ class AvailabilitySerializer(serializers.ModelSerializer):
         model = Availability
         fields = "__all__"
 
-    def validate(self, attrs):
-        return validations.validate_availability_data(attrs)
-
 
 class GarageSerializer(serializers.ModelSerializer):
     address = AddressSerializer()
-    image = ImageSerializer(many=True, read_only=True)
+    image = ImageSerializer(many=False, required=False)
 
     class Meta:
         model = Garage
-        fields = "__all__"
-
-    def validate(self, attrs):
-        return validations.validate_garage_data(attrs)
+        fields = [
+            "name",
+            "description",
+            "height",
+            "width",
+            "length",
+            "price",
+            "creation_date",
+            "modification_date",
+            "is_active",
+            "owner",
+            "address",
+            "image",
+        ]
 
     def create(self, validated_data):
-        address_data = validated_data.pop("address", [])
-        images_data = validated_data.pop("images", [])
-        print(images_data)
+        address_data = validated_data.pop("address")
+        image_data = validated_data.pop("image")
 
         address = Address.objects.create(**address_data)
         garage = Garage.objects.create(address=address, **validated_data)
 
-        for image_data in images_data:
-            Image.objects.create(garage=garage, **image_data)
+        Image.objects.create(garage=garage, **image_data)
         return garage
 
-    # def update(self, instance, validated_data):
-    #     address_data = validated_data.pop('address', None)
-    #     if validated_data:
-    #         for attr, value in validated_data.items():
-    #             setattr(instance, attr, value)
-    #         instance.save()
+    def update(self, instance, validated_data):
+        address_data = validated_data.pop("address")
+        images_data = validated_data.pop("images")
 
-    #     if address_data:
-    #         address = instance.address
-    #         for attr, value in address_data.items():
-    #             setattr(address, attr, value)
-    #         address.save()
+        instance = super().update(instance, validated_data)
 
-    #     return instance
+        if address_data:
+            address = instance.address
+            for attr, value in address_data.items():
+                setattr(address, attr, value)
+            address.save()
+
+        for image_data in images_data:
+            image_id = image_data.get("id", None)
+            if image_id:
+                image = Image.objects.get(pk=image_id, garage=instance)
+                for attr, value in image_data.items():
+                    setattr(image, attr, value)
+                image.save()
+            else:
+                Image.objects.create(garage=instance, **image_data)
+
+        return instance

@@ -17,11 +17,13 @@ class GarageViewSet(ViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request):
-        serializer = GarageSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        garage_serializer = GarageSerializer(data=request.data)
+        image_serializer = ImageSerializer(data=request.data.get("images", []))
+        if garage_serializer.is_valid() and image_serializer.is_valid():
+            garage_serializer.save()
+            image_serializer.save()
+            return Response(garage_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(garage_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
         garage = get_object_or_404(self.queryset, pk=pk)
@@ -44,15 +46,17 @@ class GarageViewSet(ViewSet):
         return Response(garage_data, status=status.HTTP_200_OK)
 
     def update(self, request, pk=None):
-        pass
+        garage = get_object_or_404(self.queryset, pk=pk)
+        serializer = GarageSerializer(garage, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, pk=None):
-        try:
-            garage = Garage.objects.get(pk=pk)
-            garage.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except Garage.DoesNotExist:
-            return Response({"error": "Garaje no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        garage = get_object_or_404(self.queryset, pk=pk)
+        garage.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # class GarageListCreateAPIView(ListCreateAPIView):
