@@ -32,6 +32,7 @@ class AvailabilitySerializer(serializers.ModelSerializer):
 
 class GarageSerializer(serializers.ModelSerializer):
     address = AddressSerializer()
+    image = ImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = Garage
@@ -41,16 +42,15 @@ class GarageSerializer(serializers.ModelSerializer):
         return validations.validate_garage_data(attrs)
 
     def create(self, validated_data):
-        address_data = validated_data.pop("address")
-        address = Address.objects.create(**address_data)
-        image_data = validated_data.pop("image")
+        address_data = validated_data.pop("address", [])
+        images_data = validated_data.pop("images", [])
+        print(images_data)
 
-        image_file = image_data.pop("image", None)
-        if image_file is not None:
-            Image.objects.create(garage=garage, image=image_file, **image_data)
-            garage = Garage.objects.create(
-                address=address, image=image_file**validated_data
-            )
+        address = Address.objects.create(**address_data)
+        garage = Garage.objects.create(address=address, **validated_data)
+
+        for image_data in images_data:
+            Image.objects.create(garage=garage, **image_data)
         return garage
 
     # def update(self, instance, validated_data):

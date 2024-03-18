@@ -17,7 +17,11 @@ class GarageViewSet(ViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request):
-        pass
+        serializer = GarageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
         garage = get_object_or_404(self.queryset, pk=pk)
@@ -32,12 +36,12 @@ class GarageViewSet(ViewSet):
             garage_availability, many=True
         )
 
-        item_data = garage_serializer.data
-        item_data["images"] = garage_images_serializer.data
-        item_data["address"] = garage_address_serializer.data
-        item_data["availability"] = garage_availability_serializer.data
+        garage_data = garage_serializer.data
+        garage_data["images"] = garage_images_serializer.data
+        garage_data["address"] = garage_address_serializer.data
+        garage_data["availability"] = garage_availability_serializer.data
 
-        return Response(item_data, status=status.HTTP_200_OK)
+        return Response(garage_data, status=status.HTTP_200_OK)
 
     def update(self, request, pk=None):
         pass
