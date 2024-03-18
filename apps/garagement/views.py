@@ -47,7 +47,12 @@ class GarageViewSet(ViewSet):
         pass
 
     def destroy(self, request, pk=None):
-        pass
+        try:
+            garage = Garage.objects.get(pk=pk)
+            garage.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Garage.DoesNotExist:
+            return Response({"error": "Garaje no encontrado"}, status=status.HTTP_404_NOT_FOUND)
 
 
 # class GarageListCreateAPIView(ListCreateAPIView):
