@@ -13,3 +13,26 @@ def create_claim(request) -> Response:
     else:
         return Response(serializer.errors, status=400)
 
+@api_view(['PUT'])
+def update_claim(request, pk) -> Response:
+    try:
+        claim = Claim.objects.get(pk=pk)
+    except Claim.DoesNotExist:
+        return Response({'status': 'not found'}, status=404)
+
+    serializer = ClaimSerializer(claim, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({'status': 'success'})
+    else:
+        return Response(serializer.errors, status=400)
+
+@api_view(['DELETE'])
+def delete_claim(request, pk) -> Response:
+    try:
+        claim = Claim.objects.get(pk=pk)
+    except Claim.DoesNotExist:
+        return Response({'status': 'not found'}, status=404)
+
+    claim.delete()
+    return Response({'status': 'success'})
