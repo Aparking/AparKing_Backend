@@ -128,5 +128,23 @@ class BookModelTest(TestCase):
         username = self.user.username if self.user else None
         self.assertEqual(str(self.book), f"{username} : {self.availability.garage.name} - {self.availability.start_date} - {self.availability.end_date}")
         
+class ClaimAdminListAPIViewTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.admin_user = User.objects.create_superuser('admin', 'admin@test.com', 'admin123')
+        self.normal_user = User.objects.create_user('user', 'user@test.com', 'user123')
+        self.claim = Claim.objects.create(title='Test Claim', description='Test Description', user=self.normal_user)
+        self.url = reverse('claimadminlist')
 
+    def test_admin_can_list_claims(self):
+        self.client.login(username='admin', password='admin123')
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['title'], 'Test Claim')
+
+    def test_non_admin_cannot_list_claims(self):
+        self.client.login(username='user', password='user123')
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
