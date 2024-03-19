@@ -44,13 +44,9 @@ class GarageSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        address_data = validated_data.pop("address")
-        image_data = validated_data.pop("image")
-
+        address_data = validated_data.pop('address')
         address = Address.objects.create(**address_data)
         garage = Garage.objects.create(address=address, **validated_data)
-
-        Image.objects.create(garage=garage, **image_data)
         return garage
 
     def update(self, instance, validated_data):

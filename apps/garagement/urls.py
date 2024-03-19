@@ -13,7 +13,7 @@ urlpatterns = [
     # path('garages/mine/available/', views.MyAvailableGaragesListAPIView.as_view(), name='my-available-garages'),
     path(
         "garages/",
-        views.GarageViewSet.as_view({"get": "list", "post": "create"}),
+        views.GarageViewSet.as_view({"get": "listGarages", "post": "create"}),
         name="garages",
     ),
     path(

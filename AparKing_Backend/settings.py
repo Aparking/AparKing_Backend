@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "apps.parking",
     "apps.payment",
     'rest_framework',
+    'django_filters',
     'corsheaders',
 ]
 
@@ -65,6 +66,10 @@ CORS_ALLOW_ORIGINS = [
 
 ]
 CORS_ALLOW_ALL_ORIGINS = True
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+}
 
 TEMPLATES = [
     {

@@ -5,25 +5,82 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .models import Availability, Garage, Image, Address
 from .serializers import *
 
-from rest_framework import status
+from rest_framework import status, filters 
 from rest_framework.response import Response
-
+from rest_framework.decorators import action, api_view
+from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Q
 
 class GarageViewSet(ViewSet):
     queryset = Garage.objects.all()
+    serializer_class = GarageSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    
+    filterset_fields = {'price': ['lte', 'gte'],  'is_active': ['exact'], 'height': ['lte', 'gte'], 'width': ['lte', 'gte'], 'length': ['lte', 'gte'], 
+                        'creation_date': ['lte', 'gte'], 'name':['contains'], 'address__country':['contains'], 'address__city':['contains'], 'address__region':['contains']}
+    search_fields = ['name', 'address__country', 'address__city', 'address__region']
+    ordering_fields = ['price', 'creation_date']
+    ordering = ['creation_date']
 
-    def list(self, request):
+    def listAllGarages(self, request):
         serializer = GarageSerializer(self.queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @api_view(['GET'])
+    def listMyGarages(request):
+        user = request.user
+        user_garages = Garage.objects.filter(owner=user)
+        if user_garages.exists():
+            serializer = GarageSerializer(user_garages, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'El usuario no tiene garajes propios.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def listGarages(self, request):
+        if request.user.is_superuser:
+            garages = Garage.objects.all()
+        else:
+            garages = Garage.objects.filter(availability__status='AVAILABLE', is_active=True)     
+        if garages.exists():
+            serializer = GarageSerializer(garages, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'No se encontraron garajes.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def listAvailableGarages(self, request):
+        available_garages = Garage.objects.filter(availability__status='AVAILABLE', is_active=True)
+        if available_garages.exists():
+            serializer = GarageSerializer(available_garages, many=True)
+            print(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'No se encontraron garajes disponibles.'}, status=status.HTTP_404_NOT_FOUND)
 
     def create(self, request):
         garage_serializer = GarageSerializer(data=request.data)
-        image_serializer = ImageSerializer(data=request.data.get("images", []))
-        if garage_serializer.is_valid() and image_serializer.is_valid():
-            garage_serializer.save()
-            image_serializer.save()
-            return Response(garage_serializer.data, status=status.HTTP_201_CREATED)
-        return Response(garage_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        address_serializer = AddressSerializer(data=request.data["address"])
+        # image_data = request.data.get("image", None)
+        # image_serializer = ImageSerializer(data={'image': image_data} if image_data else None)
+        if garage_serializer.is_valid() and address_serializer.is_valid():
+            garage = garage_serializer.save()
+            address_serializer.save()
+            # if image_data:
+            #     image = image_serializer.save()
+            #     image.garage = garage
+            # else:
+            #     image = None
+            data = {
+                'garage': garage_serializer.data,
+                'address': address_serializer.data,
+                # 'image': image_serializer.data if image else None,
+            }
+            return Response(data, status=status.HTTP_201_CREATED)
+        return Response({
+            'garage_errors': garage_serializer.errors,
+            'address_errors': address_serializer.errors,
+            # 'image_errors': image_serializer.errors if image_data else None
+        }, status=status.HTTP_400_BAD_REQUEST)
+
 
     def retrieve(self, request, pk=None):
         garage = get_object_or_404(self.queryset, pk=pk)
