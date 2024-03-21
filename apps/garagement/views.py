@@ -41,7 +41,7 @@ def create_image(request):
 
 
 @api_view(['GET'])
-def lsit_image(request):
+def list_image(request):
     if request.method == 'GET':
         serializer = ImageSerializer(Image.objects.all(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

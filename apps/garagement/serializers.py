@@ -48,7 +48,6 @@ class GarageSerializer(serializers.ModelSerializer):
         
         garage = Garage.objects.create(address=address, **validated_data)
         
-        
         return garage
 
     

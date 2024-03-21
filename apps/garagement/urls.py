@@ -6,5 +6,5 @@ urlpatterns = [
     path('garages/create/', views.create_garage, name='create_garage'),
     
     path('garages/images/create/', views.create_image, name='create_image'),
-    path('garages/images/', views.lsit_image, name='list_image'),
+    path('garages/images/', views.list_image, name='list_image'),
 ]
