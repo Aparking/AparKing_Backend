@@ -23,6 +23,7 @@
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
+            console.log(data);
             document.querySelector('#chat-log').value += (data.message + '\n');
         };
 
@@ -41,7 +42,8 @@
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
             chatSocket.send(JSON.stringify({
-                'message': message
+                'message': message,
+                'type':'notify.parking.created'
             }));
             messageInputDom.value = '';
         };

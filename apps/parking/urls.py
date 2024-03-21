@@ -6,6 +6,7 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("near/", views.get_parking_near, name="near"),
     path("create/", views.create_parking, name="create_parking"),
+    path("getCreate/", views.create_parking_data, name="create_parking_get_data"),
     path("assign/<int:parking_id>", views.assign_parking, name="assign_parking"),
     path("transfer/<int:parking_id>", views.transfer_parking, name="transfer_parking"),
     path("delete/<int:parking_id>", views.delete_parking, name="delete_parking"),

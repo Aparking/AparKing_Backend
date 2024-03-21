@@ -40,7 +40,7 @@ class ParkingTestCase(APITestCase):
             location=Point(2.1734, 42.3851, srid=4326),
             size=ParkingSize.SMALL,
             parking_type=ParkingType.FREE,
-            is_asignment=False,
+            is_assignment=False,
             notified_by=self.user
         )
         assign_parking_url = reverse('assign_parking', kwargs={'parking_id': parking.id})
@@ -54,7 +54,7 @@ class ParkingTestCase(APITestCase):
             location=Point(2.1734, 42.3851, srid=4326),
             size=ParkingSize.SMALL,
             parking_type=ParkingType.ASSIGNMENT,
-            is_asignment=True,
+            is_assignment=True,
             notified_by=self.user
         )
         transfer_parking_url = reverse('transfer_parking', kwargs={'parking_id': parking.id})
@@ -68,7 +68,7 @@ class ParkingTestCase(APITestCase):
             location=Point(2.1734, 42.3851, srid=4326),
             size=ParkingSize.SMALL,
             parking_type=ParkingType.FREE,
-            is_asignment=True,
+            is_assignment=True,
             notified_by=self.user
         )
         assign_parking_url = reverse('assign_parking', kwargs={'parking_id': parking.id})
@@ -81,7 +81,7 @@ class ParkingTestCase(APITestCase):
             location=Point(2.1734, 42.3851, srid=4326),
             size=ParkingSize.SMALL,
             parking_type=ParkingType.FREE,
-            is_asignment=False,
+            is_assignment=False,
             notified_by=self.user
         )
         delete_parking_url = reverse('delete_parking', kwargs={'parking_id': parking.id})
@@ -95,14 +95,14 @@ class ParkingTestCase(APITestCase):
             location=Point(2.1734, 42.3851, srid=4326),
             size=ParkingSize.MEDIUM,
             parking_type=ParkingType.FREE,
-            is_asignment=False,
+            is_assignment=False,
             notified_by=self.user
         )
         Parking.objects.create(
             location=Point(2.1744, 42.3852, srid=4326),
             size=ParkingSize.SMALL,
             parking_type=ParkingType.FREE,
-            is_asignment=False,
+            is_assignment=False,
             notified_by=self.user
         )
 
