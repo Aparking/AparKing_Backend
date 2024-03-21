@@ -10,5 +10,6 @@ echo "Waiting for docker daemon..."
 sleep 2
 done
 # Run the containers
+cd /app
 echo "Docker daemon is up - executing command"
 docker-compose up --build
