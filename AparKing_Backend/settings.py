@@ -175,3 +175,6 @@ else:
         from .local_settings import *
     except ImportError:
         pass
+
+
+STRIPE_SECRET_KEY = 'sk_test_51OwKuxRoKCd4QwqUxzf03Bh384WpQYstTanHo6eE8FJQRVF6hy6t3IqnoNEejweRtADhjlILcdDfesqXoLFh09yQ00APqvNyFg'
