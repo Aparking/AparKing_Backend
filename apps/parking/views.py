@@ -1,5 +1,5 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 
 from channels.layers import get_channel_layer
@@ -19,6 +19,8 @@ from apps.parking.filters import ParkingFilter
 from apps.parking.coordenates import Coordenates
 
 from django.contrib.auth.decorators import login_required
+from rest_framework.permissions import IsAuthenticated
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -50,7 +52,7 @@ def room(request, room_name):
     return render(request, "parking/room.html", {"room_name": room_name})
 
 @api_view(['POST'])
-#@login_required
+@permission_classes([IsAuthenticated])
 def get_parking_near(request: HttpRequest):
     """
     Obtiene los aparcamientos cercanos a las coordenadas proporcionadas en la solicitud.
@@ -85,7 +87,7 @@ def get_parking_near(request: HttpRequest):
     return Response(res, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
-#@login_required
+@permission_classes([IsAuthenticated])
 def create_parking(request: HttpRequest):
     """
     Crea un nuevo aparcamiento y lo notifica a los usuarios cercanos.
@@ -129,7 +131,7 @@ def create_parking(request: HttpRequest):
         return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['PUT'])
-#@login_required
+@permission_classes([IsAuthenticated])
 def assign_parking(request: HttpRequest, parking_id: int):
     """
     Asigna un aparcamiento a un usuario.
@@ -157,7 +159,7 @@ def assign_parking(request: HttpRequest, parking_id: int):
         return JsonResponse({"message": "The parking doesn't exist"}, status=404)
 
 @api_view(['PUT'])
-#@login_required
+@permission_classes([IsAuthenticated])
 def transfer_parking(request: HttpRequest, parking_id: int):
     """
     Transfiere un aparcamiento asignado a otro usuario.
@@ -183,7 +185,7 @@ def transfer_parking(request: HttpRequest, parking_id: int):
         return JsonResponse({"message": "The parking doesn't exist"}, status=404)
     
 @api_view(['DELETE'])
-#@login_required
+@permission_classes([IsAuthenticated])
 def delete_parking(request: HttpRequest, parking_id: int):
     """
     Elimina un aparcamiento.
