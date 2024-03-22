@@ -1,14 +1,8 @@
-from django.shortcuts import get_object_or_404
-from rest_framework.viewsets import ViewSet
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-
-from .models import Availability, Garage, Image, Address
-from .serializers import *
-
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-
+from .models import Image, Garage
+from .serializers import GarageSerializer, ImageSerializer
 
 @api_view(['POST'])
 def create_garage(request):
@@ -53,4 +47,3 @@ def list_garage(request):
     if request.method == 'GET':
         serializer = GarageSerializer(Garage.objects.all(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
