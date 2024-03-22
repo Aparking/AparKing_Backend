@@ -12,7 +12,7 @@ def auth_login(request) -> Response:
         user = serializer.validated_data
         Token.objects.filter(user=user).delete()
         token, created = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key}, status=201)
+        return Response({'token': token.key}, status=200)
     else:
         return Response(serializer.errors, status=400)
 
@@ -23,7 +23,7 @@ def register(request) -> Response:
         user = serializer.save()
         token, created = Token.objects.get_or_create(user=user)
 
-        return Response({'token': token.key}, status=201)
+        return Response({'token': token.key}, status=200)
     else:
         return Response(serializer.errors, status=400)
 
@@ -33,5 +33,5 @@ def auth_logout(request) -> Response:
     if user.is_authenticated:
         # Invalidar cualquier token asociado con el usuario
         Token.objects.filter(user=user).delete()
-        return Response({'status': 'success'})
+        return Response(status=200)
     return Response(status=401)
