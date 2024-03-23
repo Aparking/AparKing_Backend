@@ -1,59 +1,61 @@
 from apps.garagement.models import Address, Availability, Garage, Image
 from rest_framework import serializers
-
+from . import validations
 
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Address
-        fields = "__all__"
-
-
+       model = Address
+       fields = '__all__'
+       
+    def validate(self, attrs):
+        return validations.validate_address_data(attrs)
+       
 class ImageSerializer(serializers.ModelSerializer):
-    image = serializers.ImageField(max_length=None, use_url=True)
-
     class Meta:
-        model = Image
-        fields = ["image", "alt"]
+       model = Image
+       fields ='__all__'
+       
+    def validate(self, attrs):
+        return validations.validate_image_data(attrs)
+    
+    def create(self, validated_data):
+        garage = validated_data.pop('garage')
+        image = Image.objects.create(garage=garage, **validated_data)
+        return image
 
 
 class AvailabilitySerializer(serializers.ModelSerializer):
     class Meta:
-        model = Availability
-        fields = "__all__"
-
-
+       model = Availability
+       fields = '__all__'
+       
+    def validate(self, attrs):
+        return validations.validate_availability_data(attrs)
+    
 class GarageSerializer(serializers.ModelSerializer):
     address = AddressSerializer()
-    image = ImageSerializer(many=False, required=False)
 
     class Meta:
         model = Garage
-        fields = [
-            "name",
-            "description",
-            "height",
-            "width",
-            "length",
-            "price",
-            "creation_date",
-            "modification_date",
-            "is_active",
-            "owner",
-            "address",
-            "image",
-        ]
+        fields = '__all__'
 
+    def validate(self, attrs):
+        return validations.validate_garage_data(attrs)
+    
     def create(self, validated_data):
         address_data = validated_data.pop('address')
         address = Address.objects.create(**address_data)
+        
         garage = Garage.objects.create(address=address, **validated_data)
         return garage
 
+    
     def update(self, instance, validated_data):
-        address_data = validated_data.pop("address")
-        images_data = validated_data.pop("images")
-
-        instance = super().update(instance, validated_data)
+        address_data = validated_data.pop('address', None)
+        if validated_data:
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
+            instance.save()
 
         if address_data:
             address = instance.address
@@ -61,14 +63,5 @@ class GarageSerializer(serializers.ModelSerializer):
                 setattr(address, attr, value)
             address.save()
 
-        for image_data in images_data:
-            image_id = image_data.get("id", None)
-            if image_id:
-                image = Image.objects.get(pk=image_id, garage=instance)
-                for attr, value in image_data.items():
-                    setattr(image, attr, value)
-                image.save()
-            else:
-                Image.objects.create(garage=instance, **image_data)
-
         return instance
+    
