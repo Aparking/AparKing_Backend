@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,17 +20,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!eb&x8z=%ac03t5%cs-0+9kk&r%rh%3u#yjsxzt*558c971@&b'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-!eb&x8z=%ac03t5%cs-0+9kk&r%rh%3u#yjsxzt*558c971@&b')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.auth',
     "apps.authentication",
     'django.contrib.admin',
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "django.contrib.gis",
     "apps.booking",
     "apps.garagement",
     "apps.parking",
@@ -88,7 +90,18 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'AparKing_Backend.wsgi.application'
+ASGI_APPLICATION = "AparKing_Backend.asgi.application"
 
+CSRF_USE_SESSIONS = True
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 
 # Password validation
@@ -111,7 +124,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 DATABASES = {
 	'default': {
-		'ENGINE': 'django.db.backends.postgresql',
+		'ENGINE': 'django.contrib.gis.db.backends.postgis',
 		'NAME': 'aparking_db',
 		'USER': 'aparking',
 		'PASSWORD': 'aparking',
@@ -137,6 +150,12 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Base url to serve media files  
+MEDIA_URL = '/media/'  
+  
+# Path where media is stored  
+MEDIA_ROOT = BASE_DIR / 'media/'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
@@ -149,7 +168,22 @@ AUTHENTICATION_BACKENDS = ['apps.authentication.backends.EmailBackend']
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-try:
-    from .local_settings import *
-except ImportError:
-    pass
+
+# Obtén el nombre del archivo de configuración desde una variable de entorno
+SETTINGS_OVERRIDE = os.environ.get('DJANGO_SETTINGS_OVERRIDE')
+
+if SETTINGS_OVERRIDE:
+    try:
+        module = __import__(SETTINGS_OVERRIDE, globals(), locals(), ['*'])
+        for setting in dir(module):
+            if setting.isupper():
+                locals()[setting] = getattr(module, setting)
+    except ModuleNotFoundError as e:
+        raise ImportError(f"No se pudo importar las configuraciones desde '{SETTINGS_OVERRIDE}'. {e}")
+
+# Intenta cargar desde local_settings.py
+else:
+    try:
+        from .local_settings import *
+    except ImportError:
+        pass
