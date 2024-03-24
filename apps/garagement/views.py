@@ -6,7 +6,7 @@ from .serializers import GarageSerializer, ImageSerializer
 from rest_framework.permissions import IsAuthenticated
 
 @api_view(['POST'])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def create_garage(request):
     if request.method == 'POST':
         garage_serializer = GarageSerializer(data=request.data)
@@ -22,7 +22,7 @@ def create_garage(request):
             return Response(errors, status=status.HTTP_400_BAD_REQUEST)
         
 @api_view(['POST'])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def create_image(request):
     if request.method == 'POST':
         image_serializer = ImageSerializer(data=request.data)
@@ -41,20 +41,6 @@ def list_image(request):
     if request.method == 'GET':
         serializer = ImageSerializer(Image.objects.all(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-'''@api_view(['GET'])
-def list_garages(request):
-    if request.method == 'GET':
-        user = request.user
-        if user.is_superuser:
-            garages = Garage.objects.all()
-        else:
-            garages = Garage.objects.filter(is_active=True)
-        if garages.exists():
-            serializer = GarageSerializer(garages, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response({'message': 'No se encontraron garajes.'}, status=status.HTTP_404_NOT_FOUND)'''
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
