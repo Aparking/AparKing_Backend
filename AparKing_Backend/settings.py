@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "apps.payment",
     'rest_framework',
     'django_filters',
+    'rest_framework.authtoken',
     'corsheaders',
 ]
 
@@ -88,6 +89,18 @@ TEMPLATES = [
         },
     },
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',  # <-- And here
+    ],
+}
+
+SIMPLE_JWT = {
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'UPDATE_LAST_LOGIN': False,
+}
 
 WSGI_APPLICATION = 'AparKing_Backend.wsgi.application'
 ASGI_APPLICATION = "AparKing_Backend.asgi.application"
