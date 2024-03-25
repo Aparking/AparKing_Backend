@@ -1,9 +1,36 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from .models import Image, Garage
-from .serializers import GarageSerializer, ImageSerializer
+from .models import Image, Garage, Availability
+from .serializers import GarageSerializer, ImageSerializer, AvailabilitySerializer
 from rest_framework.permissions import IsAuthenticated
+
+#  Garages views
+
+
+@api_view(["GET", "PUT", "DELETE"])
+@permission_classes([IsAuthenticated])
+def garage_detail(request, pk):
+    if request.method == "GET":
+        garage = Garage.objects.filter(pk=pk)
+        if garage.exists():
+            garage_serialized = GarageSerializer(garage.first())
+
+            availability = Availability.objects.filter(garage=garage.first())
+            if availability.exists():
+                availability_serialized = AvailabilitySerializer(availability.first())
+                garage_serialized.data["availability"] = availability_serialized
+
+            return Response(garage_serialized.data, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {"message": "No se encontró el garaje."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+    elif request.method == "PUT":
+        pass
+    elif request.method == "DELETE":
+        pass
 
 
 @api_view(["POST"])
@@ -21,29 +48,6 @@ def create_garage(request):
             if not garage_valid:
                 errors.update(garage_serializer.errors)
             return Response(errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def create_image(request):
-    if request.method == "POST":
-        image_serializer = ImageSerializer(data=request.data)
-        image_valid = image_serializer.is_valid()
-        if image_valid:
-            image_serializer.save()
-            return Response(image_serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            errors = {}
-            if not image_valid:
-                errors.update(image_serializer.errors)
-            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(["GET"])
-def list_image(request):
-    if request.method == "GET":
-        serializer = ImageSerializer(Image.objects.all(), many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
@@ -127,3 +131,43 @@ def list_garages(request):
                 {"message": "No se encontraron garajes."},
                 status=status.HTTP_404_NOT_FOUND,
             )
+
+
+# Images views
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_images_by_garage_id(request, pk):
+    images = Image.objects.filter(garage=pk)
+    if images.exists():
+        images_serialized = ImageSerializer(images, many=True)
+        return Response(images_serialized.data, status=status.HTTP_200_OK)
+    else:
+        return Response(
+            {"message": "No se encontraron imágenes."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_image(request):
+    if request.method == "POST":
+        image_serializer = ImageSerializer(data=request.data)
+        image_valid = image_serializer.is_valid()
+        if image_valid:
+            image_serializer.save()
+            return Response(image_serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            errors = {}
+            if not image_valid:
+                errors.update(image_serializer.errors)
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["GET"])
+def list_image(request):
+    if request.method == "GET":
+        serializer = ImageSerializer(Image.objects.all(), many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
