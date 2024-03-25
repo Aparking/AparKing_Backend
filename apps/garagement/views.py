@@ -1,154 +1,129 @@
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound
-
-from apps.authentication.models import CustomUser
-
-from .enums import GarageStatus
-from .models import Availability, Garage, Image, Address
-from .serializers import AvailabilitySerializer, GarageSerializer, ImageSerializer
-from .permissions import IsOwnerOrReadOnly
 from rest_framework.decorators import api_view, permission_classes
-
-# GARAGE VIEWS
-
-
-class GarageListCreateAPIView(ListCreateAPIView):
-    queryset = Garage.objects.all()
-    serializer_class = GarageSerializer
-
-    def post(self, request):
-
-        if request.user.is_anonymous:
-            return Response(
-                {"error": "You must be logged in to create a garage"},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
-
-        # Extracting required data from the request
-        garage_data = {
-            "garage": request.data.get("garage"),
-            "address": request.data.get("address"),
-            "image": request.data.get("image"),
-        }
-
-        address = Address.objects.create(
-            street_number=garage_data["address"]["street_number"],
-            unit_number=garage_data["address"]["unit_number"],
-            address_line=garage_data["address"]["address_line"],
-            city=garage_data["address"]["city"],
-            region=garage_data["address"]["region"],
-            country=garage_data["address"]["country"],
-            postal_code=garage_data["address"]["postal_code"],
-        )
-
-        # Creating garage object
-
-        garage = Garage.objects.create(
-            name=garage_data["garage"]["name"],
-            description=garage_data["garage"]["description"],
-            height=garage_data["garage"]["height"],
-            width=garage_data["garage"]["width"],
-            length=garage_data["garage"]["length"],
-            price=garage_data["garage"]["price"],
-            creation_date=garage_data["garage"]["creation_date"],
-            modification_date=garage_data["garage"]["modification_date"],
-            is_active=garage_data["garage"]["is_active"],
-            owner=request.user,
-            address=address,
-        )
-
-        # Creating image object associated with the garage
-        image = Image.objects.create(
-            image=garage_data["image"]["image_url"],
-            alt=garage_data["image"]["alt"],
-            publication_date=garage_data["image"]["publication_date"],
-            garage=garage,
-        )
-
-        # Serializing garage and image objects
-        garage_serialized = GarageSerializer(garage)
-        image_serialized = ImageSerializer(image)
-
-        # Returning response with serialized data
-        return Response(
-            {"garage": garage_serialized.data, "image": image_serialized.data},
-            status=status.HTTP_201_CREATED,
-        )
+from .models import Image, Garage
+from .serializers import GarageSerializer, ImageSerializer
+from rest_framework.permissions import IsAuthenticated
 
 
-class GarageRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = Garage.objects.all()
-    serializer_class = GarageSerializer
-    # permission_classes = [IsAuthenticated, IsOwnerOrReadOnly, IsAdminUser]
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_garage(request):
+    if request.method == "POST":
+        garage_serializer = GarageSerializer(data=request.data)
+        garage_valid = garage_serializer.is_valid()
+
+        if garage_valid:
+            garage_serializer.save()
+            return Response(garage_serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            errors = {}
+            if not garage_valid:
+                errors.update(garage_serializer.errors)
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_image(request):
+    if request.method == "POST":
+        image_serializer = ImageSerializer(data=request.data)
+        image_valid = image_serializer.is_valid()
+        if image_valid:
+            image_serializer.save()
+            return Response(image_serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            errors = {}
+            if not image_valid:
+                errors.update(image_serializer.errors)
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["GET"])
+def list_image(request):
+    if request.method == "GET":
+        serializer = ImageSerializer(Image.objects.all(), many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def get_images_by_garage(request, pk):
-    try:
-        images = Image.objects.filter(garage=pk)
-    except NotFound:
-        return Response({"error": "Images not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    serializer = ImageSerializer(images, many=True)
-    return Response(serializer.data)
-
-
-# IMAGE VIEWS
-
-
-class ImageListCreateAPIView(ListCreateAPIView):
-    queryset = Image.objects.all()
-    serializer_class = ImageSerializer
-    permission_classes = [IsAuthenticated]
+def list_my_garages(request):
+    if request.method == "GET":
+        user = request.user
+        garages = Garage.objects.filter(owner=user)
+        if garages.exists():
+            serializer = GarageSerializer(garages, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {"message": "No se encontraron garajes."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
 
-class ImageRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = Image.objects.all()
-    serializer_class = ImageSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly, IsAdminUser]
+@api_view(["GET"])
+def list_garages(request):
+    if request.method == "GET":
+        user = request.user
+        if user.is_superuser:
+            garages = Garage.objects.all()
+        else:
+            garages = Garage.objects.filter(is_active=True)
 
+        min_price = request.query_params.get("min_price")
+        max_price = request.query_params.get("max_price")
+        min_height = request.query_params.get("min_height")
+        max_height = request.query_params.get("max_height")
+        min_width = request.query_params.get("min_width")
+        max_width = request.query_params.get("max_width")
+        min_length = request.query_params.get("min_length")
+        max_length = request.query_params.get("max_length")
+        start_date = request.query_params.get("start_date")
+        end_date = request.query_params.get("end_date")
+        name_contains = request.query_params.get("name")
+        city = request.query_params.get("city")
+        region = request.query_params.get("region")
+        country = request.query_params.get("country")
+        postal_code = request.query_params.get("postal_code")
 
-class AvailabilityListCreateAPIView(ListCreateAPIView):
-    queryset = Availability.objects.all()
-    serializer_class = AvailabilitySerializer
-    permission_classes = [IsAuthenticated]
+        if min_price is not None:
+            garages = garages.filter(price__gte=min_price)
+        if max_price is not None:
+            garages = garages.filter(price__lte=max_price)
+        if min_height is not None:
+            garages = garages.filter(height__gte=min_height)
+        if max_height is not None:
+            garages = garages.filter(height__lte=max_height)
+        if min_width is not None:
+            garages = garages.filter(width__gte=min_width)
+        if max_width is not None:
+            garages = garages.filter(width__lte=max_width)
+        if min_length is not None:
+            garages = garages.filter(length__gte=min_length)
+        if max_length is not None:
+            garages = garages.filter(length__lte=max_length)
+        if start_date is not None:
+            garages = garages.filter(creation_date__gte=start_date)
+        if end_date is not None:
+            garages = garages.filter(creation_date__lte=end_date)
+        if name_contains is not None:
+            garages = garages.filter(name__icontains=name_contains)
+        if city is not None:
+            garages = garages.filter(address__city__icontains=city)
+        if region is not None:
+            garages = garages.filter(address__region__icontains=region)
+        if country is not None:
+            garages = garages.filter(address__country__iexact=country)
+        if postal_code is not None:
+            garages = garages.filter(address__postal_code__iexact=postal_code)
 
-
-class AvailabilityRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = Availability.objects.all()
-    serializer_class = AvailabilitySerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly, IsAdminUser]
-
-
-class AvailableGaragesListAPIView(ListCreateAPIView):
-    serializer_class = GarageSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        available_availabilities = Availability.objects.filter(status="AVAILABLE")
-        return [availability.garage for availability in available_availabilities]
-
-
-class MyGaragesListAPIView(ListCreateAPIView):
-    queryset = Garage.objects.all()
-    serializer_class = GarageSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return self.queryset.filter(owner=self.request.user)
-
-
-class MyAvailableGaragesListAPIView(ListCreateAPIView):
-    serializer_class = GarageSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        available_availabilities = Availability.objects.filter(
-            status="AVAILABLE", owner=self.request.user
-        )
-        return [availability.garage for availability in available_availabilities]
+        garages = garages.order_by("price", "creation_date")
+        if garages.exists():
+            serializer = GarageSerializer(garages, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {"message": "No se encontraron garajes."},
+                status=status.HTTP_404_NOT_FOUND,
+            )

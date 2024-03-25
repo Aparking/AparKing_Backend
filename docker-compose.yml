@@ -1,0 +1,52 @@
+version: "3.8"
+
+volumes:
+  postgresql-data:
+  redis-data:
+
+services:
+  database:
+    image: postgis/postgis:14-3.4
+    restart: always
+    expose:
+      - "5432"
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+    env_file:
+      - ./env/database.env
+
+  backend:
+    container_name: backend
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: ./docker/backend.Dockerfile
+    env_file:
+      - ./env/backend.env
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - migrations
+      - database
+
+  migrations:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: ./docker/migrations.Dockerfile
+    env_file:
+      - ./env/backend.env
+    volumes:
+      - .:/app
+    depends_on:
+      - database
+
+  redis:
+    image: redis:7
+    restart: always
+    expose:
+      - "6379"
+    volumes:
+      - redis-data:/data

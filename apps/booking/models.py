@@ -8,7 +8,7 @@ from apps.booking.enums import BookingStatus, ClaimStatus, PaymentMethod
 from apps.garagement.models import Availability, Garage
 
 from django.core.validators import MaxValueValidator, MinValueValidator
-
+from decimal import Decimal
 
 class Comment(models.Model):
     title = models.TextField(max_length=64, blank=False, null=False)
@@ -67,9 +67,9 @@ class Book(models.Model):
         ]
     
     def calculate_total_price(self):
-        days_difference = (self.end_date.date() - self.start_date.date()).days
-        return decimal(days_difference) * self.garage.price
+        days_difference = (self.availability.end_date.date() - self.availability.start_date.date()).days
+        return Decimal(days_difference) * Decimal(self.availability.garage.price)
 
     def __str__(self):
         username = self.user.username if self.user else None
-        return f"{username} : {self.garage.name} - {self.start_date} - {self.end_date}"
+        return f"{username} : {self.availability.garage.name} - {self.availability.start_date} - {self.availability.end_date}"

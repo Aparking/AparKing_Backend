@@ -2,7 +2,20 @@ Django==5.0.2
 psycopg2==2.9.9
 djangorestframework==3.14.0
 django-cors-headers==4.3.1
+django-phonenumber-field[phonenumbers]
+numpy
+GDAL==3.6.2
+channels
+daphne
+channels_redis
+django-enumchoicefield
+geoalchemy2
+pandas
+djangorestframework-gis
+tqdm
 django-countries
 django-phonenumbers
-django-phonenumber-field
 Pillow
+
+
+# Cualquier requisito que se añada debe ser agregado también en el archivo actionsRequirements.txt
