@@ -128,5 +128,72 @@ class BookModelTest(TestCase):
         username = self.user.username if self.user else None
         self.assertEqual(str(self.book), f"{username} : {self.availability.garage.name} - {self.availability.start_date} - {self.availability.end_date}")
         
+class CreateCommentTest(TestCase):
+    def setUp(self):
+        self.user = CustomUser.objects.create_user('testuser', 'test@example.com', 'password123')
+        self.other_user = CustomUser.objects.create_user('otheruser', 'other@example.com', 'password123')
+        
+        self.address = Address.objects.create(
+            street_number='123',
+            address_line='Main Street',
+            city='City',
+            region='Region',
+            country='US',
+            postal_code='12345'
+        )
+        
+        self.garage = Garage.objects.create(
+            name='Test Garage',
+            description='Test Description',
+            height=2.5,
+            width=2.5,
+            length=5.0,
+            price=100,
+            owner=self.user,
+            address=self.address
+        )
+        
+        self.availability = Availability.objects.create(
+            start_date=dt.datetime.now(),
+            end_date=dt.datetime.now() + timedelta(days=1),
+            status=GarageStatus.AVAILABLE.name,
+            garage=self.garage
+        )
+        
+        self.book = Book.objects.create(
+            payment_method='CASH',
+            status='CONFIRMED',
+            user=self.user,
+            availability=self.availability
+        )
+    
+    def test_user_can_create_comment(self):
+        self.client.login(username='testuser', password='password123')
+        
+        response = self.client.post('/path/to/create/comment/', {
+            'title': 'Great Garage',
+            'description': 'This garage was very convenient.',
+            'rating': 5,
+            'garage': self.garage.pk,
+            'user': self.user.pk
+        })
+        
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Comment.objects.count(), 1)
+        comment = Comment.objects.first()
+        self.assertEqual(comment.title, 'Great Garage')
+        self.assertEqual(comment.user, self.user)
+        self.assertEqual(comment.garage, self.garage)
 
+    def test_non_user_cannot_create_comment(self):
+        response = self.client.post('/path/to/create/comment/', {
+            'title': 'Unauthorized Comment',
+            'description': 'This should not work.',
+            'rating': 1,
+            'garage': self.garage.pk,
+            'user': self.other_user.pk
+        })
+        
+        self.assertNotEqual(response.status_code, 201)
+        self.assertEqual(Comment.objects.count(), 0)
 
