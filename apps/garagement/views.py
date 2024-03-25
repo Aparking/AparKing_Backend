@@ -5,7 +5,6 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import NotFound
 
 #  Garages views
 
@@ -33,8 +32,7 @@ def garage_detail(request, pk):
         if serialized.is_valid():
             serialized.save()
             return Response(serialized.data, status=status.HTTP_200_OK)
-        else:
-            return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == "DELETE":
         garage.delete()
@@ -144,6 +142,33 @@ def list_garages(request):
 # Availability views
 
 
+@api_view(["GET", "PUT", "DELETE"])
+@permission_classes([IsAuthenticated])
+def availability_detail(request, pk):
+    try:
+        availability = Availability.objects.get(pk=pk)
+    except Availability.DoesNotExist:
+        return Response(
+            {"message": "No se encontró la disponibilidad."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    if request.method == "GET":
+        serializer = AvailabilitySerializer(availability)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    elif request.method == "PUT":
+        serializer = AvailabilitySerializer(availability, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == "DELETE":
+        availability.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_availabilities_by_garage_id(request, pk):
@@ -167,8 +192,15 @@ def create_availability(request):
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def list_availabilities(request):
+    if request.method == "GET":
+        serializer = AvailabilitySerializer(Availability.objects.all(), many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 # Images views
@@ -204,6 +236,26 @@ def create_image(request):
             if not image_valid:
                 errors.update(image_serializer.errors)
             return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["GET", "DELETE"])
+@permission_classes([IsAuthenticated])
+def image_detail(request, pk):
+    try:
+        image = Image.objects.get(pk=pk)
+    except Image.DoesNotExist:
+        return Response(
+            {"message": "No se encontró la imagen."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    if request.method == "GET":
+        serializer = ImageSerializer(image)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    elif request.method == "DELETE":
+        image.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(["GET"])

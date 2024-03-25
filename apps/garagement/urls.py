@@ -20,5 +20,9 @@ urlpatterns = [
     path("create/", views.create_garage, name="create_garage"),
     path("images/create/", views.create_image, name="create_image"),
     path("images/", views.list_image, name="list_image"),
+    path("availability/", views.list_availabilities, name="list_availabilities"),
+    path(
+        "availability/<int:pk>/", views.availability_detail, name="update_availability"
+    ),
     path("availability/create/", views.create_availability, name="create_availability"),
 ]
