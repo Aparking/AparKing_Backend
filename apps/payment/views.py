@@ -17,7 +17,7 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 @login_required
 def create_subscription(request):
     try:
-        # Asumiendo que recibes el ID del plan de suscripción y el token de Stripe desde el frontend
+        #to do: condicional si el usuario no tiene cuenta de stripe
         data = json.loads(request.body.decode('utf-8'))
         subscription_plan_id = data.get('id')
         custom_user = request.user
@@ -38,7 +38,6 @@ def create_subscription(request):
         custom_user.save()
         member_ship.save()
         
-        # Aquí puedes guardar la suscripción en tu base de datos, si es necesario
         return JsonResponse({'status': 'success', 'subscription_id': subscription.id})
     except stripe.error.StripeError as e:
         return JsonResponse({'status': 'error', 'message': str(e)})
