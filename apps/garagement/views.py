@@ -25,11 +25,16 @@ def garage_detail(request, pk):
         )
 
     if request.method == "GET":
-        garage_serialized = GarageSerializer(garage)
-        return Response(garage_serialized.data, status=status.HTTP_200_OK)
+        serialized = GarageSerializer(garage)
+        return Response(serialized.data, status=status.HTTP_200_OK)
 
     elif request.method == "PUT":
-        pass
+        serialized = GarageSerializer(garage, data=request.data)
+        if serialized.is_valid():
+            serialized.save()
+            return Response(serialized.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == "DELETE":
         pass
