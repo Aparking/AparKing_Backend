@@ -16,3 +16,4 @@ tqdm
 django-countries
 django-phonenumbers
 Pillow
+django-filter
