@@ -12,7 +12,6 @@ class Address(models.Model):
     street_number = models.CharField(max_length=8, blank=False, null=False)
     # Contiene el número del piso en caso de ser necesario
     unit_number = models.CharField(max_length=8, blank=True, null=True)
-    street_number = models.CharField(max_length=8, blank=False, null=False)
     # Contiene la parte principal de la dirección, como el nombre de la calle o de la vía
     address_line = models.TextField(blank=False, null=False)
     city = models.CharField(max_length=256, blank=False, null=False)
