@@ -30,6 +30,7 @@ class CustomUser(AbstractUser):
     gender = models.CharField(max_length=16, choices=Gender.choices())
     photo = models.URLField(blank=True, null=True)
     phone = PhoneNumberField(blank=False, null=False)
+    code = models.CharField(max_length=10, blank=True)
 
 class Vehicle(models.Model):
     carModel = models.CharField(max_length=100, blank=False, null=False)

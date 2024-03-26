@@ -1,4 +1,4 @@
-Django==5.0.2
+Django==4.1
 psycopg2==2.9.9
 djangorestframework==3.14.0
 django-cors-headers==4.3.1
@@ -16,6 +16,7 @@ tqdm
 django-countries
 django-phonenumbers
 Pillow
+python-decouple
 
 
 # Cualquier requisito que se añada debe ser agregado también en el archivo actionsRequirements.txt
