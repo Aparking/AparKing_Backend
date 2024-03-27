@@ -24,7 +24,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-
 def manage_send_parking_created(type: str, message: dict, coordenates: Point):
     city_near = City.objects.annotate(distance=Distance('location', coordenates)).order_by('distance').first() 
     group: str = f"{city_near.location.y}_{city_near.location.x}".replace('.', 'p').replace('-', 'm') if city_near else "withoutData"
@@ -37,9 +36,7 @@ def manage_send_parking_created(type: str, message: dict, coordenates: Point):
                 "message": message
             }
         )
-
-       
-        
+    
     except Exception as e:
         raise e
 
@@ -208,7 +205,6 @@ def delete_parking(request: HttpRequest, parking_id: int):
     except Parking.DoesNotExist:
         return JsonResponse({"message": "The parking doesn't exist"}, status=404)
     
-
 @api_view(['GET'])
 def create_parking_data(request: HttpRequest):
     """
@@ -229,3 +225,33 @@ def create_parking_data(request: HttpRequest):
         "parking_sizes": [(i.name, i.value )for i in Size],
     })
     return res
+
+@api_view(['POST'])
+#@login_required
+def get_closest_cities(request: HttpRequest):
+    """
+    Obtiene las ciudades más cercanas a unas coordenadas dadas.
+
+    Parámetros:
+    - request (HttpRequest): La solicitud HTTP. Debe contener los parámetros 'latitude' y 'longitude' que representan las coordenadas desde donde buscar ciudades cercanas.
+
+    Retorna:
+    - Response: Una respuesta HTTP con un código de estado 200 y un JSON que contiene las ciudades más cercanas, o un mensaje de error si se produce algún fallo.
+    """
+    try:
+        # Obtener las coordenadas desde la solicitud
+        latitude = float(request.query_params.get('latitude'))
+        longitude = float(request.query_params.get('longitude'))
+        
+        # Crear un punto a partir de las coordenadas dadas
+        given_point = Point(longitude, latitude, srid=4326)
+        
+        # Obtener las ciudades ordenadas por distancia a las coordenadas dadas
+        closest_cities = City.objects.annotate(distance=Distance('location', given_point)).order_by('distance')
+        
+        # Serializar los datos de las ciudades
+        data = [{'name': city.name, 'distance': city.distance.km} for city in closest_cities]
+        
+        return Response(data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
