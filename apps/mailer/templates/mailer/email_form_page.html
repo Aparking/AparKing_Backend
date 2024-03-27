@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% load i18n static %}
+
+{% load static %}
+{% block extrahead %}
+<link type="text/css" rel="stylesheet" href="{% static 'css/style.css' %}" />
+{% endblock extrahead %}
+
+
+
+{% block content %}
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enviar Correo Electrónico</title>
+</head>
+<div class='navigator'>
+    <h2>Formulario de Envío de Correo Electrónico</h2>
+    <form method="post" action="{% url 'send_email' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class='button'>Enviar Correo</button>
+    </form>
+</div>
+
+
+{% endblock content %}
