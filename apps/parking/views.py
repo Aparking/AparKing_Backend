@@ -24,7 +24,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-
 def manage_send_parking_created(type: str, message: dict, coordenates: Point):
     city_near = City.objects.annotate(distance=Distance('location', coordenates)).order_by('distance').first() 
     group: str = f"{city_near.location.y}_{city_near.location.x}".replace('.', 'p').replace('-', 'm') if city_near else "withoutData"
@@ -37,9 +36,7 @@ def manage_send_parking_created(type: str, message: dict, coordenates: Point):
                 "message": message
             }
         )
-
-       
-        
+    
     except Exception as e:
         raise e
 
@@ -229,9 +226,9 @@ def create_parking_data(request: HttpRequest):
     })
     return res
 
-@api_view(['GET'])
+@api_view(['POST'])
 #@login_required
-def get_closest_cities(request):
+def get_closest_cities(request: HttpRequest):
     """
     Obtiene las ciudades más cercanas a unas coordenadas dadas.
 
