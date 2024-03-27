@@ -4,6 +4,7 @@ from rest_framework.test import APITestCase
 from apps.authentication.models import CustomUser
 from apps.parking.models import City, Parking, Size, ParkingType
 
+
 class ParkingTestCase(APITestCase):
 
     def setUp(self):
@@ -17,7 +18,13 @@ class ParkingTestCase(APITestCase):
             birth_date='1990-01-01'
         )
         
-        self.client.login(email='testuser@example.com', password='password')
+        url_login = reverse('login')
+        # Primero, inicia sesión
+        data = {'password': 'password', 'email': 'testuser@example.com'}
+        response = self.client.post(url_login, data, format='json')
+        # Luego, prueba el logout
+        token = response.data.get('token')
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token}')
         self.create_parking_url = reverse('create_parking')
 
     def tearDown(self):

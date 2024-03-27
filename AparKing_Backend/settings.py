@@ -44,22 +44,35 @@ INSTALLED_APPS = [
     "apps.parking",
     "apps.payment",
     'rest_framework',
+    'django_filters',
+    'rest_framework.authtoken',
     'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'AparKing_Backend.urls'
+
+CORS_ALLOW_ORIGINS = [
+        "http://localhost:8100", 
+        "http://127.0.0.1:8100",
+        "http://127.0.0.1:8000",
+
+]
 CORS_ALLOW_ALL_ORIGINS = True
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+}
 
 TEMPLATES = [
     {
@@ -76,6 +89,18 @@ TEMPLATES = [
         },
     },
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',  # <-- And here
+    ],
+}
+
+SIMPLE_JWT = {
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'UPDATE_LAST_LOGIN': False,
+}
 
 WSGI_APPLICATION = 'AparKing_Backend.wsgi.application'
 ASGI_APPLICATION = "AparKing_Backend.asgi.application"
