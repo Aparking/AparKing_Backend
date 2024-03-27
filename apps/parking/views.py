@@ -232,7 +232,7 @@ def create_parking_data(request: HttpRequest):
     })
     return res
 
-  @api_view(['POST'])
+@api_view(['POST'])
 #@login_required
 def get_closest_cities(request: HttpRequest):
     """
