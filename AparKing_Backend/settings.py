@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +26,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-!eb&x8z=%ac03t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -44,22 +45,36 @@ INSTALLED_APPS = [
     "apps.parking",
     "apps.payment",
     'rest_framework',
+    'django_filters',
+    'rest_framework.authtoken',
     'corsheaders',
+    'apps.mailer',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'AparKing_Backend.urls'
+
+CORS_ALLOW_ORIGINS = [
+        "http://localhost:8100", 
+        "http://127.0.0.1:8100",
+        "http://127.0.0.1:8000",
+
+]
 CORS_ALLOW_ALL_ORIGINS = True
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+}
 
 TEMPLATES = [
     {
@@ -76,6 +91,18 @@ TEMPLATES = [
         },
     },
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',  # <-- And here
+    ],
+}
+
+SIMPLE_JWT = {
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'UPDATE_LAST_LOGIN': False,
+}
 
 WSGI_APPLICATION = 'AparKing_Backend.wsgi.application'
 ASGI_APPLICATION = "AparKing_Backend.asgi.application"
@@ -138,6 +165,12 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Base url to serve media files  
+MEDIA_URL = '/media/'  
+  
+# Path where media is stored  
+MEDIA_ROOT = BASE_DIR / 'media/'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
@@ -145,6 +178,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'authentication.CustomUser'
 AUTHENTICATION_BACKENDS = ['apps.authentication.backends.EmailBackend']
+
+EMAIL_BACKEND = 'apps.mailer.email_backend.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER =  config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 
 
 

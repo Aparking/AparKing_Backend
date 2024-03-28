@@ -1,10 +1,9 @@
 from django.contrib.gis.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator 
-
 from enumchoicefield import EnumChoiceField
-
 from apps.authentication.models import CustomUser
-from apps.parking.enums import ParkingSize, ParkingType
+from apps.parking.enums import Size, ParkingType
+
 class City(models.Model):
     name = models.CharField(null=False, blank=False)
     name_ascii = models.CharField(null=True, blank=True)
@@ -12,17 +11,15 @@ class City(models.Model):
     location = models.PointField(srid=4326, null=False, blank=False)
     country_code = models.CharField(null=True, blank=False)
 
-
 class Parking(models.Model):
     notified_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True, related_name="parking_notified_by")
     booked_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True, related_name="parking_booked_by")
     message = models.CharField(blank = True, null=True)
     location = models.PointField(srid=4326)
-    size = EnumChoiceField(ParkingSize, default=ParkingSize.MEDIUM, null=False, blank=False)
-    is_asignment = models.BooleanField(default = False, null=False, blank=False)
+    size = EnumChoiceField(Size, default=Size.SUV, null=False, blank=False)
+    is_assignment = models.BooleanField(default = False, null=False, blank=False)
     is_transfer = models.BooleanField(default = False, null=False, blank=False)
     parking_type = EnumChoiceField(ParkingType, default=ParkingType.FREE, null=False, blank=False) 
-
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Creation date")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Update date")
     

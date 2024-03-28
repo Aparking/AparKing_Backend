@@ -57,5 +57,5 @@ def import_cities(file_path):
     print(f"{len(cities_to_create)} cities added to the database successfully.")
 
 if __name__ == '__main__':
-    csv_file_path = './cities.csv'
+    csv_file_path = './backend/cities.csv'
     import_cities(csv_file_path)
