@@ -16,6 +16,7 @@ tqdm
 django-countries
 django-phonenumbers
 Pillow
+django-filter
 stripe
 
 # Cualquier requisito que se añada debe ser agregado también en el archivo actionsRequirements.txt

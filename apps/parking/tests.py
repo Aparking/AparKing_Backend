@@ -2,7 +2,8 @@ from django.contrib.gis.geos import Point
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from apps.authentication.models import CustomUser
-from apps.parking.models import City, Parking, ParkingSize, ParkingType
+from apps.parking.models import City, Parking, Size, ParkingType
+
 
 class ParkingTestCase(APITestCase):
 
@@ -17,7 +18,13 @@ class ParkingTestCase(APITestCase):
             birth_date='1990-01-01'
         )
         
-        self.client.login(email='testuser@example.com', password='password')
+        url_login = reverse('login')
+        # Primero, inicia sesión
+        data = {'password': 'password', 'email': 'testuser@example.com'}
+        response = self.client.post(url_login, data, format='json')
+        # Luego, prueba el logout
+        token = response.data.get('token')
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token}')
         self.create_parking_url = reverse('create_parking')
 
     def tearDown(self):
@@ -27,7 +34,7 @@ class ParkingTestCase(APITestCase):
         data = {
             "latitude":"42.3851",
             "longitude":"2.2734",
-            "size": "SMALL",
+            "size": "COMPACTO",
             "parking_type": "FREE",
         }
         
@@ -38,9 +45,9 @@ class ParkingTestCase(APITestCase):
     def test_assign_parking_success(self):
         parking = Parking.objects.create(
             location=Point(2.1734, 42.3851, srid=4326),
-            size=ParkingSize.SMALL,
+            size=Size.COMPACTO,
             parking_type=ParkingType.FREE,
-            is_asignment=False,
+            is_assignment=False,
             notified_by=self.user
         )
         assign_parking_url = reverse('assign_parking', kwargs={'parking_id': parking.id})
@@ -52,9 +59,9 @@ class ParkingTestCase(APITestCase):
     def test_transfer_parking_success(self):
         parking = Parking.objects.create(
             location=Point(2.1734, 42.3851, srid=4326),
-            size=ParkingSize.SMALL,
+            size=Size.COMPACTO,
             parking_type=ParkingType.ASSIGNMENT,
-            is_asignment=True,
+            is_assignment=True,
             notified_by=self.user
         )
         transfer_parking_url = reverse('transfer_parking', kwargs={'parking_id': parking.id})
@@ -66,9 +73,9 @@ class ParkingTestCase(APITestCase):
     def test_assign_parking_already_assigned(self):
         parking = Parking.objects.create(
             location=Point(2.1734, 42.3851, srid=4326),
-            size=ParkingSize.SMALL,
+            size=Size.COMPACTO,
             parking_type=ParkingType.FREE,
-            is_asignment=True,
+            is_assignment=True,
             notified_by=self.user
         )
         assign_parking_url = reverse('assign_parking', kwargs={'parking_id': parking.id})
@@ -79,9 +86,9 @@ class ParkingTestCase(APITestCase):
     def test_delete_parking_success(self):
         parking = Parking.objects.create(
             location=Point(2.1734, 42.3851, srid=4326),
-            size=ParkingSize.SMALL,
+            size=Size.COMPACTO,
             parking_type=ParkingType.FREE,
-            is_asignment=False,
+            is_assignment=False,
             notified_by=self.user
         )
         delete_parking_url = reverse('delete_parking', kwargs={'parking_id': parking.id})
@@ -93,16 +100,16 @@ class ParkingTestCase(APITestCase):
     def test_get_parking_near_success(self):
         Parking.objects.create(
             location=Point(2.1734, 42.3851, srid=4326),
-            size=ParkingSize.MEDIUM,
+            size=Size.BERLINA,
             parking_type=ParkingType.FREE,
-            is_asignment=False,
+            is_assignment=False,
             notified_by=self.user
         )
         Parking.objects.create(
             location=Point(2.1744, 42.3852, srid=4326),
-            size=ParkingSize.SMALL,
+            size=Size.COMPACTO,
             parking_type=ParkingType.FREE,
-            is_asignment=False,
+            is_assignment=False,
             notified_by=self.user
         )
 

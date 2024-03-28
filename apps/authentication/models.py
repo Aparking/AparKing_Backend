@@ -14,6 +14,7 @@ from apps.authentication.enums import Gender
 
 
 class CustomUser(AbstractUser):
+    username = models.CharField(max_length=255, unique=False, blank=False, null=False)
     email = models.EmailField(unique=True, blank=False, null=False)
     dni = models.CharField(max_length=9, 
                            unique=True, 
@@ -32,6 +33,9 @@ class CustomUser(AbstractUser):
     phone = PhoneNumberField(blank=False, null=False)
     stripe_customer_id = models.CharField(max_length=255,null = True)
 
+
+    REQUIRED_FIELDS = []
+    USERNAME_FIELD = 'email'
 
 class Vehicle(models.Model):
     carModel = models.CharField(max_length=100, blank=False, null=False)

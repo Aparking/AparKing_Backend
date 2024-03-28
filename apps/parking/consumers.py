@@ -7,7 +7,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 class ParkingConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
-        self.room_group_name = f"chat_{self.room_name}"
+        self.room_group_name = f"{self.room_name}"
 
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -25,27 +25,27 @@ class ParkingConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        message = text_data_json["message"]
+        message = text_data_json['message']
         socket_type = text_data_json["type"]
-
         await self.channel_layer.group_send(
             self.room_group_name,
-            {
-                "type": socket_type,
-                "message": message
-            }
+            {'message': message, 'type': socket_type}
         )
 
     async def notify_parking_created(self, event):
-        await self.send(text_data=event['message'])
+        print("notify_parking_created")
+        message_text = json.dumps(event)
+
+        await self.send(text_data=message_text)
 
     async def notify_parking_booked(self, event):
-        await self.send(text_data=event['message'])
+        print("notify_parking_booked")
+        message_text = json.dumps(event)
+
+        await self.send(text_data=message_text)
 
     async def notify_parking_deleted(self, event):
-        await self.send(text_data=event['message'])
+        print("notify_parking_deleted")
+        message_text = json.dumps(event)
 
-    async def chat_message(self, event):
-        message = event["message"]
-
-        await self.send(text_data=json.dumps({"message": message}))
+        await self.send(text_data=message_text)
