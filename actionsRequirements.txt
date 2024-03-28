@@ -17,3 +17,4 @@ django-countries
 django-phonenumbers
 Pillow
 django-filter
+python-decouple
