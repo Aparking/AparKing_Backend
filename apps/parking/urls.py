@@ -11,4 +11,5 @@ urlpatterns = [
     path("transfer/<int:parking_id>", views.transfer_parking, name="transfer_parking"),
     path("delete/<int:parking_id>", views.delete_parking, name="delete_parking"),
     path("<str:room_name>/", views.room, name="room"),
+    path("get_closest_cities/", views.get_closest_cities, name="get_closest_cities"),
 ]

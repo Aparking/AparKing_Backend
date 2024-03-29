@@ -6,6 +6,7 @@ local_settings.py
 venv/
 media/**
 
+.env
 #cache de datos
 __pycache__
 
