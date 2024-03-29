@@ -6,6 +6,7 @@ from django.contrib.auth import login, logout, authenticate
 from .serializers import LoginSerializer, RegisterSerializer
 from apps.mailer import generic_sender as Mailer
 from apps.utils import code_generator
+import stripe
 
 @api_view(['POST'])
 def auth_login(request) -> Response:
@@ -66,6 +67,10 @@ def register(request) -> Response:
             mail_to=user.email
         )
         user.save()
+        customer = stripe.Customer.create(
+            email = user.email,
+            name = user.username
+        )
         return Response({'token':token.key}, status=200)
     else:
         return Response(serializer.errors, status=400)

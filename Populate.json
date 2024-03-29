@@ -504,7 +504,7 @@
             "end_date": "2024-12-31T23:59:59Z",
             "type": "Gratuita",
             "user": 1,
-            "stripe_subscription_id": null
+            "stripe_subscription_id": "price_1OzRzqC4xI44aLdHxKkbcfko"
         }
     },
     {
@@ -515,7 +515,7 @@
             "end_date": "2024-06-30T23:59:59Z",
             "type": "Noble",
             "user": 2,
-            "stripe_subscription_id": null
+            "stripe_subscription_id": "price_1OzduBC4xI44aLdHVfhBk4MT"
         }
     },
     {
@@ -526,18 +526,7 @@
             "end_date": "2024-03-31T23:59:59Z",
             "type": "King",
             "user": 3,
-            "stripe_subscription_id": null
-        }
-    },
-    {
-        "model": "payment.memberShip",
-        "pk": 4,
-        "fields": {
-            "start_date": "2024-01-01T00:00:00Z",
-            "end_date": "2024-12-31T23:59:59Z",
-            "type": "King",
-            "user": 4,
-            "stripe_subscription_id": null
+            "stripe_subscription_id": "price_1OzduRC4xI44aLdHub5MI81D"
         }
     }
 ]
