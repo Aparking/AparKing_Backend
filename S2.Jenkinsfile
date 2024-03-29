@@ -1,22 +1,40 @@
 pipeline {
     agent any
+    environment {
+        INSTANCE_NAME = "aparking-instance-s2"
+        PROJECT = "aparking-g11-s1"
+        ZONE = "europe-southwest1-a"
+        IMAGE = "jenkins-docker" // La imagen de GCE que tiene Docker y Docker Compose
+        MACHINE_TYPE = "e2-medium"
+        GIT_REPO = "https://github.com/Aparking/AparKing_Backend.git"
+        GIT_BRANCH = "deploy/s2"
+    }
     stages {
-        stage('Checkout') {
+        stage('Prepare Environment') {
             steps {
-                checkout scm // Clona el repositorio
+                script {
+                    // Elimina la instancia existente si existe
+                    sh "gcloud compute instances delete ${INSTANCE_NAME} --zone=${ZONE} --project=${PROJECT} --quiet || true"
+                    // Crea una nueva instancia
+                    sh """
+                    gcloud compute instances create ${INSTANCE_NAME} \
+                        --zone=${ZONE} \
+                        --project=${PROJECT} \
+                        --image=${IMAGE} \
+                        --machine-type=${MACHINE_TYPE} \
+                        --metadata=startup-script='#!/bin/bash
+                        git clone -b ${GIT_BRANCH} ${GIT_REPO} /app
+                        cd /app
+                        docker-compose up --build -d'
+                    """
+                }
             }
         }
-        stage('Build') {
-            steps {
-                sh 'docker-compose up --build -d' // Ejecuta docker-compose en el agente
-            }
-        }
-        // Añade más etapas según sea necesario, por ejemplo, para pruebas o despliegue
     }
     post {
         always {
-            // Aquí puedes añadir pasos de limpieza o notificaciones
-            echo 'Pipeline completado'
+            echo 'Pipeline completed.'
+            // Aquí puedes añadir comandos para limpiar recursos si es necesario
         }
     }
 }
