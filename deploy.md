@@ -9,7 +9,7 @@ Esta guía describe los pasos necesarios para desplegar la aplicación `aparking
    Antes de desplegar en Compute Engine, construye tu imagen Docker localmente para asegurarte de que todo está configurado correctamente.
 
     ```bash
-    docker build --tag aparking-image .
+    docker build --platform linux/amd64 --tag aparking-image .
     ```
 
 2. **Ejecutar Localmente (Opcional):**
@@ -30,6 +30,10 @@ Esta guía describe los pasos necesarios para desplegar la aplicación `aparking
 
 1. **Subir la Imagen a Google Container Registry:**
 
+    Si es la primera vez deberás ejecutar el siguiente comando:
+    ```bash
+    gcloud auth configure-docker eu.gcr.io
+    ```
    Etiqueta y sube la imagen Docker al Google Container Registry del proyecto.
 
     ```bash
