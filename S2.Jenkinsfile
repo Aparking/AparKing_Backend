@@ -44,5 +44,6 @@ pipeline {
             mail to: 'juancarlosralop@gmail.com',
                 subject: "Despliegue Fallido: ${INSTANCE_NAME}",
                 body: "El despliegue de la instancia ${INSTANCE_NAME} ha fallado."
+        }
     }
 }
