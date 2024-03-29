@@ -3,6 +3,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
 from django.contrib.auth import login, logout, authenticate
+from apps.authentication.models import CustomUser
 from .serializers import LoginSerializer, RegisterSerializer
 from apps.mailer import generic_sender as Mailer
 from apps.utils import code_generator
@@ -56,17 +57,25 @@ def verify_user(request) -> Response:
 def register(request) -> Response:
     serializer = RegisterSerializer(data=request.data)
     if serializer.is_valid():
-        user = serializer.save()
+        user: CustomUser = serializer.save()
         user.is_active = False
         user.code = code_generator.code_generator(10)
         token, _ = Token.objects.get_or_create(user=user)
-        Mailer.send_email(
-            subject=f'AparKing - Activar cuenta',
-            message=f'Bienvenido {user.first_name}, para activar su cuenta introduzca el siguiente código: {user.code}',
-            mail_to=user.email
-        )
-        user.save()
-        return Response({'token':token.key}, status=200)
+        try: 
+            Mailer.send_email(
+                subject=f'AparKing - Activar cuenta',
+                message=f'Bienvenido {user.first_name}, para activar su cuenta introduzca el siguiente código: {user.code}',
+                mail_to=user.email
+            )
+            user.save()
+            return Response({'token':token.key}, status=200)
+        except Exception:
+            user.delete()
+            if serializer.errors:
+                return Response(serializer.errors, status=400)
+            else:
+                return Response({'email': "No hemos podido enviar la confirmación, inténtelo más tarde"}, status=500)
+                
     else:
         return Response(serializer.errors, status=400)
 

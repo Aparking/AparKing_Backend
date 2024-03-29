@@ -151,7 +151,7 @@ DATABASES = {
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-ES'
 
 TIME_ZONE = 'UTC'
 
@@ -181,7 +181,6 @@ AUTHENTICATION_BACKENDS = ['apps.authentication.backends.EmailBackend']
 
 EMAIL_BACKEND = 'apps.mailer.email_backend.EmailBackend'
 EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER =  config('EMAIL_HOST_USER', default='')
