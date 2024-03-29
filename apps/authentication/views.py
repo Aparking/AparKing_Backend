@@ -49,7 +49,7 @@ def verify_user(request) -> Response:
         else:
             return Response(status=400)
     except Exception:
-        return Response({"error": "Token not found"}, status=400)
+        return Response({"error": "Token no válido"}, status=400)
 
 
     

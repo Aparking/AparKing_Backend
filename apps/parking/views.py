@@ -156,7 +156,7 @@ def assign_parking(request: HttpRequest, parking_id: int):
         manage_send_parking_created(NoticationsSocket.PARKING_BOOKED.value, ParkingSerializer(parking).data, parking.location)
         return JsonResponse({"message": "Parking assigned"}, status=200)
     except Parking.DoesNotExist:
-        return JsonResponse({"message": "The parking doesn't exist"}, status=404)
+        return JsonResponse({"message": "No existe la plaza"}, status=404)
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
@@ -180,9 +180,9 @@ def transfer_parking(request: HttpRequest, parking_id: int):
         parking = Parking.objects.get(pk=parking_id, is_assignment=True, parking_type=ParkingType.ASSIGNMENT, is_transfer=False, notified_by=request.user)
         parking.is_transfer = True
         parking.save()
-        return JsonResponse({"message": "Parking assigned"}, status=200)
+        return JsonResponse({"message": "Parking asignado"}, status=200)
     except Parking.DoesNotExist:
-        return JsonResponse({"message": "The parking doesn't exist"}, status=404)
+        return JsonResponse({"message": "El parking no existe"}, status=404)
     
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
@@ -206,9 +206,9 @@ def delete_parking(request: HttpRequest, parking_id: int):
         parking = Parking.objects.get(pk=parking_id, is_assignment=False)
         manage_send_parking_created(NoticationsSocket.PARKING_DELETED.value, ParkingSerializer(parking).data, parking.location)
         parking.delete()
-        return JsonResponse({"message": "Parking deleted"}, status=200)
+        return JsonResponse({"message": "Parking eliminado"}, status=200)
     except Parking.DoesNotExist:
-        return JsonResponse({"message": "The parking doesn't exist"}, status=404)
+        return JsonResponse({"message": "El parking no existe"}, status=404)
     
 
 @api_view(['GET'])
