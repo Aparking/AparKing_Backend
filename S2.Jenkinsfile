@@ -20,7 +20,7 @@ pipeline {
                     gcloud compute instances create ${INSTANCE_NAME} \
                         --zone=${ZONE} \
                         --project=${PROJECT} \
-                        --image=${IMAGE} \
+                        --machine-image=${IMAGE} \
                         --machine-type=${MACHINE_TYPE} \
                         --metadata=startup-script='#!/bin/bash
                         git clone -b ${GIT_BRANCH} ${GIT_REPO} /app
