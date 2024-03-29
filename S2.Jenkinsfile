@@ -24,6 +24,8 @@ pipeline {
                         --machine-type=${MACHINE_TYPE} \
                         --metadata=startup-script='#!/bin/bash
                         sudo git clone --single-branch --branch ${GIT_BRANCH} ${GIT_REPO} /app
+                        echo "EMAIL_HOST_USER=aparking.g11@gmail.com" > .env
+                        echo "EMAIL_HOST_PASSWORD=${env.EMAIL_HOST_PASSWORD}" >> .env
                         cd /app
                         sudo docker compose up --build -d'
                     """
