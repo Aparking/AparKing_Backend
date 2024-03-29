@@ -24,9 +24,9 @@ pipeline {
                         --machine-type=${MACHINE_TYPE} \
                         --metadata=startup-script='#!/bin/bash
                         sudo git clone --single-branch --branch ${GIT_BRANCH} ${GIT_REPO} /app
+                        cd /app
                         echo "EMAIL_HOST_USER=aparking.g11@gmail.com" > .env
                         echo "EMAIL_HOST_PASSWORD=${env.EMAIL_HOST_PASSWORD}" >> .env
-                        cd /app
                         sudo docker compose up --build -d'
                     """
                 }
@@ -38,12 +38,12 @@ pipeline {
             echo 'Pipeline completed.'
         }
         success {
-            mail to: 'juancarlosralop@gmail.com',
+            mail to: 'juancarlosralop@gmail.com, sergiosantiago0403@gmail.com',
                 subject: "Despliegue Completado: ${INSTANCE_NAME}",
                 body: "El despliegue de la instancia ${INSTANCE_NAME} ha sido completado. Accede a través de la dirección IP: ${'http://'+sh(script: "gcloud compute instances describe ${INSTANCE_NAME} --zone=${ZONE} --format='get(networkInterfaces[0].accessConfigs[0].natIP)'", returnStdout: true).trim()}."
         }
         failure {
-            mail to: 'juancarlosralop@gmail.com',
+            mail to: 'juancarlosralop@gmail.com, sergiosantiago0403@gmail.com',
                 subject: "Despliegue Fallido: ${INSTANCE_NAME}",
                 body: "El despliegue de la instancia ${INSTANCE_NAME} ha fallado."
         }
