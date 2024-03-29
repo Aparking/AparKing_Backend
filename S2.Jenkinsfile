@@ -35,10 +35,14 @@ pipeline {
         always {
             echo 'Pipeline completed.'
         }
-        // success {
-        //     mail to: 'juancarlosralop@gmail.com',
-        //         subject: "Despliegue Completado: ${INSTANCE_NAME}",
-        //         body: "El despliegue de la instancia ${INSTANCE_NAME} ha sido completado. Accede a través de la dirección IP: ${'http://'+sh(script: "gcloud compute instances describe ${INSTANCE_NAME} --zone=${ZONE} --format='get(networkInterfaces[0].accessConfigs[0].natIP)'", returnStdout: true).trim()}."
-        // }
+        success {
+            mail to: 'juancarlosralop@gmail.com',
+                subject: "Despliegue Completado: ${INSTANCE_NAME}",
+                body: "El despliegue de la instancia ${INSTANCE_NAME} ha sido completado. Accede a través de la dirección IP: ${'http://'+sh(script: "gcloud compute instances describe ${INSTANCE_NAME} --zone=${ZONE} --format='get(networkInterfaces[0].accessConfigs[0].natIP)'", returnStdout: true).trim()}."
+        }
+        failure {
+            mail to: 'juancarlosralop@gmail.com',
+                subject: "Despliegue Fallido: ${INSTANCE_NAME}",
+                body: "El despliegue de la instancia ${INSTANCE_NAME} ha fallado."
     }
 }
