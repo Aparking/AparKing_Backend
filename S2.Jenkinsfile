@@ -23,9 +23,9 @@ pipeline {
                         --source-machine-image=${IMAGE} \
                         --machine-type=${MACHINE_TYPE} \
                         --metadata=startup-script='#!/bin/bash
-                        git clone -b ${GIT_BRANCH} ${GIT_REPO} /app
+                        sudo git clone --single-branch --branch ${GIT_BRANCH} ${GIT_REPO} /app
                         cd /app
-                        docker-compose up --build -d'
+                        sudo docker compose up --build -d'
                     """
                 }
             }
@@ -35,6 +35,11 @@ pipeline {
         always {
             echo 'Pipeline completed.'
             // Aquí puedes añadir comandos para limpiar recursos si es necesario
+            success {
+            mail to: 'juancarlosralop@gmail.com',
+                subject: "Despliegue Completado: ${INSTANCE_NAME}",
+                body: "El despliegue de la instancia ${INSTANCE_NAME} ha sido completado. Accede a través de la dirección IP: ${'http://'+sh(script: "gcloud compute instances describe ${INSTANCE_NAME} --zone=${ZONE} --format='get(networkInterfaces[0].accessConfigs[0].natIP)'", returnStdout: true).trim()}."
+        }
         }
     }
 }
