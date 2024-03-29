@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'ubuntu-2004' } // Usa la etiqueta configurada en tu instancia de Google Compute Engine
+    agent any
     stages {
         stage('Checkout') {
             steps {
