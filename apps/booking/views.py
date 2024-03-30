@@ -17,12 +17,12 @@ def create_booking(request):
     if request.method == 'POST':
         data = request.data
         user = request.user
-        availability = get_object_or_404(Availability, id=data.availability)
+        availability = get_object_or_404(Availability, id=data['availability'])
         garage = get_object_or_404(Garage, id=availability.garage.id)
         availability.status = GarageStatus.RESERVED.value
         availability.save()
 
-        book = Book.objects.create(payment_method=data.get('payment_method'), status=BookingStatus.CONFIRMED.value, user=user, availability=availability)
+        book = Book.objects.create(payment_method=data['payment_method'], status=BookingStatus.CONFIRMED.value, user=user, availability=availability)
         bookSerializer = BookSerializer(book)
         bookSerializer.save()
         return Response(bookSerializer.data, status=status.HTTP_201_CREATED)
