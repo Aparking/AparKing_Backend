@@ -13,12 +13,12 @@ from apps.booking.enums import BookingStatus
         
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def create_booking(request, garage_id):
+def create_booking(request):
     if request.method == 'POST':
         data = request.data
         user = request.user
-        garage = get_object_or_404(Garage, id=garage_id)
-        availability = get_object_or_404(Availability, garage=garage)
+        availability = get_object_or_404(Availability, id=data.availability_id)
+        garage = get_object_or_404(Garage, id=availability.garage.id)
         availability.status = GarageStatus.RESERVED.value
         availability.save()
 
