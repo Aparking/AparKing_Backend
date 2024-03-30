@@ -17,7 +17,7 @@ def create_booking(request):
     if request.method == 'POST':
         data = request.data
         user = request.user
-        availability = get_object_or_404(Availability, id=data.availability_id)
+        availability = get_object_or_404(Availability, id=data.availability)
         garage = get_object_or_404(Garage, id=availability.garage.id)
         availability.status = GarageStatus.RESERVED.value
         availability.save()
