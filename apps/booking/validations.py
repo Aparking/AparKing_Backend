@@ -28,8 +28,8 @@ def validate_availability_data(availability_data):
         raise serializers.ValidationError("La fecha final debe ser anterior o igual al 31/12/2100.")
 
     status = availability_data.get('status', None)
-    if not status or status not in [choice.value for choice in GarageStatus.choices()]:
-        valid_statuses = ", ".join([choice.value for choice in GarageStatus.choices()])
+    if not status or status not in [choice[1] for choice in GarageStatus.choices()]:
+        valid_statuses = ", ".join([choice[1] for choice in GarageStatus.choices()])
         raise serializers.ValidationError(f"El 'status' debe ser uno de los siguientes valores válidos: {valid_statuses}.")
 
     return availability_data
@@ -37,13 +37,13 @@ def validate_availability_data(availability_data):
 
 def validate_booking_data(book_data):
     payment_method = book_data.get('payment_method', None)
-    if not payment_method or payment_method not in [choice.value for choice in PaymentMethod.choices()]:
-        valid_methods = ", ".join([choice.value for choice in PaymentMethod.choices()])
+    if not payment_method or payment_method not in [choice[0] for choice in PaymentMethod.choices()]:
+        valid_methods = ", ".join([choice[0] for choice in PaymentMethod.choices()])
         raise serializers.ValidationError(f"El método de pago debe ser uno de los siguientes valores válidos: {valid_methods}.")
 
     status = book_data.get('status', None)
-    if not status or status not in [choice.value for choice in BookingStatus.choices()]:
-        valid_statuses = ", ".join([choice.value for choice in BookingStatus.choices()])
+    if not status or status not in [choice[0] for choice in BookingStatus.choices()]:
+        valid_statuses = ", ".join([choice[0] for choice in BookingStatus.choices()])
         raise serializers.ValidationError(f"El estado debe ser uno de los siguientes valores válidos: {valid_statuses}.")
 
     return book_data
