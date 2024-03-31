@@ -20,8 +20,8 @@ class AvailabilitySerializer(serializers.ModelSerializer):
 class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ["payment_method", "status", "user", "availability"]
-
+        fields = "__all__"
+        
     def validate(self, attrs):
         return validations.validate_booking_data(attrs)
 
