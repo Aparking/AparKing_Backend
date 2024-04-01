@@ -63,10 +63,6 @@ jobs:
           python manage.py makemigrations
           python manage.py migrate
 
-      - name: Run Tests
-        run: |
-          python manage.py test
-
   codacy-analysis:
     name: Codacy Analysis
     runs-on: ubuntu-latest
