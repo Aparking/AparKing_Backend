@@ -11,6 +11,18 @@ from apps.garagement.enums import GarageStatus
 from apps.booking.enums import BookingStatus
 from rest_framework.exceptions import ValidationError
 
+import stripe
+from django.conf import settings
+import json
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_booking(request):
@@ -57,3 +69,35 @@ def booking_details(request, pk):
             return Response(status=status.HTTP_204_NO_CONTENT)
     except Book.DoesNotExist:
         return Response({"message": "No se encontró ninguna reserva para el garaje."}, status=status.HTTP_404_NOT_FOUND)
+    
+@csrf_exempt
+@require_POST
+def create_checkout_session(request):
+    data = json.loads(request.body.decode('utf-8'))
+    
+    try:
+        booking_id = data
+        booking = Book.objects.get(id=booking_id)
+        amount = booking.calculate_total_price
+        
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+                line_items=[{
+                    'price_data': {
+                        'currency': 'eur',
+                        'product_data': {
+                            'name': f'Reserva de garaje {booking.availability.garage.name}',
+                        },
+                        'unit_amount': amount*100,  
+                    },
+                    'quantity': 1,
+                }],
+                mode='payment',
+                success_url='http://localhost:8100',
+                cancel_url='http://localhost:8100',
+            )
+        
+        return JsonResponse({'url': session.url})
+
+    except stripe.error.StripeError as e:
+        return JsonResponse({'error': str(e)}, status=403)
