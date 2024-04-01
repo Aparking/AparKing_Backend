@@ -9,7 +9,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from phonenumber_field.modelfields import PhoneNumberField
-
+from apps.payment.enums import MemberId
 from apps.authentication.enums import Gender
 
 
@@ -32,7 +32,7 @@ class CustomUser(AbstractUser):
     photo = models.URLField(blank=True, null=True)
     phone = PhoneNumberField(blank=False, null=False)
     stripe_customer_id = models.CharField(max_length=255,null = True)
-
+    stripe_subscription_id = models.CharField(max_length=255, choices=MemberId.choices(), default=MemberId.FREE, blank=False, null=False)
     code = models.CharField(max_length=10, blank=True)
 
     REQUIRED_FIELDS = []

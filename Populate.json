@@ -3,18 +3,21 @@
         "model": "authentication.customUser",
         "pk":1,
         "fields":{
-            "username": "sosimomari",
-            "email": "domitilaroca@yahoo.com",
+            "username": "alepervaz",
+            "email": "alejandro16032002@gmail.com",
             "dni":"47859612T",
-            "password": "K_5%CIfh39",
-            "first_name": "Dani",
-            "last_name": "Correa",
+            "password": "123456",
+            "first_name": "ale",
+            "last_name": "Perez",
             "gender": "M",
             "is_active": false,
             "is_staff": false,
             "date_joined": "2023-01-1T16:46:52.327Z",
             "birth_date": "2024-02-27",
-            "phone": "+1612348729"
+            "phone": "+1612348729",
+            "stripe_customer_id": null,
+            "stripe_subscription_id":"price_1OzRzqC4xI44aLdHxKkbcfko",
+            "code": "valor"
 
         }
     },
@@ -35,6 +38,7 @@
             "birth_date": "2023-03-29",
             "phone": "+1678954120",
             "stripe_customer_id": null,
+            "stripe_subscription_id":"price_1OzRzqC4xI44aLdHxKkbcfko",
             "code": "valor"
         }
     },
@@ -55,6 +59,7 @@
             "birth_date": "2022-04-29",
             "phone": "+16044011234",
             "stripe_customer_id": null,
+            "stripe_subscription_id":"price_1OzRzqC4xI44aLdHxKkbcfko",
             "code": "valor"
         }
     },
@@ -75,6 +80,7 @@
             "birth_date": "2023-03-27",
             "phone": "+1608796413",
             "stripe_customer_id": null,
+            "stripe_subscription_id":"price_1OzRzqC4xI44aLdHxKkbcfko",
             "code": "valor"
         }
     },
@@ -503,8 +509,7 @@
             "start_date": "2024-01-01T00:00:00Z",
             "end_date": "2024-12-31T23:59:59Z",
             "type": "Gratuita",
-            "user": 1,
-            "stripe_subscription_id": "price_1OzRzqC4xI44aLdHxKkbcfko"
+            "user": 1
         }
     },
     {
@@ -514,8 +519,7 @@
             "start_date": "2024-01-01T00:00:00Z",
             "end_date": "2024-06-30T23:59:59Z",
             "type": "Noble",
-            "user": 2,
-            "stripe_subscription_id": "price_1OzduBC4xI44aLdHVfhBk4MT"
+            "user": 2
         }
     },
     {
@@ -525,8 +529,7 @@
             "start_date": "2024-01-01T00:00:00Z",
             "end_date": "2024-03-31T23:59:59Z",
             "type": "King",
-            "user": 3,
-            "stripe_subscription_id": "price_1OzduRC4xI44aLdHub5MI81D"
+            "user": 3
         }
     }
 ]

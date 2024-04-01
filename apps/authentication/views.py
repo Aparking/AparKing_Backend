@@ -51,7 +51,6 @@ def verify_user(request) -> Response:
     except Exception:
         return Response({"error": "Token not found"}, status=400)
 
-
     
 @api_view(['POST'])
 def register(request) -> Response:
@@ -66,11 +65,13 @@ def register(request) -> Response:
             message=f'Bienvenido {user.first_name}, para activar su cuenta introduzca el siguiente código: {user.code}',
             mail_to=user.email
         )
-        user.save()
         customer = stripe.Customer.create(
             email = user.email,
             name = user.username
         )
+        user.stripe_customer_id = customer.id
+        user.stripe_subscription_id = "price_1OzRzqC4xI44aLdHxKkbcfko"
+        user.save()
         return Response({'token':token.key}, status=200)
     else:
         return Response(serializer.errors, status=400)
