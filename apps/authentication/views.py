@@ -7,6 +7,10 @@ from .serializers import LoginSerializer, RegisterSerializer
 from apps.mailer import generic_sender as Mailer
 from apps.utils import code_generator
 import stripe
+from apps.payment.models import MemberShip, CustomUser, Credit
+from apps.payment.enums import MemberType
+from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 
 @api_view(['POST'])
 def auth_login(request) -> Response:
@@ -69,6 +73,12 @@ def register(request) -> Response:
             email = user.email,
             name = user.username
         )
+        now = timezone.now()
+        oneMonthLater = now + relativedelta(months=1)
+        memberShip=MemberShip(start_date=now,end_date=oneMonthLater,type=MemberType.FREE,user=user)
+        credit= Credit(value=50,creation_date=now ,user=user)
+        memberShip.save()
+        credit.save()
         user.stripe_customer_id = customer.id
         user.stripe_subscription_id = "price_1OzRzqC4xI44aLdHxKkbcfko"
         user.save()

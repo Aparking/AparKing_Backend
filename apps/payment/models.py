@@ -8,9 +8,21 @@ class Credit(models.Model):
     creation_date = models.DateField(auto_now_add=True, blank=False, null=False)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=False, null=False)
 
+    def to_json(self):
+        return {
+            'id': self.id,
+            'value': self.value
+        }
+
 class MemberShip(models.Model):
     start_date=models.DateTimeField(blank=False, null=False)
     end_date=models.DateTimeField(blank=False, null=False)
     type = models.CharField(max_length=16, choices=MemberType.choices(), default=MemberType.FREE, blank=False, null=False)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=False, null=False)
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'type': self.type
+        }
     

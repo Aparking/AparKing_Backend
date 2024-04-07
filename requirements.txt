@@ -19,5 +19,6 @@ Pillow
 python-decouple
 django-filter
 stripe
+python-dateutil
 
 # Cualquier requisito que se añada debe ser agregado también en el archivo actionsRequirements.txt

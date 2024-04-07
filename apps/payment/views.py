@@ -24,7 +24,8 @@ def create_checkout_session(request):
     data = json.loads(request.body.decode('utf-8'))
     try:
         customUser = request.user
-        credit =Credit.filter(user=customUser.id)
+        credit =Credit.objects.get(user=customUser.id)
+        memberShip =MemberShip.objects.get(user=customUser)
         subscription_plan_id=MemberId.FREE
         if data.get('planId')== 'NOBLE':
             credit.value = 300
@@ -34,7 +35,7 @@ def create_checkout_session(request):
             subscription_plan_id=MemberId.KING
           
         
-        memberShip =MemberShip.objects.filter(user=customUser)
+        
         
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=['card'],
@@ -43,19 +44,46 @@ def create_checkout_session(request):
                 'quantity': 1,
             }],
             mode='subscription',
-            success_url='http://localhost:8100/aparking/map',
-            cancel_url='http://localhost:8100/test-subscription',
+            success_url='http://localhost:8100/api/subscriptions',
+            cancel_url='http://localhost:8100/api/subscriptions',
         )
-        print("prueba5")
-        if(checkout_session.success_url == "http://localhost:8100/aparking/map"):
+        userInfo={
+            'name':customUser.username,
+            'membership':memberShip.type,
+            'credit': credit.value
+        }
+
+        response_data={
+            'url': checkout_session.url,
+            'user_info':userInfo
+        }
+        if(checkout_session.success_url == "http://localhost:8100/api/subscriptions"):
             customUser.stripe_subscription_id = subscription_plan_id
             memberShip.type = data.get('planId')
             credit.save()
             memberShip.save()
             customUser.save()
 
-
-
-        return JsonResponse({'url': checkout_session.url})
+        return JsonResponse(response_data)
+    except stripe.error.StripeError as e:
+        return JsonResponse({'error': str(e)}, status=403)
+    
+@csrf_exempt
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def getMembership(request):
+    try:
+        customUser = request.user
+        credit =Credit.objects.get(user=customUser.id)
+        memberShip =MemberShip.objects.get(user=customUser)
+        userInfo={
+            'user':customUser.to_json(),
+            'membership':memberShip.to_json(),
+            'credit': credit.to_json()
+        }
+        response_data={
+            'user_info':userInfo
+        }
+        return JsonResponse(response_data)
     except stripe.error.StripeError as e:
         return JsonResponse({'error': str(e)}, status=403)

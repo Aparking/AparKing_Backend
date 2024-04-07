@@ -38,6 +38,13 @@ class CustomUser(AbstractUser):
     REQUIRED_FIELDS = []
     USERNAME_FIELD = 'email'
 
+    def to_json(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+        }
+
 class Vehicle(models.Model):
     carModel = models.CharField(max_length=100, blank=False, null=False)
     color = models.CharField(max_length=25, blank=False, null=False)
