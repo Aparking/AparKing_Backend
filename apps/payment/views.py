@@ -10,11 +10,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.utils.dateparse import parse_datetime
-from apps.payment.enums import MemberId
+from apps.payment.enums import MemberId, MemberType
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.permissions import IsAuthenticated
-
+from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 @csrf_exempt
@@ -33,10 +34,6 @@ def create_checkout_session(request):
         elif data.get('planId')== 'KING':
             credit.value = 1000
             subscription_plan_id=MemberId.KING
-          
-        
-        
-        
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=['card'],
             line_items=[{
@@ -45,7 +42,7 @@ def create_checkout_session(request):
             }],
             mode='subscription',
             success_url='http://localhost:8100/api/subscriptions',
-            cancel_url='http://localhost:8100/api/subscriptions',
+            cancel_url='http://localhost:8100/G11/aparKing/map',
         )
         userInfo={
             'name':customUser.username,
@@ -57,12 +54,8 @@ def create_checkout_session(request):
             'url': checkout_session.url,
             'user_info':userInfo
         }
-        if(checkout_session.success_url == "http://localhost:8100/api/subscriptions"):
-            customUser.stripe_subscription_id = subscription_plan_id
-            memberShip.type = data.get('planId')
-            credit.save()
-            memberShip.save()
-            customUser.save()
+        customUser.stripe_session_id = checkout_session.id
+        customUser.save()
 
         return JsonResponse(response_data)
     except stripe.error.StripeError as e:
@@ -76,6 +69,31 @@ def getMembership(request):
         customUser = request.user
         credit =Credit.objects.get(user=customUser.id)
         memberShip =MemberShip.objects.get(user=customUser)
+        subscription_plan_id=MemberId.FREE
+        member=MemberType.FREE
+        if(customUser.stripe_session_id!= None):
+            session = stripe.checkout.Session.retrieve(customUser.stripe_session_id,expand=['line_items'])
+            for item in session.line_items.data:
+                if (item.price.id == str(MemberId.NOBLE)):
+                    credit.value = 300
+                    subscription_plan_id=MemberType.NOBLE
+                    member=MemberType.NOBLE
+                elif (item.price.id ==str(MemberId.KING)):
+                    credit.value = 1000
+                    subscription_plan_id=MemberId.KING
+                    member=MemberType.KING
+                if(session.payment_status != "unpaid"):
+                    customUser.stripe_subscription_id = subscription_plan_id
+                    now = timezone.now()
+                    oneMonthLater = now + relativedelta(months=1)
+                    formattedNow = now.strftime('%Y-%m-%d %H:%M')
+                    formattedOneMonthLater = oneMonthLater.strftime('%Y-%m-%d %H:%M')
+                    memberShip.start_date=formattedNow
+                    memberShip.end_date=formattedOneMonthLater
+                    memberShip.type = member
+                    credit.save()
+                    memberShip.save()
+                    customUser.save()
         userInfo={
             'user':customUser.to_json(),
             'membership':memberShip.to_json(),

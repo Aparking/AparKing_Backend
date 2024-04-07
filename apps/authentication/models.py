@@ -33,6 +33,7 @@ class CustomUser(AbstractUser):
     phone = PhoneNumberField(blank=False, null=False)
     stripe_customer_id = models.CharField(max_length=255,null = True)
     stripe_subscription_id = models.CharField(max_length=255, choices=MemberId.choices(), default=MemberId.FREE, blank=False, null=False)
+    stripe_session_id=models.CharField(max_length=255,null = True)
     code = models.CharField(max_length=10, blank=True)
 
     REQUIRED_FIELDS = []

@@ -23,6 +23,6 @@ class MemberShip(models.Model):
     def to_json(self):
         return {
             'id': self.id,
-            'type': self.type
+            'type': str(self.type)
         }
     
