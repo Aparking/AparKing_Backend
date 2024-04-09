@@ -72,7 +72,7 @@ def register(request) -> Response:
         user.code = code_generator.code_generator(10)
         token, _ = Token.objects.get_or_create(user=user)
         Mailer.send_email(
-            subject=f"AparKing - Activar cuenta",
+            subject="AparKing - Activar cuenta",
             message=f"Bienvenido {user.first_name}, para activar su cuenta introduzca el siguiente código: {user.code}",
             mail_to=user.email,
         )
