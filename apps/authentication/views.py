@@ -6,6 +6,11 @@ from django.contrib.auth import login, logout, authenticate
 from .serializers import LoginSerializer, RegisterSerializer
 from apps.mailer import generic_sender as Mailer
 from apps.utils import code_generator
+import stripe
+from apps.payment.models import MemberShip, CustomUser, Credit
+from apps.payment.enums import MemberType
+from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 
 @api_view(['POST'])
 def auth_login(request) -> Response:
@@ -50,7 +55,6 @@ def verify_user(request) -> Response:
     except Exception:
         return Response({"error": "Token not found"}, status=400)
 
-
     
 @api_view(['POST'])
 def register(request) -> Response:
@@ -65,6 +69,20 @@ def register(request) -> Response:
             message=f'Bienvenido {user.first_name}, para activar su cuenta introduzca el siguiente código: {user.code}',
             mail_to=user.email
         )
+        customer = stripe.Customer.create(
+            email = user.email,
+            name = user.username
+        )
+        now = timezone.now()
+        oneMonthLater = now + relativedelta(months=1)
+        formattedNow = now.strftime('%Y-%m-%d %H:%M')
+        formattedOneMonthLater = oneMonthLater.strftime('%Y-%m-%d %H:%M')
+        memberShip=MemberShip(start_date=formattedNow,end_date=formattedOneMonthLater,type=MemberType.FREE,user=user)
+        credit= Credit(value=50,creation_date=now ,user=user)
+        memberShip.save()
+        credit.save()
+        user.stripe_customer_id = customer.id
+        user.stripe_subscription_id = "price_1OzRzqC4xI44aLdHxKkbcfko"
         user.save()
         return Response({'token':token.key}, status=200)
     else:
