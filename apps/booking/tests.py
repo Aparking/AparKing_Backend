@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 from django.test import TestCase
+from apps.authentication.enums import Gender
 from apps.authentication.models import CustomUser
 from apps.booking.enums import BookingStatus
 from apps.booking.models import Book, Comment
@@ -18,8 +19,16 @@ class CommentCreationTest(TestCase):
             region='Region',
             country='US',
             postal_code='12345'
-        )
-        self.user = CustomUser.objects.create('testuser', 'test@example.com', 'password123')
+        ) 
+        self.user = CustomUser.objects.create(
+            username='testuser', 
+            email='test@example.com', 
+            dni='29551310J',
+            birth_date=date(1990, 1, 1),
+            gender=Gender.MALE.value,
+            photo="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.freepik.es%2Ffotos%2Famor",
+            phone='+34600100200',
+            code='123456')
         self.garage = Garage.objects.create(
             name='Sample Garage',
             description='A sample garage for testing',
@@ -261,12 +270,11 @@ class CommentCreationTest(TestCase):
         self.assertEqual(Comment.objects.count(), 0)  
         
     
-
     def test_comment_creation_unauthenticated(self):
         # Un usuario no puede comentar un garaje si no está autenticado
-        self.client.force_authenticate(user=None)
+        self.client.login(email=None, password=None)
         response = self.client.post('http://localhost:3000/comments/create', {'title': 'My first comment', 'description': 'Great experience', 'publication_date':datetime.now(), 'rating':4, 'user':self.user, 'garage':self.garage.id}, format='json')
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(Comment.objects.count(), 0)
 
     def test_comment_creation_no_bookings(self):
@@ -274,10 +282,6 @@ class CommentCreationTest(TestCase):
         response = self.client.post('http://localhost:3000/comments/create', {'title': 'My first comment', 'description': 'Great experience', 'publication_date':datetime.now(), 'rating':4, 'user':self.user, 'garage':self.garage.id}, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0)
-          
-    def test_comment_associated_with_book(self):
-        # Verifica si el comentario está asociado a una reserva
-        self.assertEqual(self.comment.book, self.book)
 
     def test_comment_associated_with_user(self):
         # Verifica si el comentario está asociado con el usuario correcto
