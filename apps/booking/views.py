@@ -20,15 +20,20 @@ def create_booking(request):
         book_serializer = BookSerializer(data=request.data)
         if book_serializer.is_valid():
             availability_id = request.data.get('availability')
-            availability = Availability.objects.get(id=availability_id)
+            try:
+                availability = Availability.objects.get(id=availability_id)
+            except Availability.DoesNotExist:
+                return Response({"error": "La disponibilidad especificada no existe."}, status=status.HTTP_404_NOT_FOUND)
             if availability.status == GarageStatus.RESERVED.value:
-                raise ValidationError("Ya existe una reserva para este garaje.")
+                return Response({"error": "Ya existe una reserva para esta disponibilidad."}, status=status.HTTP_400_BAD_REQUEST)
             else:
+                availability.status = GarageStatus.RESERVED.value
+                availability.save()
                 book_serializer.save()
                 return Response(book_serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(book_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
