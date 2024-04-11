@@ -14,7 +14,6 @@ class AvailabilitySerializer(serializers.ModelSerializer):
         model = Availability
         fields = '__all__'
 
-
     def validate(self, attrs):
         return validations.validate_availability_data(attrs)
 
@@ -23,9 +22,6 @@ class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
         fields = "__all__"
-        
-
-        fields = ['payment_method', 'status', 'user', 'availability']
 
     def validate(self, attrs):
         return validations.validate_booking_data(attrs)
