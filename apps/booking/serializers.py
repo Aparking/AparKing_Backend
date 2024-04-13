@@ -1,6 +1,6 @@
 from apps.authentication.models import CustomUser
 from apps.booking.enums import BookingStatus, PaymentMethod
-from apps.booking.models import Book
+from apps.booking.models import Book, Comment
 from apps.garagement.enums import GarageStatus
 from apps.garagement.serializers import AvailabilitySerializer, GarageSerializer
 from . import validations
@@ -33,3 +33,11 @@ class BookSerializer(serializers.ModelSerializer):
 
         booking = Book.objects.create(availability=availability, **validated_data)
         return booking
+    
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = '__all__'
+
+    def validate(self, attrs):
+        return attrs
