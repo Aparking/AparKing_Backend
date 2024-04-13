@@ -71,7 +71,8 @@ def booking_details(request, pk):
         return Response({"message": "No se encontró ninguna reserva para el garaje."}, status=status.HTTP_404_NOT_FOUND)
     
 @csrf_exempt
-@require_POST
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def create_checkout_session(request):
     data = json.loads(request.body.decode('utf-8'))
     
