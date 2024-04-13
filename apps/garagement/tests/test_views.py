@@ -259,3 +259,59 @@ class GarageFilterViewTest(APITestCase):
         response = self.client.get(url, {'postal_code': '22222'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
+        
+    
+class ListMyGaragesTest(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="testuser",
+            email="testuser@example.com",
+            password="testpass",
+            birth_date=date(1990, 1, 1),
+        )
+        self.client.force_authenticate(user=self.user)
+        self.address = Address.objects.create(
+            street_number="123",
+            address_line="Fake Street",
+            city="Testville",
+            region="Test Region",
+            country="US",
+            postal_code="12345"
+        )
+        self.garage = Garage.objects.create(
+            name="Test Garage",
+            description="Test Description",
+            height=3.0,
+            width=3.0,
+            length=6.0,
+            price=100.00,
+            is_active=True,
+            owner=self.user,
+            address=self.address
+        )
+        self.garage2 = Garage.objects.create(
+            name="Imaginary Garage",
+            description="Imaginary Description",
+            height=5.0,
+            width=5.0,
+            length=10.0,
+            price=300.00,
+            is_active=True,
+            owner=self.user,
+            address=self.address
+        )
+
+    def test_list_my_garages(self):
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('my_garages')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+
+    def test_list_my_garages_no_garages(self):
+        self.client.login(username='testuser', password='testpass')
+        Garage.objects.all().delete()
+        url = reverse('my_garages')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['message'], 'No se encontraron garajes.')
