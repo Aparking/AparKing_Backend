@@ -5,4 +5,5 @@ urlpatterns = [
     path('bookings/create/', views.create_booking, name='create_booking'),
     path('bookings/', views.list_my_bookings, name='list_my_bookings'),
     path('bookings/<int:pk>/', views.booking_details, name='booking_details'),
+    path('comments/create/', views.create_comment, name='create_comment'),
 ]

@@ -49,6 +49,8 @@ class GarageAPITests(APITestCase):
         image.save(image_file, "JPEG")
         image_file.seek(0)
 
+        self.image = SimpleUploadedFile("test_image.jpg", image_file.read(), content_type="image/jpeg")
+
         self.image = SimpleUploadedFile(
             "test_image.jpg", image_file.read(), content_type="image/jpeg"
         )
@@ -73,5 +75,8 @@ class GarageAPITests(APITestCase):
                 "postal_code": "67890",
             },
         }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
