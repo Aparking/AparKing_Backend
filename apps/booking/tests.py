@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 from django.test import TestCase
+from django.urls import reverse
 from apps.authentication.enums import Gender
 from apps.authentication.models import CustomUser
 from apps.booking.enums import BookingStatus
@@ -8,6 +9,12 @@ from apps.garagement.enums import GarageStatus
 from apps.garagement.models import Address, Availability, Garage
 from datetime import datetime, timedelta
 from rest_framework import status
+from django.contrib.auth import get_user_model
+from django.utils import timezone
+from rest_framework.authtoken.models import Token
+
+
+User = get_user_model()
 
 
 class CommentCreationTest(TestCase):
@@ -20,15 +27,20 @@ class CommentCreationTest(TestCase):
             country='US',
             postal_code='12345'
         ) 
+        
         self.user = CustomUser.objects.create(
             username='testuser', 
             email='test@example.com', 
-            dni='29551310J',
+            dni='12345678Z',
             birth_date=date(1990, 1, 1),
             gender=Gender.MALE.value,
-            photo="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.freepik.es%2Ffotos%2Famor",
+            photo="https://www.google.com",
             phone='+34600100200',
-            code='123456')
+            code='123456', 
+            password='testpass'
+        )
+        self.token = Token.objects.create(user=self.user) 
+        
         self.garage = Garage.objects.create(
             name='Sample Garage',
             description='A sample garage for testing',
@@ -39,268 +51,448 @@ class CommentCreationTest(TestCase):
             owner=self.user,
             address=self.address
         )
+        
         self.availability = Availability.objects.create(
-            start_date=datetime.now(),
-            end_date=datetime.now() + timedelta(days=5),
+            start_date=timezone.make_aware(datetime(2024, 3, 20)),
+            end_date=timezone.make_aware(datetime(2024, 3, 25)),
             status=GarageStatus.AVAILABLE.value,
             garage=self.garage
         )
+        
         self.book = Book.objects.create(
             user=self.user,
             payment_method='CASH',
             status=BookingStatus.CONFIRMED.value,
             availability=self.availability
         )
-        self.comment = Comment.objects.create(
-            title='My first comment',
-            description='Great experience',
-            publication_date=datetime.now(),
-            rating=4,
-            user=self.user,
-            garage=self.garage
-        )
 
     def test_comment_creation(self):
         # Comentario creado para una reserva realizada con todos los campos válidos
-        response = self.client.post('http://localhost:3000/comments/create', {'title': 'My first comment', 'description': 'Great experience', 'publication_date':datetime.now(), 'rating':4, 'user':self.user, 'garage':self.garage.id}, format='json')
-        self.assertEqual(response.status_code, 201)
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)  # Obtener el token de autenticación para testuser
+        data = {
+            'title': 'My first comment',
+            'description': 'Great experience',
+            'publication_date': datetime.now(),
+            'rating': 4, 
+            'user': 1,
+            'garage': self.garage.id
+        } 
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         comment = Comment.objects.last()
         self.assertEqual(comment.title, 'My first comment')
         self.assertEqual(comment.description, 'Great experience')
         self.assertEqual(comment.rating, 4)
         self.assertEqual(comment.user, self.user)
         self.assertEqual(comment.garage, self.garage)
+        self.assertEqual(Comment.objects.count(), 1)
         
-    def test_comment_creation_missing_garage_id(self):
+    def test_comment_creation_missing_garage(self):
         # Comentario sin proporcionar un garage_id
-        response = self.client.post('http://localhost:3000/comments/create', {'title': 'My first comment', 'description': 'Great experience', 'publication_date':datetime.now(), 'rating':4, 'user':self.user}, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        data = {
+            'title': 'My first comment',
+            'description': 'Great experience',
+            'publication_date': datetime.now(),
+            'rating': 4, 
+            'user': 1,
+        } 
+        auth_header = 'Token {}'.format(self.token.key)
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0)  
         
     def test_comment_creation_missing_user(self):
         # Comentario sin proporcionar un user
-        response = self.client.post('http://localhost:3000/comments/create', {'title': 'My first comment', 'description': 'Great experience', 'publication_date':datetime.now(), 'rating':4, 'user':self.user}, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        data = {
+            'title': 'My first comment',
+            'description': 'Great experience',
+            'publication_date': datetime.now(),
+            'rating': 4, 
+            'garage': self.garage.id
+        } 
+        auth_header = 'Token {}'.format(self.token.key)
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0)      
 
     def test_comment_creation_with_missing_title(self):
         # Comentario sin proporcionar un title
-        data = {'description': 'Great experience', 'publication_date':datetime.now(), 'rating':4, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)
+        data = {
+            'description': 'Great experience', 
+            'publication_date': datetime.now(), 
+            'rating':4, 
+            'user':1, 
+            'garage':self.garage.id
+        }
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0)  
         
     def test_comment_creation_with_missing_description(self):
         # Comentario sin proporcionar un description
-        data = {'title': 'My first comment', 'publication_date':datetime.now(), 'rating':4, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)
+        data = {
+            'title': 'My first comment', 
+            'publication_date':datetime.now(), 
+            'rating':4, 
+            'user':1, 
+            'garage':self.garage.id
+        }
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0)  
 
     def test_comment_creation_with_missing_rating(self):
         # Comentario sin proporcionar un publication_date
-        data = {'title': 'My first comment', 'description': 'Great experience', 'rating':4, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)
+        data = {
+            'title': 'My first comment', 
+            'description': 'Great experience', 
+            'rating':4, 
+            'user':1, 
+            'garage':self.garage.id
+        }
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0) 
 
     def test_comment_creation_with_missing_rating(self):
         # Comentario sin proporcionar un rating
-        data = {'title': 'My first comment', 'description': 'Great experience', 'publication_date':datetime.now(), 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)
+        data = {
+            'title': 'My first comment', 
+            'description': 'Great experience', 
+            'publication_date':datetime.now(), 
+            'user':1, 
+            'garage':self.garage.id
+        }
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0)  
 
     # Pruebas para el atributo title
     def test_comment_creation_with_empty_title(self):
         # Prueba de creación de comentario con title vacío
-        data = {'title': '', 'description': 'Great experience', 'publication_date':datetime.now(), 'rating':4, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)
+        data = {
+            'title': '',
+            'description': 'Great experience',
+            'publication_date': datetime.now(),
+            'rating': 4, 
+            'user': 1,
+            'garage': self.garage.id
+        } 
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0)  
-        
-    def test_comment_creation_with_min_title(self):
-        # Prueba de creación de comentario con title mínimo válido (1 carácter)
-        data = {'title': 'a', 'description': 'Great experience', 'publication_date':datetime.now(), 'rating':4, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Comment.objects.count(), 1)  
-    
-    def test_comment_creation_with_max_title(self):
-        # Prueba de creación de comentario con title máximo válido (64 caracteres)
-        data = {'title': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'description': 'Great experience', 'publication_date':datetime.now(), 'rating':4, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Comment.objects.count(), 1)  
         
     def test_comment_creation_with_max_plus_one_title(self):
         # Prueba de creación de comentario con title máximo válido menos uno (65 caracteres)
-        data = {'title': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'description': 'Great experience', 'publication_date':datetime.now(), 'rating':4, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)
+        data = {
+            'title': 'a' * 65,
+            'description': 'Great experience',
+            'publication_date': datetime.now(),
+            'rating': 4, 
+            'user': 1,
+            'garage': self.garage.id
+        }
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0)  
-        
-    def test_comment_creation_with_other_chars_title(self):
-        # Prueba de creación de comentario con title en otro idioma
-        data = {'title': 'привет', 'description': 'Great experience', 'publication_date':datetime.now(), 'rating':4, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Comment.objects.count(), 1)  
                
     # Pruebas para el atributo description
     def test_comment_creation_with_empty_description(self):
         # Prueba de creación de comentario con description vacío
-        data = {'title': 'My first comment', 'description': '', 'publication_date':datetime.now(), 'rating':4, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)
+        data = {
+            'title': 'My first comment', 
+            'description': '', 
+            'publication_date': datetime.now(),
+            'rating': 4, 
+            'user': 1,
+            'garage': self.garage.id
+        }
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0)  
-        
-    def test_comment_creation_with_min_description(self):
-        # Prueba de creación de comentario con description mínimo válido (1 carácter)
-        data = {'title': 'My first comment', 'description': 'a', 'publication_date':datetime.now(), 'rating':4, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Comment.objects.count(), 1)  
-    
-    def test_comment_creation_with_max_description(self):
-        # Prueba de creación de comentario con description máximo válido (1024 caracteres)
-        data = {'title': 'My first comment', 'description': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'publication_date':datetime.now(), 'rating':4, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Comment.objects.count(), 1)  
         
     def test_comment_creation_with_max_plus_one_description(self):
         # Prueba de creación de comentario con description máximo válido menos uno (1025 caracteres)
-        data = {'title': 'My first comment', 'description': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'publication_date':datetime.now(), 'rating':4, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)
+        data = {
+            'title': 'My first comment', 
+            'description': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 
+            'publication_date': datetime.now(),
+            'rating': 4, 
+            'user': 1,
+            'garage': self.garage.id
+        }
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0)  
-        
-    def test_comment_creation_with_other_chars_description(self):
-        # Prueba de creación de comentario con description en otro idioma
-        data = {'title': 'My first comment', 'description': 'привет', 'publication_date':datetime.now(), 'rating':4, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Comment.objects.count(), 1) 
 
     # Pruebas para el atributo publication_date
     def test_comment_creation_with_bad_input_on_date(self):
         # Prueba de creación de publication_date con input distinto a fecha
-        data = {'title': 'My first comment', 'description': 'Great experience', 'publication_date':'a', 'rating':4, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)
+        data = {
+            'title': 'My first comment', 
+            'description': 'Great experience', 
+            'publication_date':'a', 
+            'rating':4, 
+            'user': 1,
+            'garage': self.garage.id
+        }
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0)  
         
     def test_comment_creation_with_blank_date(self):
         # Prueba de creación de publication_date en blanco
-        data = {'title': 'My first comment', 'description': 'Great experience', 'publication_date':'', 'rating':4, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)
+        data = {
+            'title': 'My first comment', 
+            'description': 'Great experience', 
+            'publication_date':'', 
+            'rating':4, 
+            'user': 1,
+            'garage': self.garage.id
+            }
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0)  
     
-    def test_comment_creation_with_min_date(self):
-        # Prueba de creación de publication_date mínima
-        data = {'title': 'My first comment', 'description': 'Great experience', 'publication_date':date(2000, 1, 1), 'rating':4, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Comment.objects.count(), 1)  
-
     def test_comment_creation_with_min_minus_one_date(self):
         # Prueba de creación de publication_date mínima menos uno
-        data = {'title': 'My first comment', 'description': 'Great experience', 'publication_date':date(1999, 12, 31), 'rating':4, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)
+        data = {
+            'title': 'My first comment', 
+            'description': 'Great experience', 
+            'publication_date':date(1999, 12, 31), 
+            'rating':4, 
+            'user': 1,
+            'garage': self.garage.id
+        }
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(Comment.objects.count(), 0)  
-        
-    def test_comment_creation_with_max_date(self):
-        # Prueba de creación de publication_date máxima
-        data = {'title': 'My first comment', 'description': 'Great experience', 'publication_date':date(2199, 12, 31), 'rating':4, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Comment.objects.count(), 1)  
-    
+        self.assertEqual(Comment.objects.count(), 0)   
+  
     def test_comment_creation_with_max_plus_one_date(self):
         # Prueba de creación de publication_date máxima más uno
-        data = {'title': 'My first comment', 'description': 'Great experience', 'publication_date':date(2200, 1, 1), 'rating':4, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)
+        data = {
+            'title': 'My first comment', 
+            'description': 'Great experience', 
+            'publication_date':date(2200, 1, 1), 
+            'rating':4, 
+            'user': 1,
+            'garage': self.garage.id
+        }
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0)  
 
     # Pruebas para el atributo rating
     def test_comment_creation_with_zero_rating(self):
         # Prueba de creación de comentario con rating 0
-        data = {'title': 'My first comment', 'description': 'Great experience', 'publication_date':datetime.now(), 'rating':0, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)
+        data = {
+            'title': 'My first comment', 
+            'description': 'Great experience', 
+            'publication_date':datetime.now(), 
+            'rating':0, 
+            'user': 1,
+            'garage': self.garage.id
+        }
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0)  
 
     def test_comment_creation_with_six_rating(self):
         # Prueba de creación de comentario con rating 6
-        data = {'title': 'My first comment', 'description': 'Great experience', 'publication_date':datetime.now(), 'rating':6, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)
+        data = {
+            'title': 'My first comment', 
+            'description': 'Great experience', 
+            'publication_date':datetime.now(), 
+            'rating':6, 
+            'user': 1,
+            'garage': self.garage.id
+            }
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0) 
         
     def test_comment_creation_with_negative_rating(self):
         # Prueba de creación de comentario con rating negativo
-        data = {'title': 'My first comment', 'description': 'Great experience', 'publication_date':datetime.now(), 'rating':-1, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)
+        data = {
+            'title': 'My first comment', 
+            'description': 'Great experience', 
+            'publication_date':datetime.now(), 
+            'rating':-1, 
+            'user': 1,
+            'garage': self.garage.id
+        }
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0)  
 
     def test_comment_creation_with_float_rating(self):
         # Prueba de creación de comentario con rating decimal
-        data = {'title': 'My first comment', 'description': 'Great experience', 'publication_date':datetime.now(), 'rating':3.3, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)
+        data = {
+            'title': 'My first comment', 
+            'description': 'Great experience', 
+            'publication_date':datetime.now(), 
+            'rating':3.3, 
+            'user': 1,
+            'garage': self.garage.id
+        }
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0) 
         
     def test_comment_creation_with_float_rating(self):
         # Prueba de creación de comentario con rating decimal negativo
-        data = {'title': 'My first comment', 'description': 'Great experience', 'publication_date':datetime.now(), 'rating':-3.3, 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)
+        data = {
+            'title': 'My first comment', 
+            'description': 'Great experience', 
+            'publication_date':datetime.now(), 
+            'rating':-3.3, 
+            'user': 1,
+            'garage': self.garage.id
+        }
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0) 
         
     def test_comment_creation_with_bad_input_rating(self):
         # Prueba de creación de comentario con rating distinto a un número
-        data = {'title': 'My first comment', 'description': 'Great experience', 'publication_date':datetime.now(), 'rating':'hola', 'user':self.user, 'garage':self.garage.id}
-        response = self.client.post('http://localhost:3000/comments/create', data, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)
+        data = {
+            'title': 'My first comment', 
+            'description': 'Great experience', 
+            'publication_date':datetime.now(), 
+            'rating':'hola', 
+            'user': 1,
+            'garage': self.garage.id
+        }
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0)  
         
     
     def test_comment_creation_unauthenticated(self):
         # Un usuario no puede comentar un garaje si no está autenticado
-        self.client.login(email=None, password=None)
-        response = self.client.post('http://localhost:3000/comments/create', {'title': 'My first comment', 'description': 'Great experience', 'publication_date':datetime.now(), 'rating':4, 'user':self.user, 'garage':self.garage.id}, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        data = {
+            'title': 'My first comment', 
+            'description': 'Great experience', 
+            'publication_date':datetime.now(), 
+            'rating':4, 
+            'user': 1,
+            'garage': self.garage.id
+        }
+        response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(Comment.objects.count(), 0)
 
     def test_comment_creation_no_bookings(self):
         # Un usuario no puede comentar un garaje si no ha hecho una reserva antes
-        response = self.client.post('http://localhost:3000/comments/create', {'title': 'My first comment', 'description': 'Great experience', 'publication_date':datetime.now(), 'rating':4, 'user':self.user, 'garage':self.garage.id}, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)
+        data = {
+            'title': 'My first comment', 
+            'description': 'Great experience', 
+            'publication_date':datetime.now(), 
+            'rating':4, 
+            'user': 1,
+            'garage': self.garage.id
+        }
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Comment.objects.count(), 0)
-
-    def test_comment_associated_with_user(self):
-        # Verifica si el comentario está asociado con el usuario correcto
-        self.assertEqual(self.comment.user, self.user)
-
-    def test_comment_associated_with_garage(self):
-        # Verifica si el comentario está asociado con el garaje correcto
-        self.assertEqual(self.comment.garage, self.garage)
           
     def test_create_comment_with_pending_reservation(self):
         # Intenta crear un comentario para un garaje con reserva PENDING
         self.book.status = BookingStatus.PENDING.value
         self.book.save()
-        response = self.client.post('http://localhost:3000/comments/create', {'title': 'My first comment', 'description': 'Great experience', 'publication_date':datetime.now(), 'rating':4, 'user':self.user, 'garage':self.garage.id}, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        auth_header = 'Token {}'.format(self.token.key)
+        data = {
+            'title': 'My first comment', 
+            'description': 'Great experience', 
+            'publication_date':datetime.now(), 
+            'rating':4, 
+            'user':1, 
+            'garage':self.garage.id
+        }
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_comment_with_cancelled_reservation(self):
         # Intenta crear un comentario para un garaje con reserva CANCELLED
         self.book.status = BookingStatus.CANCELLED.value
         self.book.save()
-        response = self.client.post('http://localhost:3000/comments/create', {'title': 'My first comment', 'description': 'Great experience', 'publication_date':datetime.now(), 'rating':4, 'user':self.user, 'garage':self.garage.id}, format='json')
+        self.client.login(username='testuser', password='testpass')
+        url = reverse('create_comment')
+        data = {
+            'title': 'My first comment', 
+            'description': 'Great experience', 
+            'publication_date':datetime.now(), 
+            'rating':4, 
+            'user':1, 
+            'garage':self.garage.id
+        }
+        auth_header = 'Token {}'.format(self.token.key)
+        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=auth_header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

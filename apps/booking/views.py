@@ -64,7 +64,9 @@ def booking_details(request, pk):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_comment(request):
-    garage_id = request.data.get('garage_id')
+    garage_id = request.data.get('garage')
+    if not garage_id:
+        return Response({'error': 'Se requiere un garaje para poner un comentario'}, status=status.HTTP_400_BAD_REQUEST)
     user = request.user
     finished_bookings = Book.objects.filter(
         user=user,
