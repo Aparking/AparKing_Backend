@@ -1,16 +1,16 @@
 from datetime import datetime
-from django.shortcuts import get_object_or_404
 from django.utils.timezone import make_aware
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-
-from apps.garagement.enums import GarageStatus
 from apps.garagement.models import Garage
+from .models import Book, Availability
+from .serializers import BookSerializer, CommentSerializer
+from django.shortcuts import get_object_or_404
+from apps.garagement.enums import GarageStatus
 from apps.booking.enums import BookingStatus
-from apps.booking.models import Book, Availability
-from apps.booking.serializers import BookSerializer, CommentSerializer
+from rest_framework.exceptions import ValidationError
 
 
 @api_view(['POST'])
@@ -32,8 +32,7 @@ def create_booking(request):
     book_serializer = BookSerializer(book)
     return Response(book_serializer.data, status=status.HTTP_201_CREATED)
 
-
-@api_view(['GET'])
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def list_my_bookings(request):
     user = request.user
@@ -44,23 +43,24 @@ def list_my_bookings(request):
     else:
         return Response({'message': 'No se encontraron reservas de garajes.'}, status=status.HTTP_404_NOT_FOUND)
 
-
-@api_view(['GET', 'DELETE'])
+@api_view(["GET", "DELETE"])
 @permission_classes([IsAuthenticated])
 def booking_details(request, pk):
-    booking = get_object_or_404(Book, pk=pk)
+    try:
+        booking = get_object_or_404(Book, pk=pk)
+        
+        if request.method == "GET":
+            serialized = BookSerializer(booking)
+            return Response(serialized.data, status=status.HTTP_200_OK)
 
-    if request.method == 'GET':
-        serialized = BookSerializer(booking)
-        return Response(serialized.data, status=status.HTTP_200_OK)
-
-    elif request.method == 'DELETE':
-        booking.availability.status = GarageStatus.AVAILABLE.value
-        booking.availability.save()
-        booking.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
+        elif request.method == "DELETE":
+            booking.availability.status = GarageStatus.AVAILABLE.value
+            booking.availability.save()
+            booking.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+    except Book.DoesNotExist:
+        return Response({"message": "No se encontró ninguna reserva para el garaje."}, status=status.HTTP_404_NOT_FOUND)
+     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_comment(request):
@@ -83,4 +83,3 @@ def create_comment(request):
     else:
         return Response(comment_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-

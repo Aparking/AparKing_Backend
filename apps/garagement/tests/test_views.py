@@ -8,13 +8,14 @@ from datetime import date
 
 User = get_user_model()
 
+
 class GarageAPITests(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(
-            username='testuser',
-            email='testuser@example.com',
-            password='testpassword',
-            birth_date=date(1990, 1, 1)
+            username="testuser",
+            email="testuser@example.com",
+            password="testpassword",
+            birth_date=date(1990, 1, 1),
         )
         self.client.force_authenticate(user=self.user)
 
@@ -24,11 +25,11 @@ class GarageAPITests(APITestCase):
             city="Springfield",
             region="Region Test",
             country=Country("US"),
-            postal_code="12345"
+            postal_code="12345",
         )
 '''
     def test_create_garage(self):
-        url = reverse('garages')
+        url = reverse("create_garage")
         # Suponiendo que necesitas enviar el ID del usuario como parte de la solicitud.
         # Esto NO es lo recomendado para producción, pero te servirá para pasar la prueba.
         data = {
@@ -46,10 +47,10 @@ class GarageAPITests(APITestCase):
                 "city": "Metropolis",
                 "region": "Region Example",
                 "country": "US",
-                "postal_code": "67890"
-            }
+                "postal_code": "67890",
+            },
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Garage.objects.count(), 1)
 '''
