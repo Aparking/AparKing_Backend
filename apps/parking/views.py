@@ -11,6 +11,7 @@ from django.contrib.gis.geos import Point
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import render
 from django.db.models import Q
+from django.core import serializers
 
 from apps.parking.models import Parking, City
 from apps.parking.enums import ParkingType, NoticationsSocket, Size
@@ -211,7 +212,7 @@ def delete_parking(request: HttpRequest, parking_id: int):
         return JsonResponse({"message": "The parking doesn't exist"}, status=404)
     
 
-@api_view(['GET'])
+@api_view(["GET"])
 def create_parking_data(request: HttpRequest):
     """
     Crea un objeto que contiene los datos de la creación de aparcamientos.
@@ -226,6 +227,7 @@ def create_parking_data(request: HttpRequest):
 
     Ejemplo de uso:
     Para obtener"""
+    print("fffffffffffffffffff")
     res = JsonResponse({
         "parking_types": [(i.name, i.value) for i in ParkingType],
         "parking_sizes": [(i.name, i.value )for i in Size],
@@ -262,3 +264,29 @@ def get_closest_cities(request: HttpRequest):
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+
+@api_view(['GET'])
+def list_cesion_parking(request: HttpRequest):
+    """
+    Crea un objeto que contiene los datos de la creación de aparcamientos.
+
+    Esta función se utiliza para crear un objeto que contiene los datos de los aparcamientos.
+
+    Parámetros:
+    - request (HttpRequest): La solicitud HTTP.
+
+    Retorna:
+    - JsonResponse: Un JsonResponse con los datos de los aparcamientos.
+
+    Ejemplo de uso:
+    Para obtener"""
+    print("fffffffffffffffffff")
+    parkings=Parking.objects.filter(parking_type=ParkingType.ASSIGNMENT)
+    print(len(parkings))
+    res = JsonResponse({
+        "parking": [parking.to_json() for parking in parkings],
+        
+    })
+    return res

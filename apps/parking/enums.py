@@ -9,6 +9,9 @@ class Size(Enum):
 
     def __str__(self):
         return self.value
+    @property
+    def label(self):
+        return self.value 
 
     @classmethod
     def choices(cls):
@@ -18,6 +21,10 @@ class ParkingType(Enum):
     ASSIGNMENT = "Cesión"
     FREE = "Libre"
     PRIVATE = "Privado"
+
+    @property
+    def label(self):
+        return self.value 
     
 class NoticationsSocket(Enum):
     PARKING_DELETED = "notify.parking.deleted"
