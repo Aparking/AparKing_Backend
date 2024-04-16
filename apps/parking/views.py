@@ -269,22 +269,7 @@ def get_closest_cities(request: HttpRequest):
 
 @api_view(['GET'])
 def list_cesion_parking(request: HttpRequest):
-    """
-    Crea un objeto que contiene los datos de la creación de aparcamientos.
-
-    Esta función se utiliza para crear un objeto que contiene los datos de los aparcamientos.
-
-    Parámetros:
-    - request (HttpRequest): La solicitud HTTP.
-
-    Retorna:
-    - JsonResponse: Un JsonResponse con los datos de los aparcamientos.
-
-    Ejemplo de uso:
-    Para obtener"""
-    print("fffffffffffffffffff")
     parkings=Parking.objects.filter(parking_type=ParkingType.ASSIGNMENT)
-    print(len(parkings))
     res = JsonResponse({
         "parking": [parking.to_json() for parking in parkings],
         
