@@ -12,7 +12,9 @@ from django.http import HttpRequest, JsonResponse
 from django.shortcuts import render
 from django.db.models import Q
 from django.core import serializers
+from datetime import datetime
 
+from apps.authentication.models import CustomUser, Vehicle
 from apps.parking.models import Parking, City
 from apps.parking.enums import ParkingType, NoticationsSocket, Size
 from apps.parking.serializers import ParkingSerializer
@@ -270,8 +272,21 @@ def get_closest_cities(request: HttpRequest):
 @api_view(['GET'])
 def list_cesion_parking(request: HttpRequest):
     parkings=Parking.objects.filter(parking_type=ParkingType.ASSIGNMENT)
+    user=request.user
+    cesiones=[]
+    for parking in parkings:
+        '''fechaCreate = datetime.fromisoformat(parking.created_at)
+        fechaCreateFormateada = fechaCreate.strftime('%Y-%m-%d %H:%M:%S')
+        parking.created_at=fechaCreateFormateada'''
+        if parking.booked_by != None:
+            usuarioBooked=Parking.objects.get(booked_by=parking.booked_by)
+            vehicle= Vehicle.objects.get()
+            cesiones.append((parking,vehicle))
+        else:
+            vehicle=Vehicle()
+            cesiones.append((parking,vehicle))
     res = JsonResponse({
-        "parking": [parking.to_json() for parking in parkings],
+        "parking": [(parking.to_json(),vehicle.to_json()) for parking,vehicle in cesiones],
         
     })
     return res

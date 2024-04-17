@@ -42,3 +42,13 @@ class Vehicle(models.Model):
     height = models.DecimalField(max_digits=6, decimal_places=2)
     width = models.DecimalField(max_digits=6, decimal_places=2)
     length = models.DecimalField(max_digits=6, decimal_places=2)
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'carModel': self.carModel,
+            'color': self.color,
+            'height': str(self.height),
+            'width': str(self.width),
+            'length': str(self.length)
+        }
