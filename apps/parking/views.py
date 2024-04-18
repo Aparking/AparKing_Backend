@@ -1,3 +1,4 @@
+import json
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
@@ -229,7 +230,6 @@ def create_parking_data(request: HttpRequest):
 
     Ejemplo de uso:
     Para obtener"""
-    print("fffffffffffffffffff")
     res = JsonResponse({
         "parking_types": [(i.name, i.value) for i in ParkingType],
         "parking_sizes": [(i.name, i.value )for i in Size],
@@ -280,7 +280,8 @@ def list_cesion_parking(request: HttpRequest):
         parking.created_at=fechaCreateFormateada'''
         if parking.booked_by != None:
             usuarioBooked=Parking.objects.get(booked_by=parking.booked_by)
-            vehicle= Vehicle.objects.get()
+            vehicle=Vehicle()
+            #vehicle= Vehicle.objects.get(owner=usuarioBooked.id)
             cesiones.append((parking,vehicle))
         else:
             vehicle=Vehicle()
@@ -290,3 +291,16 @@ def list_cesion_parking(request: HttpRequest):
         
     })
     return res
+
+
+'''@api_view(['POST'])
+def postParkingCesion(request: HttpRequest): 
+    try:
+        user=request.user
+        data = json.loads(request.body.decode('utf-8'))
+        parking=Parking.objects.get(id=data.get('parkingId'))
+        parking.booked_by=user
+        parking.save()
+        return Response(data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)'''
