@@ -4,6 +4,9 @@ from django.core.validators import RegexValidator
 from phonenumber_field.modelfields import PhoneNumberField
 from .enums import Gender
 from django.core.validators import validate_iban
+import stripe
+from django.conf import settings
+
 
 # Create your models here.
 from django.db import models
@@ -35,10 +38,36 @@ class CustomUser(AbstractUser):
     code = models.CharField(max_length=10, blank=True)
     iban = models.CharField(max_length=34, blank=True, null=True, validators=[validate_iban])
 
-
-
     REQUIRED_FIELDS = []
     USERNAME_FIELD = 'email'
+    
+    def get_stripe_id(self):
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        
+        # Crea una cuenta conectada
+        account = stripe.Account.create(
+            type='custom',
+            country= self.iban[:2].upper(),
+            email=self.email,
+        )
+
+        # Agrega la cuenta bancaria a la cuenta conectada
+        bank_account = stripe.Token.create(
+            bank_account={
+                'country': self.iban[:2].upper(),
+                'currency': 'eur',
+                'account_holder_name': self.username,
+                'account_holder_type': 'individual',
+                'account_number': self.iban,
+            },
+        )
+        
+        stripe.Account.create_external_account(
+            account['id'],
+            external_account=bank_account['id'],
+        )
+        
+        return account['id']
 
 class Vehicle(models.Model):
     carModel = models.CharField(max_length=100, blank=False, null=False)
