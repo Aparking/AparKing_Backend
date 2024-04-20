@@ -98,12 +98,13 @@ def create_checkout_session(request):
                 cancel_url='http://localhost:8100',
             )
         
-        # Realiza una transferencia a la cuenta conectada
-        stripe.Transfer.create(
-            amount=amount*100,
-            currency='eur',
-            destination=booking.availability.garage.owner.get_stripe_id(),
-        )
+        if(booking.status == BookingStatus.CONFIRMED & booking.availability.garage.owner.iban != None):
+            # Realiza una transferencia a la cuenta conectada
+            stripe.Transfer.create(
+                amount=amount*100,
+                currency='eur',
+                destination=booking.availability.garage.owner.get_stripe_id(),
+            )
         
         return JsonResponse({'url': session.url, 'confirmacion': True})
 
