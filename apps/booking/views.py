@@ -94,11 +94,11 @@ def create_checkout_session(request):
                     'quantity': 1,
                 }],
                 mode='payment',
-                success_url='http://localhost:8100',
+                success_url='http://localhost:8100/bookings/',
                 cancel_url='http://localhost:8100',
             )
         
-        return JsonResponse({'url': session.url})
+        return JsonResponse({'url': session.url, 'confirmacion': True})
 
     except stripe.error.StripeError as e:
-        return JsonResponse({'error': str(e)}, status=403)
+        return JsonResponse({'error': str(e), 'confirmacion': False}, status=403)
