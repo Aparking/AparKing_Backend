@@ -3,6 +3,9 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from phonenumber_field.modelfields import PhoneNumberField
 from .enums import Gender
+from stdnum import iban as iban_validator
+from django.core.exceptions import ValidationError
+
 
 # Create your models here.
 from django.db import models
@@ -32,6 +35,14 @@ class CustomUser(AbstractUser):
     photo = models.URLField(blank=True, null=True)
     phone = PhoneNumberField(blank=False, null=False)
     code = models.CharField(max_length=10, blank=True)
+
+    def validate_iban(value):
+        if not iban_validator.is_valid(value):
+            raise ValidationError("Invalid IBAN")
+        
+    iban = models.CharField(max_length=34, blank=True, validators=[validate_iban])
+
+
 
     REQUIRED_FIELDS = []
     USERNAME_FIELD = 'email'

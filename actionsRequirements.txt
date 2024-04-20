@@ -18,3 +18,5 @@ django-phonenumbers
 Pillow
 python-decouple
 django-filter
+stripe
+python-stdnum
