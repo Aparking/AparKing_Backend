@@ -2,8 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from phonenumber_field.modelfields import PhoneNumberField
-from .enums import Gender
-from django.core.validators import validate_iban
+from .enums import Gender 
 import stripe
 from django.conf import settings
 
@@ -36,6 +35,16 @@ class CustomUser(AbstractUser):
     photo = models.URLField(blank=True, null=True)
     phone = PhoneNumberField(blank=False, null=False)
     code = models.CharField(max_length=10, blank=True)
+    
+    def validate_iban(iban):
+        iban = iban.replace(' ','').replace('\t','').replace('\n','')
+        
+        if len(iban) != 34:
+            return False
+
+        iban = iban[4:] + iban[0:4]
+        iban = ''.join(str(10 + ord(c) - ord('A')) if c.isalpha() else c for c in iban)
+        return int(iban) % 97 == 1
     iban = models.CharField(max_length=34, blank=True, null=True, validators=[validate_iban])
 
     REQUIRED_FIELDS = []
