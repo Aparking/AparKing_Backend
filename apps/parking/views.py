@@ -253,6 +253,7 @@ def get_cities(request: HttpRequest, search_term: str):
         else:
             cities = City.objects.all()
         closest_cities = cities.annotate(distance=Distance('location', coordenates.get_point())).order_by('distance')[:1000]
+
         
         # Serializar los datos de las ciudades
         serializer = CitySerializer(closest_cities, many=True).data
