@@ -64,10 +64,15 @@ class ParkingSerializer(serializers.ModelSerializer):
     
 class CitySerializer(serializers.ModelSerializer):
     distance = serializers.SerializerMethodField()
+    latitude = serializers.FloatField(write_only=True)
+    longitude = serializers.FloatField(write_only=True)
     class Meta:
         model = City
         fields = '__all__'
         read_only_fields = ['id'] 
+        extra_kwargs = {
+            'location': {'required': False},
+        }
 
     def validate_location(self, value):
         """
@@ -78,6 +83,24 @@ class CitySerializer(serializers.ModelSerializer):
         if not isinstance(value, Point):
             raise serializers.ValidationError("La ubicación debe ser un punto GEOS válido")
         return value
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if instance.location:
+            representation['location'] = {
+                'latitude': instance.location.y,
+                'longitude': instance.location.x
+            }
+        return representation
+    
+    def create(self, validated_data):
+        latitude = validated_data.pop('latitude', None)
+        longitude = validated_data.pop('longitude', None)
+
+        if latitude is not None and longitude is not None:
+            validated_data['location'] = Point(longitude, latitude, srid=4326)
+
+        return super().create(validated_data)
     
     def get_distance(self, obj):
         distance_in_km = obj.distance.km  # Convierte la distancia a kilómetros
