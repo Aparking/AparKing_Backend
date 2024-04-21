@@ -6,7 +6,7 @@ dockerd-entrypoint.sh &
 # Wait until the daemon comes up
 while ! docker ps; do
     echo "Waiting for docker daemon..."
-    sleep 2
+    sleep 10
 done;
 # Run the containers
 cd /app
