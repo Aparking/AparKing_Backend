@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         INSTANCE_NAME = "aparking-backend-s3"
-        PROJECT = "aparking-g11-s1"
+        PROJECT = "aparking-g11-s3"
         ZONE = "europe-southwest1-a"
         IMAGE = "backend" // La imagen de GCE que tiene Docker y Docker Compose
         MACHINE_TYPE = "e2-medium"
