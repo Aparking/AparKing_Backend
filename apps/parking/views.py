@@ -43,7 +43,7 @@ def manage_send_parking_created(type: str, message: dict, coordenates: Point):
        
         
     except Exception as e:
-        raise e
+        logger.error(f"Error sending message to group {group}: {e}")
 
 def index(request):
     return render(request, "parking/index.html")

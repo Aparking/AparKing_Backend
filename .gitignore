@@ -4,6 +4,7 @@ local_settings.py
 
 #Environments
 venv/
+media/**
 
 .env
 #cache de datos
