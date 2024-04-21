@@ -6,4 +6,5 @@ while ! nc -z database 5432; do
 done;
 echo 'Migrations complete. Starting backend...';
 
+python manage.py loaddata Populate.json
 python manage.py runserver 0.0.0.0:3000

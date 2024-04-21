@@ -10,4 +10,3 @@ echo 'PostgreSQL is available. Proceeding with migrations...';
 python manage.py makemigrations
 python manage.py migrate --noinput
 python importCSV.py
-python manage.py loaddata Populate.json
