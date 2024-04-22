@@ -42,3 +42,4 @@ class Vehicle(models.Model):
     height = models.DecimalField(max_digits=6, decimal_places=2)
     width = models.DecimalField(max_digits=6, decimal_places=2)
     length = models.DecimalField(max_digits=6, decimal_places=2)
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=False, null=False)
