@@ -13,12 +13,24 @@ from apps.booking.enums import BookingStatus
 from rest_framework.exceptions import ValidationError
 
 
+import stripe
+from django.conf import settings
+import json
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_booking(request):
     data = request.data
     user = request.user
-    availability = get_object_or_404(Availability, id=data['availability_id'])
+    availability = get_object_or_404(Availability, id=data['availability'])
     garage = get_object_or_404(Garage, id=availability.garage.id)
     availability.status = GarageStatus.RESERVED.value
     availability.save()
@@ -83,3 +95,55 @@ def create_comment(request):
     else:
         return Response(comment_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+
+    
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_checkout_session(request):
+    data = request.data
+    user = request.user
+    availability = get_object_or_404(Availability, id=data['availability'])
+    availability.status = GarageStatus.RESERVED.value
+    availability.save()
+
+    book = Book.objects.create(
+        payment_method=data.get('payment_method'),
+        status=BookingStatus.CONFIRMED.value,
+        user=user,
+        availability=availability
+    )  
+    try:
+        succes='/garages'
+        cancel= '/garages'
+        amount = book.calculate_total_price()
+        
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+                line_items=[{
+                    'price_data': {
+                        'currency': 'eur',
+                        'product_data': {
+                            'name': f'Reserva de garaje {book.availability.garage.name}',
+                        },
+                        'unit_amount': int(amount*100),  
+                    },
+                    'quantity': 1,
+                }],
+                mode='payment',
+                success_url=data['url']+ succes,
+                cancel_url=data['url']+ cancel,
+            )
+        
+        if(book.status == BookingStatus.CONFIRMED and book.availability.garage.owner.iban is not None):
+            # Realiza una transferencia a la cuenta conectada
+            stripe.Transfer.create(
+                amount=amount*100,
+                currency='eur',
+                destination=book.availability.garage.owner.get_stripe_id(),
+            )
+        
+        return JsonResponse({'url': session.url, 'confirmacion': True})
+
+    except stripe.error.StripeError as e:
+        return JsonResponse({'error': str(e), 'confirmacion': False}, status=403)

@@ -34,4 +34,3 @@ class ParkingFilter:
         if self.quantity:
             queryset = queryset[:self.quantity]
         return queryset
-        

@@ -25,4 +25,3 @@ class MemberShip(models.Model):
             'id': self.id,
             'type': str(self.type)
         }
-    
