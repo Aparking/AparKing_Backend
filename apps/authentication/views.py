@@ -1,11 +1,14 @@
 from rest_framework.decorators import api_view
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from .serializers import CustomUserSerializer, LoginSerializer, RegisterSerializer
+from .serializers import CustomUserSerializer, LoginSerializer, RegisterSerializer,RegisterVehicleSerializer
 from apps.mailer import generic_sender as Mailer
 from apps.utils import code_generator
-from apps.authentication.models import CustomUser
-
+import stripe
+from apps.payment.models import MemberShip, CustomUser, Credit
+from apps.payment.enums import MemberType
+from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 
 @api_view(["POST"])
 def auth_login(request) -> Response:
@@ -76,6 +79,20 @@ def register(request) -> Response:
             message=f"Bienvenido {user.first_name}, para activar su cuenta introduzca el siguiente código: {user.code}",
             mail_to=user.email,
         )
+        customer = stripe.Customer.create(
+            email = user.email,
+            name = user.username
+        )
+        now = timezone.now()
+        oneMonthLater = now + relativedelta(months=1)
+        formattedNow = now.strftime('%Y-%m-%d %H:%M')
+        formattedOneMonthLater = oneMonthLater.strftime('%Y-%m-%d %H:%M')
+        memberShip=MemberShip(start_date=formattedNow,end_date=formattedOneMonthLater,type=MemberType.FREE,user=user)
+        credit= Credit(value=50,creation_date=now ,user=user)
+        memberShip.save()
+        credit.save()
+        user.stripe_customer_id = customer.id
+        user.stripe_subscription_id = "price_1OzRzqC4xI44aLdHxKkbcfko"
         user.save()
         return Response({"token": token.key}, status=200)
     else:
@@ -89,3 +106,19 @@ def auth_logout(request) -> Response:
         Token.objects.filter(user=user).delete()
         return Response(status=200)
     return Response(status=401)
+
+
+@api_view(["POST"])
+def registerVehicle(request) -> Response:
+    datos = request.data.copy()
+    datos['owner'] = request.user.id
+    print(datos)
+    serializer = RegisterVehicleSerializer(data=datos)
+    print(serializer)
+    if serializer.is_valid():
+        vehicle = serializer.save() 
+        vehicle.save()
+        return Response(status=200)
+    else:
+        return Response(serializer.errors, status=400)
+

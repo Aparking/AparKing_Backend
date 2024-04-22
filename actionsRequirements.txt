@@ -16,6 +16,7 @@ tqdm
 django-countries
 django-phonenumbers
 Pillow
-python-decouple
 django-filter
 stripe
+python-decouple
+python-dateutil

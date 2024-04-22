@@ -2,17 +2,14 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from phonenumber_field.modelfields import PhoneNumberField
-from .enums import Gender 
-import stripe
-from django.conf import settings
-
+from .enums import Gender
 
 # Create your models here.
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from phonenumber_field.modelfields import PhoneNumberField
-
+from apps.payment.enums import MemberId
 from apps.authentication.enums import Gender
 
 
@@ -34,8 +31,10 @@ class CustomUser(AbstractUser):
     gender = models.CharField(max_length=16, choices=Gender.choices())
     photo = models.URLField(blank=True, null=True)
     phone = PhoneNumberField(blank=False, null=False)
+    stripe_customer_id = models.CharField(max_length=255,null = True)
+    stripe_subscription_id = models.CharField(max_length=255, choices=MemberId.choices(), default=MemberId.FREE, blank=False, null=False)
+    stripe_session_id=models.CharField(max_length=255,null = True)
     code = models.CharField(max_length=10, blank=True)
-    
     def validate_iban(iban):
         iban = iban.replace(' ','').replace('\t','').replace('\n','')
         
@@ -46,6 +45,7 @@ class CustomUser(AbstractUser):
         iban = ''.join(str(10 + ord(c) - ord('A')) if c.isalpha() else c for c in iban)
         return int(iban) % 97 == 1
     iban = models.CharField(max_length=34, blank=True, null=True, validators=[validate_iban])
+
 
     REQUIRED_FIELDS = []
     USERNAME_FIELD = 'email'
@@ -75,8 +75,15 @@ class CustomUser(AbstractUser):
             account['id'],
             external_account=bank_account['id'],
         )
-        
+      
         return account['id']
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+        }
 
 class Vehicle(models.Model):
     carModel = models.CharField(max_length=100, blank=False, null=False)
@@ -84,3 +91,4 @@ class Vehicle(models.Model):
     height = models.DecimalField(max_digits=6, decimal_places=2)
     width = models.DecimalField(max_digits=6, decimal_places=2)
     length = models.DecimalField(max_digits=6, decimal_places=2)
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=False, null=False)
