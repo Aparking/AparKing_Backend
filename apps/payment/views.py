@@ -41,8 +41,8 @@ def create_checkout_session(request):
                 'quantity': 1,
             }],
             mode='subscription',
-            success_url='http://localhost:8100/api/subscriptions',
-            cancel_url='http://localhost:8100/G11/aparKing/map',
+            success_url=data['url'],
+            cancel_url=data['url'],
         )
         userInfo={
             'name':customUser.username,
