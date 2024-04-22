@@ -104,7 +104,6 @@ def create_checkout_session(request):
     data = request.data
     user = request.user
     availability = get_object_or_404(Availability, id=data['availability'])
-    garage = get_object_or_404(Garage, id=availability.garage.id)
     availability.status = GarageStatus.RESERVED.value
     availability.save()
 
@@ -113,9 +112,10 @@ def create_checkout_session(request):
         status=BookingStatus.CONFIRMED.value,
         user=user,
         availability=availability
-    )
-        
+    )  
     try:
+        succes='/garages'
+        cancel= '/garages'
         amount = book.calculate_total_price()
         
         session = stripe.checkout.Session.create(
@@ -126,16 +126,16 @@ def create_checkout_session(request):
                         'product_data': {
                             'name': f'Reserva de garaje {book.availability.garage.name}',
                         },
-                        'unit_amount': amount*100,  
+                        'unit_amount': int(amount*100),  
                     },
                     'quantity': 1,
                 }],
                 mode='payment',
-                success_url='bookings/',
-                cancel_url='bookings/',
+                success_url=data['url']+ succes,
+                cancel_url=data['url']+ cancel,
             )
         
-        if(book.status == BookingStatus.CONFIRMED & book.availability.garage.owner.iban != None):
+        if(book.status == BookingStatus.CONFIRMED and book.availability.garage.owner.iban is not None):
             # Realiza una transferencia a la cuenta conectada
             stripe.Transfer.create(
                 amount=amount*100,
