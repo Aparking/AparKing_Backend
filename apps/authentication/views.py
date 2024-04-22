@@ -4,60 +4,109 @@ from apps.authentication.models import CustomUser
 from rest_framework import status
 from django.contrib.auth.decorators import user_passes_test
 from rest_framework.decorators import api_view
+from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from django.contrib.auth import login, logout
-from .serializers import LoginSerializer, RegisterSerializer,UserSerializer
+from .serializers import CustomUserSerializer, LoginSerializer, RegisterSerializer,RegisterVehicleSerializer
+from apps.mailer import generic_sender as Mailer
+from apps.utils import code_generator
+from apps.authentication.models import CustomUser
 
-# Función auxiliar para verificar si el usuario es un administrador
-def is_admin(user):
-    # Verifica si el usuario está autenticado y si es un administrador (is_staff)
-    return user.is_authenticated and user.is_staff
 
-# Vista para listar y, opcionalmente, borrar usuarios
-@api_view(['GET', 'POST', 'DELETE'])
-# Decorador que restringe el acceso solo a los administradores
-@user_passes_test(is_admin)
-def users_list(request):
-    if request.method == 'GET':
-        # Obtiene todos los usuarios de la base de datos
-        users = CustomUser.objects.all()
-        
-        # Filtra los usuarios por el nombre de usuario si se proporciona en la consulta
-        username = request.GET.get('username', None)
-        if username is not None:
-            users = users.filter(username__icontains=username)
-        
-        # Serializa los usuarios encontrados
-        users_serializer = UserSerializer(users, many=True)
-        # Devuelve los datos de los usuarios serializados en forma de respuesta JSON
-        return JsonResponse(users_serializer.data, safe=False)
-    
-    elif request.method == 'DELETE':
-        # Elimina todos los usuarios de la base de datos
-        count = CustomUser.objects.all().delete()
-        # Devuelve un mensaje indicando cuántos usuarios se eliminaron con éxito
-        return JsonResponse({'message': '{} Users were deleted successfully!'.format(count[0])}, status=status.HTTP_204_NO_CONTENT)
-@api_view(['POST'])
+@api_view(["POST"])
 def auth_login(request) -> Response:
     serializer = LoginSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.validated_data
-        login(request, user)
-        return Response({'status': 'success', 'user': UserSerializer(user).data})
+        Token.objects.filter(user=user).delete()
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({"token": token.key}, status=200)
     else:
         return Response(serializer.errors, status=400)
 
-@api_view(['POST'])
+
+@api_view(["POST"])
+def delete_account(request) -> Response:
+    try:
+        token = Token.objects.get(key=request.data["token"])
+        if token:
+            user = token.user
+            user.delete()
+            return Response(status=200)
+        else:
+            return Response(status=400)
+    except Exception:
+        return Response(status=400)
+
+
+@api_view(["POST"])
+def verify_user(request) -> Response:
+    try:
+        token = Token.objects.get(key=request.data["token"])
+        if token:
+            user = token.user
+            if user.code == request.data["code"]:
+                user.is_active = True
+                user.save()
+                token.delete()
+                token, _ = Token.objects.get_or_create(user=user)
+                return Response({"token": token.key}, status=200)
+            else:
+                return Response(status=400)
+        else:
+            return Response(status=400)
+    except Exception:
+        return Response({"error": "Token not found"}, status=400)
+
+
+@api_view(["GET"])
+def user_info(request) -> Response:
+    user = request.user
+    if user.is_authenticated:
+        custom_user = CustomUser.objects.get(id=user.id)
+        serialized = CustomUserSerializer(custom_user)
+        return Response(serialized.data, status=200)
+    return Response(status=401)
+
+
+@api_view(["POST"])
 def register(request) -> Response:
     serializer = RegisterSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()
-        login(request, user)
-        return Response({'status': 'success'})
+        user.is_active = False
+        user.code = code_generator.code_generator(10)
+        token, _ = Token.objects.get_or_create(user=user)
+        Mailer.send_email(
+            subject="AparKing - Activar cuenta",
+            message=f"Bienvenido {user.first_name}, para activar su cuenta introduzca el siguiente código: {user.code}",
+            mail_to=user.email,
+        )
+        user.save()
+        return Response({"token": token.key}, status=200)
     else:
         return Response(serializer.errors, status=400)
 
-@api_view(['GET'])
+
+@api_view(["GET"])
 def auth_logout(request) -> Response:
-    logout(request)
-    return Response({'status': 'success'})
+    user = request.user
+    if user.is_authenticated:
+        Token.objects.filter(user=user).delete()
+        return Response(status=200)
+    return Response(status=401)
+
+
+@api_view(["POST"])
+def registerVehicle(request) -> Response:
+    datos = request.data.copy()
+    datos['owner'] = request.user.id
+    print(datos)
+    serializer = RegisterVehicleSerializer(data=datos)
+    print(serializer)
+    if serializer.is_valid():
+        vehicle = serializer.save() 
+        vehicle.save()
+        return Response(status=200)
+    else:
+        return Response(serializer.errors, status=400)
+
