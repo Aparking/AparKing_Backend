@@ -17,9 +17,9 @@ class ParkingFilter:
         location = Coordenates.from_request(request)
         if location:
             location_point = location.get_point()
-            size = Size[request.POST.get('parking_size').upper()] if request.POST.get('parking_size') else None
-            parking_type = ParkingType[request.POST.get('parking_type').upper()] if request.POST.get('parking_type') else None
-            quantity = int(request.POST.get('quantity')) if request.POST.get('quantity') else None
+            size = Size[request.data.get('parking_size').upper()] if request.data.get('parking_size') else None
+            parking_type = ParkingType[request.data.get('parking_type').upper()] if request.data.get('parking_type') else None
+            quantity = int(request.data.get('quantity')) if request.data.get('quantity') else None
             return ParkingFilter(location_point, size, parking_type, quantity)
         return None
     
@@ -34,4 +34,3 @@ class ParkingFilter:
         if self.quantity:
             queryset = queryset[:self.quantity]
         return queryset
-        
