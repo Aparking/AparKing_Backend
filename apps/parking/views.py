@@ -14,7 +14,7 @@ from django.db.models import Q
 
 from apps.parking.models import Parking, City
 from apps.parking.enums import ParkingType, NoticationsSocket, Size
-from apps.parking.serializers import ParkingSerializer
+from apps.parking.serializers import ParkingSerializer, CitySerializer
 from apps.parking.filters import ParkingFilter
 from apps.parking.coordenates import Coordenates
 
@@ -43,7 +43,7 @@ def manage_send_parking_created(type: str, message: dict, coordenates: Point):
        
         
     except Exception as e:
-        raise e
+        logger.error(f"Error sending message to group {group}: {e}")
 
 def index(request):
     return render(request, "parking/index.html")
@@ -233,8 +233,7 @@ def create_parking_data(request: HttpRequest):
     return res
 
 @api_view(['POST'])
-#@login_required
-def get_closest_cities(request: HttpRequest):
+def get_cities(request: HttpRequest, search_term: str):
     """
     Obtiene las ciudades más cercanas a unas coordenadas dadas.
 
@@ -245,20 +244,21 @@ def get_closest_cities(request: HttpRequest):
     - Response: Una respuesta HTTP con un código de estado 200 y un JSON que contiene las ciudades más cercanas, o un mensaje de error si se produce algún fallo.
     """
     try:
+
         # Obtener las coordenadas desde la solicitud
-        latitude = float(request.query_params.get('latitude'))
-        longitude = float(request.query_params.get('longitude'))
-        
-        # Crear un punto a partir de las coordenadas dadas
-        given_point = Point(longitude, latitude, srid=4326)
-        
+        coordenates = Coordenates.from_request(request)
         # Obtener las ciudades ordenadas por distancia a las coordenadas dadas
-        closest_cities = City.objects.annotate(distance=Distance('location', given_point)).order_by('distance')
+        if(search_term != "empty"):
+            cities = City.objects.filter(name__iexact=search_term)
+        else:
+            cities = City.objects.all()
+        closest_cities = cities.annotate(distance=Distance('location', coordenates.get_point())).order_by('distance')[:1000]
+
         
         # Serializar los datos de las ciudades
-        data = [{'name': city.name, 'distance': city.distance.km} for city in closest_cities]
+        serializer = CitySerializer(closest_cities, many=True).data
         
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(serializer, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
