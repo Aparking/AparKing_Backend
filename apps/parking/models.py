@@ -34,5 +34,20 @@ class Parking(models.Model):
 
     def __str__(self):
         return str(self.location.x) +" " + str(self.location.y)
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'notified_by': self.notified_by_id,  
+            'booked_by': self.booked_by_id,      
+            'location': str(self.location),       
+            'message': self.message,
+            'size': self.size.label,              
+            'is_assignment': self.is_assignment,
+            'is_transfer': self.is_transfer,
+            'parking_type': self.parking_type.label,  
+            'created_at': self.created_at.isoformat(), 
+            'updated_at': self.updated_at.isoformat(), 
+        }
     
 

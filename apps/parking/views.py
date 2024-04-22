@@ -1,3 +1,4 @@
+import json
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
@@ -11,7 +12,10 @@ from django.contrib.gis.geos import Point
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import render
 from django.db.models import Q
+from django.core import serializers
+from datetime import datetime
 
+from apps.authentication.models import CustomUser, Vehicle
 from apps.parking.models import Parking, City
 from apps.parking.enums import ParkingType, NoticationsSocket, Size
 from apps.parking.serializers import ParkingSerializer, CitySerializer
@@ -211,7 +215,7 @@ def delete_parking(request: HttpRequest, parking_id: int):
         return JsonResponse({"message": "The parking doesn't exist"}, status=404)
     
 
-@api_view(['GET'])
+@api_view(["GET"])
 def create_parking_data(request: HttpRequest):
     """
     Crea un objeto que contiene los datos de la creación de aparcamientos.
@@ -262,3 +266,56 @@ def get_cities(request: HttpRequest, search_term: str):
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_cesion_parking(request: HttpRequest):
+    parkings=Parking.objects.filter(parking_type=ParkingType.ASSIGNMENT)
+    user=request.user
+    cesiones=[]
+    for parking in parkings:
+        '''fechaCreate = datetime.fromisoformat(parking.created_at)
+        fechaCreateFormateada = fechaCreate.strftime('%Y-%m-%d %H:%M:%S')
+        parking.created_at=fechaCreateFormateada'''
+        if parking.booked_by != None:
+            parkingBooked=Parking.objects.get(id=parking.id)
+            #vehicle=Vehicle()
+            vehicle= Vehicle.objects.get(owner=parkingBooked.booked_by)
+            cesiones.append((parking,vehicle))
+        else:
+            vehicle=Vehicle()
+            cesiones.append((parking,vehicle))
+    res = JsonResponse({
+        "parking": [(parking.to_json(),vehicle.to_json()) for parking,vehicle in cesiones],
+        
+    })
+    return res
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def postParkingCesion(request: HttpRequest): 
+    try:
+        print("holasss")
+        user=request.user
+        data = json.loads(request.body.decode('utf-8'))
+        parking=Parking.objects.get(id=data)
+        parking.booked_by=user
+        parking.save()
+        print("holasss4")
+        return Response(data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def getVehicles(request: HttpRequest):
+    vehiculos=Vehicle.objects.filter(id=request.user.id)
+    res = JsonResponse({
+        "vehicles": [vehiculo.to_json() for vehiculo in vehiculos],
+        
+    })
+    return res

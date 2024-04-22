@@ -11,7 +11,7 @@ from django.core.validators import RegexValidator
 from phonenumber_field.modelfields import PhoneNumberField
 from apps.payment.enums import MemberId
 from apps.authentication.enums import Gender
-
+import stripe
 
 class CustomUser(AbstractUser):
     username = models.CharField(max_length=255, unique=False, blank=False, null=False)
@@ -92,3 +92,12 @@ class Vehicle(models.Model):
     width = models.DecimalField(max_digits=6, decimal_places=2)
     length = models.DecimalField(max_digits=6, decimal_places=2)
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=False, null=False)
+    def to_json(self):
+        return {
+            'id': self.id,
+            'carModel': self.carModel,
+            'color': self.color,
+            'height': str(self.height),
+            'width': str(self.width),
+            'length': str(self.length)
+        }
