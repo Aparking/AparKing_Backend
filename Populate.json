@@ -65,7 +65,6 @@
             "stripe_subscription_id":"price_1OzRzqC4xI44aLdHxKkbcfko",
             "code": "valor",
             "iban": "ES3420800197621234567891"
-
         }
     },
     {
@@ -151,7 +150,8 @@
             "color": "Blanco floral",
             "height": 188,
             "width": 222,
-            "length": 418
+            "length": 418,
+            "owner": 2
         }
     }, 
     {
@@ -162,7 +162,8 @@
             "color": "Lavanda",
             "height": 157,
             "width": 227,
-            "length": 454
+            "length": 454,
+            "owner": 1
         }
     },
     {
@@ -173,7 +174,8 @@
             "color": "Rosa profundo",
             "height": 168,
             "width": 219,
-            "length": 468
+            "length": 468,
+            "owner": 3
         }
     },
     {
@@ -184,7 +186,8 @@
             "color": "Gris oscuro",
             "height": 141,
             "width": 163,
-            "length": 393
+            "length": 393,
+            "owner": 4
         }
     },
     {
