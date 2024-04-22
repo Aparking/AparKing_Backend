@@ -9,7 +9,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from phonenumber_field.modelfields import PhoneNumberField
-
+from apps.payment.enums import MemberId
 from apps.authentication.enums import Gender
 
 
@@ -31,10 +31,20 @@ class CustomUser(AbstractUser):
     gender = models.CharField(max_length=16, choices=Gender.choices())
     photo = models.URLField(blank=True, null=True)
     phone = PhoneNumberField(blank=False, null=False)
+    stripe_customer_id = models.CharField(max_length=255,null = True)
+    stripe_subscription_id = models.CharField(max_length=255, choices=MemberId.choices(), default=MemberId.FREE, blank=False, null=False)
+    stripe_session_id=models.CharField(max_length=255,null = True)
     code = models.CharField(max_length=10, blank=True)
 
     REQUIRED_FIELDS = []
     USERNAME_FIELD = 'email'
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+        }
 
 class Vehicle(models.Model):
     carModel = models.CharField(max_length=100, blank=False, null=False)

@@ -1,4 +1,4 @@
-from apps.authentication.models import CustomUser
+from apps.authentication.models import CustomUser,Vehicle
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 
@@ -36,3 +36,19 @@ class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ("id", "email", "dni", "birth_date", "gender", "phone", "username")
+
+class RegisterVehicleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vehicle
+        fields = ("carModel", "color", "height", "width", "length","owner")
+
+    def create(self, validated_data):
+        vehicle = Vehicle.objects.create(
+            carModel=validated_data["carModel"],
+            color=validated_data["color"],
+            height=validated_data["height"],
+            width=validated_data["width"],
+            length=validated_data["length"],
+            owner=validated_data["owner"],
+        )
+        return vehicle
