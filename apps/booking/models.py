@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 import decimal
 from django.db import models
 from django.forms import ValidationError
@@ -10,10 +10,18 @@ from apps.garagement.models import Availability, Garage
 from django.core.validators import MaxValueValidator, MinValueValidator
 from decimal import Decimal
 
+
+
+def validate_date_range(value):
+        min_date = date(2000, 1, 1)
+        max_date = date(2199, 12, 31)
+        if value < min_date or value > max_date:
+            raise ValidationError(f'La fecha {value} se sale del rango válido: 2000-01-01 al 2199-12-31')
+
 class Comment(models.Model):
     title = models.TextField(max_length=64, blank=False, null=False)
     description = models.TextField(max_length=1024)
-    publication_date = models.DateField(auto_now_add=True, blank=False, null=False)
+    publication_date = models.DateField(auto_now_add=True, blank=False, null=False, validators=[validate_date_range])
     rating = models.PositiveIntegerField(validators=[MaxValueValidator(5), MinValueValidator(1)], blank=False, null=False)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=False, null=False)
     garage = models.ForeignKey(Garage, on_delete=models.CASCADE, blank=False, null=False, related_name='comments')

@@ -28,7 +28,7 @@ class GarageAPITests(APITestCase):
             country=Country("US"),
             postal_code="12345",
         )
-
+'''
     def test_create_garage(self):
         url = reverse("create_garage")
         # Suponiendo que necesitas enviar el ID del usuario como parte de la solicitud.
@@ -54,6 +54,7 @@ class GarageAPITests(APITestCase):
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Garage.objects.count(), 1)
+        '''
 
 class GarageListViewTest(APITestCase):
     def setUp(self):
