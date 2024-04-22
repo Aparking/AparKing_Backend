@@ -270,6 +270,7 @@ def get_cities(request: HttpRequest, search_term: str):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def list_cesion_parking(request: HttpRequest):
     parkings=Parking.objects.filter(parking_type=ParkingType.ASSIGNMENT)
     user=request.user
@@ -279,9 +280,9 @@ def list_cesion_parking(request: HttpRequest):
         fechaCreateFormateada = fechaCreate.strftime('%Y-%m-%d %H:%M:%S')
         parking.created_at=fechaCreateFormateada'''
         if parking.booked_by != None:
-            usuarioBooked=Parking.objects.get(booked_by=parking.booked_by)
-            vehicle=Vehicle()
-            #vehicle= Vehicle.objects.get(owner=usuarioBooked.id)
+            parkingBooked=Parking.objects.get(id=parking.id)
+            #vehicle=Vehicle()
+            vehicle= Vehicle.objects.get(owner=parkingBooked.booked_by)
             cesiones.append((parking,vehicle))
         else:
             vehicle=Vehicle()
@@ -293,14 +294,28 @@ def list_cesion_parking(request: HttpRequest):
     return res
 
 
-'''@api_view(['POST'])
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def postParkingCesion(request: HttpRequest): 
     try:
+        print("holasss")
         user=request.user
         data = json.loads(request.body.decode('utf-8'))
-        parking=Parking.objects.get(id=data.get('parkingId'))
+        parking=Parking.objects.get(id=data)
         parking.booked_by=user
         parking.save()
+        print("holasss4")
         return Response(data, status=status.HTTP_200_OK)
     except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)'''
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def getVehicles(request: HttpRequest):
+    vehiculos=Vehicle.objects.filter(id=request.user.id)
+    res = JsonResponse({
+        "vehicles": [vehiculo.to_json() for vehiculo in vehiculos],
+        
+    })
+    return res
