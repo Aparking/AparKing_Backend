@@ -56,25 +56,6 @@
     },
     {
         "model": "authentication.customUser",
-        "pk":5,
-        "fields":{
-            "username": "admin",
-            "email": "admin@admin.es",
-            "dni":"52614398Z",
-            "password": "pbkdf2_sha256$720000$88mK55HZbJBAX58XgRGfNB$c1mdSSY4l0Abd2hrp8FE/4yh1ckySu5E79oU1Nv7rxM=",
-            "first_name": "Admin",
-            "last_name": "Admin",
-            "gender": "M",
-            "is_active": true,
-            "is_staff": true,
-            "is_superuser": true,
-            "date_joined": "2022-04-17T16:46:52.327Z",
-            "birth_date": "2023-03-27",
-            "phone": "+1608796414"
-        }
-    },
-    {
-        "model": "authentication.customUser",
         "pk":4,
         "fields":{
             "username": "lorenzo82",
@@ -89,6 +70,25 @@
             "date_joined": "2022-04-17T16:46:52.327Z",
             "birth_date": "2023-03-27",
             "phone": "+1608796413"
+        }
+    },
+    {
+        "model": "authentication.customUser",
+        "pk":5,
+        "fields":{
+            "username": "admin",
+            "email": "admin@admin.com",
+            "dni":"52614398Z",
+            "password": "pbkdf2_sha256$720000$88mK55HZbJBAX58XgRGfNB$c1mdSSY4l0Abd2hrp8FE/4yh1ckySu5E79oU1Nv7rxM=",
+            "first_name": "Admin",
+            "last_name": "Admin",
+            "gender": "M",
+            "is_active": true,
+            "is_staff": true,
+            "is_superuser": true,
+            "date_joined": "2022-04-17T16:46:52.327Z",
+            "birth_date": "2023-03-27",
+            "phone": "+1608796414"
         }
     },
 
@@ -153,7 +153,8 @@
             "color": "Blanco floral",
             "height": 188,
             "width": 222,
-            "length": 418
+            "length": 418,
+            "owner": 2
         }
     }, 
     {
@@ -164,7 +165,8 @@
             "color": "Lavanda",
             "height": 157,
             "width": 227,
-            "length": 454
+            "length": 454,
+            "owner": 1
         }
     },
     {
@@ -175,7 +177,8 @@
             "color": "Rosa profundo",
             "height": 168,
             "width": 219,
-            "length": 468
+            "length": 468,
+            "owner": 3
         }
     },
     {
@@ -186,7 +189,8 @@
             "color": "Gris oscuro",
             "height": 141,
             "width": 163,
-            "length": 393
+            "length": 393,
+            "owner": 4
         }
     },
     {
@@ -357,8 +361,8 @@
         "model": "booking.book",
         "pk":1,
         "fields":{ 
-            "payment_method": "Transferencia",
-            "status": "Checked Out",
+            "payment_method": "Efectivo",
+            "status": "Pendiente",
             "user":1,
             "availability":1
         }
@@ -368,7 +372,7 @@
         "pk":2,
         "fields":{ 
             "payment_method": "Tarjeta",
-            "status": "Available",
+            "status": "Confirmada",
             "user":2,
             "availability":2
         }
@@ -377,8 +381,8 @@
         "model": "booking.book",
         "pk":3,
         "fields":{ 
-            "payment_method": "Transferencia",
-            "status": "Checked Out",
+            "payment_method": "Efectivo",
+            "status": "Cancelada",
             "user":3,
             "availability":3
         }
@@ -387,8 +391,8 @@
         "model": "booking.book",
         "pk":4,
         "fields":{ 
-            "payment_method": "Transferencia",
-            "status": "Checked Out",
+            "payment_method": "Efectivo",
+            "status": "Confirmada",
             "user":4,
             "availability":4
         }
@@ -400,7 +404,7 @@
             "title": "Reparaciones en el garaje de la Alameda",
             "description": "Usuarios reportan daños en el pavimento del garaje de la Alameda. Solicitan reparaciones para mejorar la seguridad y accesibilidad.",
             "publication_date": "2024-02-16",
-            "status": "Cerrado",
+            "status": "Pendiente",
             "user":1,
             "garage":1
         }
@@ -412,7 +416,7 @@
             "title": "Ampliación del garaje en Nervión",
             "description": "Propuesta para aumentar la capacidad del garaje en Nervión debido a la alta demanda de estacionamiento en la zona.",
             "publication_date": "2022-09-25",
-            "status": "Abierto",
+            "status": "Resuelta",
             "user":2,
             "garage":2
         }
@@ -424,7 +428,7 @@
             "title": "Mejoras en el sistema de reservas online",
             "description": "Usuarios solicitan una interfaz más intuitiva y rápida para el sistema de reservas online de plazas de garaje.",
             "publication_date": "2022-07-03",
-            "status": "Cerrado",
+            "status": "Pendiente",
             "user":3,
             "garage":3
         }
@@ -436,7 +440,7 @@
             "title": "Ofertas especiales para residentes de Triana",
             "description": "Iniciativa para ofrecer descuentos y promociones en el alquiler de plazas de garaje a los residentes de Triana.",
             "publication_date": "2022-06-21",
-            "status": "Abierto",
+            "status": "Rechazada",
             "user":4,
             "garage":4
         }
@@ -565,7 +569,7 @@
         "fields":{ 
             "start_date": "2023-04-01T16:00:00.007Z",
             "end_date": "2023-04-30T16:00:00.007Z",
-            "status": "Reservado",
+            "status": "Reservada",
             "garage":4
         }
     },
@@ -575,7 +579,7 @@
         "fields": {
             "start_date": "2024-01-01T00:00:00Z",
             "end_date": "2024-12-31T23:59:59Z",
-            "type": "PREMIUM",
+            "type": "Gratuita",
             "user": 1
         }
     },
@@ -585,7 +589,7 @@
         "fields": {
             "start_date": "2024-01-01T00:00:00Z",
             "end_date": "2024-06-30T23:59:59Z",
-            "type": "STANDARD",
+            "type": "Noble",
             "user": 2
         }
     },
@@ -595,18 +599,8 @@
         "fields": {
             "start_date": "2024-01-01T00:00:00Z",
             "end_date": "2024-03-31T23:59:59Z",
-            "type": "BASIC",
+            "type": "King",
             "user": 3
-        }
-    },
-    {
-        "model": "payment.memberShip",
-        "pk": 4,
-        "fields": {
-            "start_date": "2024-01-01T00:00:00Z",
-            "end_date": "2024-12-31T23:59:59Z",
-            "type": "PREMIUM",
-            "user": 4
         }
     }
 ]
