@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from .serializers import CustomUserSerializer, LoginSerializer, RegisterSerializer
+from .serializers import CustomUserSerializer, LoginSerializer, RegisterSerializer,RegisterVehicleSerializer
 from apps.mailer import generic_sender as Mailer
 from apps.utils import code_generator
 from apps.authentication.models import CustomUser
@@ -89,3 +89,19 @@ def auth_logout(request) -> Response:
         Token.objects.filter(user=user).delete()
         return Response(status=200)
     return Response(status=401)
+
+
+@api_view(["POST"])
+def registerVehicle(request) -> Response:
+    datos = request.data.copy()
+    datos['owner'] = request.user.id
+    print(datos)
+    serializer = RegisterVehicleSerializer(data=datos)
+    print(serializer)
+    if serializer.is_valid():
+        vehicle = serializer.save() 
+        vehicle.save()
+        return Response(status=200)
+    else:
+        return Response(serializer.errors, status=400)
+
