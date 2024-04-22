@@ -8,15 +8,17 @@ from datetime import date
 from django.core.files.uploadedfile import SimpleUploadedFile
 from PIL import Image
 from io import BytesIO
+
 User = get_user_model()
+
 
 class GarageAPITests(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(
-            username='testuser',
-            email='testuser@example.com',
-            password='testpassword',
-            birth_date=date(1990, 1, 1)
+            username="testuser",
+            email="testuser@example.com",
+            password="testpassword",
+            birth_date=date(1990, 1, 1),
         )
         self.client.force_authenticate(user=self.user)
 
@@ -26,7 +28,7 @@ class GarageAPITests(APITestCase):
             city="Springfield",
             region="Region Test",
             country=Country("US"),
-            postal_code="12345"
+            postal_code="12345",
         )
 
         self.garage = Garage.objects.create(
@@ -38,19 +40,23 @@ class GarageAPITests(APITestCase):
             price=50.00,
             owner=self.user,
             address=self.address,
-            is_active=True
+            is_active=True,
         )
 
         # Create a test image
-        image = Image.new('RGB', (100, 100))
+        image = Image.new("RGB", (100, 100))
         image_file = BytesIO()
-        image.save(image_file, 'JPEG')
+        image.save(image_file, "JPEG")
         image_file.seek(0)
 
         self.image = SimpleUploadedFile("test_image.jpg", image_file.read(), content_type="image/jpeg")
 
+        self.image = SimpleUploadedFile(
+            "test_image.jpg", image_file.read(), content_type="image/jpeg"
+        )
+
     def test_create_garage(self):
-        url = reverse('garages')
+        url = reverse("create_garage")
         data = {
             "name": "Test Garage",
             "description": "Test Description",
@@ -66,8 +72,11 @@ class GarageAPITests(APITestCase):
                 "city": "Metropolis",
                 "region": "Region Example",
                 "country": "US",
-                "postal_code": "67890"
-            }
+                "postal_code": "67890",
+            },
         }
         response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

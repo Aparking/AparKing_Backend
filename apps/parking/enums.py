@@ -15,9 +15,9 @@ class Size(Enum):
         return tuple((i.name, i.value) for i in cls)
     
 class ParkingType(Enum):
-    ASSIGNMENT = "Cesión"
-    FREE = "Libre"
-    PRIVATE = "Privado"
+    ASSIGNMENT = 'Cesión'
+    FREE = 'Libre'
+    PRIVATE = 'Privado'
     
 class NoticationsSocket(Enum):
     PARKING_DELETED = "notify.parking.deleted"
