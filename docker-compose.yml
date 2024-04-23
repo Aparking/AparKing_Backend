@@ -31,18 +31,6 @@ services:
       - migrations
       - database
 
-  migrations:
-    platform: linux/amd64
-    build:
-      context: .
-      dockerfile: ./docker/migrations.Dockerfile
-    env_file:
-      - ./env/backend.env
-    volumes:
-      - .:/app
-    depends_on:
-      - database
-
   redis:
     image: redis:7
     restart: always

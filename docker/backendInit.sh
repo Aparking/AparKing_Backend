@@ -6,6 +6,9 @@ while ! nc -z database 5432; do
     sleep 5
 done
 echo 'Database is available.'
+python manage.py makemigrations
+python manage.py migrate --noinput
+python importCSV.py
 
 # Inicia el servidor Django en el fondo temporalmente
 echo 'Starting backend...'
