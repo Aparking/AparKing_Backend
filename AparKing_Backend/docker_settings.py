@@ -7,7 +7,7 @@ DATABASES = {
 		'NAME': 'aparking_db',
 		'USER': 'aparking',
 		'PASSWORD': 'aparking',
-		'HOST': os.environ.get('DB_HOST', 'database'),
+		'HOST': os.environ.get('DB_HOST', 'localhost'),
 		'PORT': '5432',
 	}
 }
