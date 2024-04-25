@@ -1,10 +1,6 @@
 #!/bin/sh
 
-python3 -m venv ./venv
 source venv/bin/activate
-
-# Instalar las dependencias de Python
-pip3 install --no-cache-dir -r requirements.txt
 
 # Configurar PostgreSQL y Redis
 sudo service postgresql start
@@ -18,9 +14,6 @@ while ! nc -z localhost 5432; do
     sleep 1
 done
 echo 'Database is available.'
-
-# Desactivar Transparent Huge Pages para Redis
-echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/enabled
 
 # Iniciar Redis sin contraseña
 sudo redis-server --port 6379 --protected-mode no &

@@ -4,19 +4,19 @@ entrypoint: flex
 env: flex  # Utiliza el entorno flexible para aplicaciones más configurables
 automatic_scaling:
   min_num_instances: 1
-  max_num_instances: 3  # Escala automáticamente entre 1 y 3 instancias
+  max_num_instances: 1  # Escala automáticamente entre 1 y 3 instancias
   cpu_utilization:
-    target_utilization: 0.6  # Escala cuando la utilización de CPU alcanza el 60%
+    target_utilization: 0.9  # Escala cuando la utilización de CPU alcanza el 60%
 
 resources:
-  cpu: 1
+  cpu: 2
   memory_gb: 2
   disk_size_gb: 10  # Configura el tamaño del disco según tus necesidades
 
 env_variables:  # Define aquí las variables de entorno necesarias para tu aplicación
   DJANGO_SECRET_KEY: 'django-insecure-!eb&x8z=%ac03t5%cs-0+9kk&r%rh%3u#yjsxzt*558c971@&b'
   DJANGO_DEBUG: 'True'
-  DJANGO_SETTINGS_OVERRIDE: 'AparKing_Backend.docker_settings'
+  DJANGO_SETTINGS_OVERRIDE: 'AparKing_Backend.deploy_settings'
   CPLUS_INCLUDE_PATH: '/usr/include/gdal'
   C_INCLUDE_PATH: '/usr/include/gdal'
   EMAIL_HOST_USER: 'aparking.g11@gmail.com'
