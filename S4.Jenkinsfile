@@ -26,10 +26,8 @@ pipeline {
             steps {
                 script {
                     sh 'cp ./docker/backend.Dockerfile ./Dockerfile'
-                    // Configura el proyecto de GCP
-                    sh "gcloud config set project ${PROJECT}"
                     // Despliega la aplicación
-                    sh "gcloud app deploy app.yaml --quiet"
+                    sh "gcloud app deploy app.yaml --quiet --project=${PROJECT}"
                     sh 'rm ./Dockerfile'
                 }
             }
@@ -42,7 +40,7 @@ pipeline {
         success {
             mail to: 'juancarlosralop@gmail.com, sergiosantiago0403@gmail.com, maria-vico@hotmail.es',
                 subject: "Despliegue Completado: ${INSTANCE_NAME}",
-                body: "El despliegue de ${INSTANCE_NAME} en App Engine ha sido completado exitosamente. Puedes verificar la aplicación en la consola de Google Cloud."
+                body: "El despliegue de ${INSTANCE_NAME} en App Engine ha sido completado exitosamente. \n Puedes verificar la aplicación en la consola de Google Cloud."
         }
         failure {
             mail to: 'juancarlosralop@gmail.com, sergiosantiago0403@gmail.com, maria-vico@hotmail.es',
