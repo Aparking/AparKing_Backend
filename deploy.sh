@@ -1,4 +1,48 @@
-#!/bin/sh
+#!/bin/bash
+
+# Definir el directorio de trabajo de la aplicación
+APP_HOME="/app"
+mkdir -p $APP_HOME
+cd $APP_HOME
+
+# Determinar la distribución del sistema
+DISTRIB_ID=$(lsb_release -si)
+
+# Actualizar el sistema
+sudo apt-get update
+
+# Comandos específicos de distribución
+if [ "$DISTRIB_ID" = "Ubuntu" ]; then
+    sudo apt-get install -y software-properties-common
+    sudo add-apt-repository ppa:ubuntugis/ppa
+elif [ "$DISTRIB_ID" = "Debian" ]; then
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+    echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+fi
+
+sudo apt-get update
+
+# Instalar dependencias necesarias para ambas distribuciones
+sudo apt-get install -y \
+    gdal-bin \
+    python3-gdal \
+    wget \
+    gnupg \
+    python3 \
+    python3-pip \
+    redis-server \
+    netcat-traditional \
+    binutils \
+    libgdal-dev \
+    libproj-dev \
+    libpq-dev \
+    build-essential \
+    git \
+    postgresql-14-postgis-3
+
+# Limpiar el caché de apt
+sudo apt-get clean
+sudo rm -rf /var/lib/apt/lists/*
 
 python3 -m venv ./venv
 source venv/bin/activate
@@ -44,4 +88,4 @@ python3 manage.py loaddata Populate.json
 # Iniciar el servidor de Django en modo producción recomendado
 echo 'Starting backend...'
 #gunicorn --bind 0.0.0.0:3000 myproject.wsgi:application &
-python3 manage.py runserver 0.0.0.0:80 &
+python3 manage.py runserver 0.0.0.0:3000 &

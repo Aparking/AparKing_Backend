@@ -8,6 +8,7 @@ EXPOSE 3000 3000
 
 COPY . .
 
+COPY docker/entrypoint-wrapper.sh .
 RUN chmod +x entrypoint-wrapper.sh
 
 ENTRYPOINT ["sh", "entrypoint-wrapper.sh"]

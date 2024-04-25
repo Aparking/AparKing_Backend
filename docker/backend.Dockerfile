@@ -11,11 +11,20 @@ WORKDIR $APP_HOME
 # Establecer variable de entorno para Python
 ENV PYTHONUNBUFFERED 1
 
+# Instalar software-properties-common antes de añadir el repositorio
+RUN apt-get update && \
+    apt-get install -y software-properties-common
+
+# Añadir el repositorio de Ubuntugis y actualizar el índice de paquetes
+RUN add-apt-repository ppa:ubuntugis/ppa && \
+    apt-get update
+
 # Actualizar el índice de paquetes e instalar dependencias de sistema necesarias
-RUN apt-get update && apt-get install -y \
+RUN apt-get install -y \
+    gdal-bin \
+    python3-gdal \
     wget \
     gnupg \
-    software-properties-common \
     python3.10 \
     python3-pip \
     redis-server \
@@ -26,31 +35,11 @@ RUN apt-get update && apt-get install -y \
     libproj-dev \
     libpq-dev \
     build-essential \
-    git
-
-# Enlazar python3 a python (si es necesario)
-RUN ln -s /usr/bin/python3 /usr/bin/python && \
-    ln -s /usr/bin/pip3 /usr/bin/pip
-
-# Añadir la clave GPG del repositorio de PostgreSQL
-RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-
-# Añadir el repositorio de PostgreSQL
-RUN add-apt-repository "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main"
-
-# Instalar PostgreSQL y PostGIS
-RUN apt-get update && apt-get install -y \
-    postgresql-14 \
-    postgresql-contrib-14 \
-    postgis \
+    git \
     postgresql-14-postgis-3
 
 # Limpiar el cache de apt para reducir tamaño de la imagen
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Copiar el archivo de requerimientos e instalar dependencias de Python
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiar el resto del código de la aplicación al directorio de trabajo
 COPY . .
