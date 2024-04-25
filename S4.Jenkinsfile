@@ -12,7 +12,28 @@ pipeline {
                 checkout([$class: 'GitSCM', branches: [[name: "*/${GIT_BRANCH}"]], userRemoteConfigs: [[url: "${GIT_REPO}"]]])
             }
         }
-
+        stage('Prepare Environment') {
+            steps {
+                script {
+                    sh """
+                    echo "EMAIL_HOST_USER=aparking.g11@gmail.com" > .env
+                    echo "EMAIL_HOST_PASSWORD=${env.EMAIL_HOST_PASSWORD}" >> .env
+                    """
+                }
+            }
+        }
+        stage('Deploy to App Engine') {
+            steps {
+                script {
+                    cp ./docker/backend.Dockerfile ./Dockerfile
+                    // Configura el proyecto de GCP
+                    sh "gcloud config set project ${PROJECT}"
+                    // Despliega la aplicación
+                    sh "gcloud app deploy app.yaml --quiet"
+                    rm ./Dockerfile
+                }
+            }
+        }
     }
     post {
         always {
