@@ -1,6 +1,8 @@
 #!/bin/sh
 
+python3 -m venv ./venv
 source venv/bin/activate
+pip3 install --no-cache-dir -r requirements.txt
 
 # Configurar PostgreSQL y Redis
 sudo service postgresql start

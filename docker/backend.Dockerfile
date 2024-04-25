@@ -50,10 +50,6 @@ COPY . .
 COPY docker/backendInit.sh .
 RUN chmod +x backendInit.sh
 
-RUN python3 -m venv ./venv && \
-    . venv/bin/activate && \
-    pip3 install --no-cache-dir -r requirements.txt
-
 EXPOSE 80
 
 # Configurar el comando por defecto para ejecutar el script de inicio
