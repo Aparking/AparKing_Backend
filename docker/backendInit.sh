@@ -7,10 +7,10 @@ source venv/bin/activate
 pip3 install --no-cache-dir -r requirements.txt
 
 # Configurar PostgreSQL y Redis
-service postgresql start
-su - postgres -c "psql -c \"CREATE USER aparking WITH PASSWORD 'aparking';\""
-su - postgres -c "psql -c \"CREATE DATABASE aparking_db OWNER aparking;\""
-su - postgres -c "psql -d aparking_db -c \"CREATE EXTENSION postgis;\""
+sudo service postgresql start
+sudo su - postgres -c "psql -c \"CREATE USER aparking WITH PASSWORD 'aparking';\""
+sudo su - postgres -c "psql -c \"CREATE DATABASE aparking_db OWNER aparking;\""
+sudo su - postgres -c "psql -d aparking_db -c \"CREATE EXTENSION postgis;\""
 
 # Esperar hasta que PostgreSQL esté disponible
 echo 'Waiting for PostgreSQL database to become available...'
@@ -20,10 +20,10 @@ done
 echo 'Database is available.'
 
 # Desactivar Transparent Huge Pages para Redis
-echo madvise | tee /sys/kernel/mm/transparent_hugepage/enabled
+echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/enabled
 
 # Iniciar Redis sin contraseña
-redis-server --port 6379 --protected-mode no &
+sudo redis-server --port 6379 --protected-mode no &
 
 # Esperar hasta que Redis esté disponible
 echo 'Waiting for Redis to become available...'
@@ -43,5 +43,5 @@ python3 manage.py loaddata Populate.json
 
 # Iniciar el servidor de Django en modo producción recomendado
 echo 'Starting backend...'
-#gunicorn --bind 0.0.0.0:3000 myproject.wsgi:application &
-python3 manage.py runserver 0.0.0.0:80 &
+gunicorn --bind 0.0.0.0:80 AparKing_Backend.wsgi:application
+# python3 manage.py runserver 0.0.0.0:80 &
