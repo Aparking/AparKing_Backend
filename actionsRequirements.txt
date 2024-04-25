@@ -20,4 +20,3 @@ django-filter
 stripe
 python-decouple
 python-dateutil
-daphne
