@@ -21,6 +21,7 @@ RUN add-apt-repository ppa:ubuntugis/ppa && \
 
 # Actualizar el índice de paquetes e instalar dependencias de sistema necesarias
 RUN apt-get install -y \
+    sudo \
     gdal-bin \
     python3-gdal \
     python3-venv \

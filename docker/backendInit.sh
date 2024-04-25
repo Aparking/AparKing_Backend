@@ -43,5 +43,5 @@ python3 manage.py loaddata Populate.json
 
 # Iniciar el servidor de Django en modo producción recomendado
 echo 'Starting backend...'
-gunicorn --bind 0.0.0.0:80 AparKing_Backend.wsgi:application
-# python3 manage.py runserver 0.0.0.0:80 &
+gunicorn --bind 0.0.0.0:$PORT AparKing_Backend.wsgi:application
+# python3 manage.py runserver 0.0.0.0:$PORT &
