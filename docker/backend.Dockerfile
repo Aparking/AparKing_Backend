@@ -23,6 +23,7 @@ RUN add-apt-repository ppa:ubuntugis/ppa && \
 RUN apt-get install -y \
     gdal-bin \
     python3-gdal \
+    python3-venv \
     wget \
     gnupg \
     python3.10 \
