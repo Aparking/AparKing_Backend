@@ -5,6 +5,7 @@ pipeline {
         PROJECT = "aparking-g11-s3"
         GIT_REPO = "https://github.com/Aparking/AparKing_Backend.git"
         GIT_BRANCH = "deploy/s4"
+        ZONE = "europe-southwest1-a"
     }
     stages {
         stage('Clone Repository') {
@@ -19,6 +20,18 @@ pipeline {
                     echo "EMAIL_HOST_USER=aparking.g11@gmail.com" > .env
                     echo "EMAIL_HOST_PASSWORD=${env.EMAIL_HOST_PASSWORD}" >> .env
                     """
+                }
+            }
+        }
+        stage('Initialize App Engine') {
+            steps {
+                script {
+                    // Verifica si la aplicación de App Engine ya existe
+                    def appExists = sh(script: "gcloud app describe --project=${PROJECT}", returnStatus: true)
+                    if (appExists != 0) {
+                        // Crea la aplicación de App Engine si no existe
+                        sh "gcloud app create --region=${ZONE} --project=${PROJECT}"
+                    }
                 }
             }
         }
