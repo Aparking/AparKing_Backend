@@ -5,6 +5,7 @@ pipeline {
         PROJECT = "aparking-g11-s3"
         GIT_REPO = "https://github.com/Aparking/AparKing_Backend.git"
         GIT_BRANCH = "deploy/s4"
+        SERVICE_ACCOUNT = "jenkins@aparking-g11-s3.iam.gserviceaccount.com"
     }
     stages {
         stage('Clone Repository') {
@@ -27,7 +28,7 @@ pipeline {
                 script {
                     sh 'cp ./docker/backend.Dockerfile ./Dockerfile'
                     // Despliega la aplicación
-                    sh "gcloud app deploy app.yaml --quiet --project=${PROJECT}"
+                    sh "gcloud app deploy app.yaml --quiet --project=${PROJECT} --service-account=${SERVICE_ACCOUNT}"
                     sh 'rm ./Dockerfile'
                 }
             }
