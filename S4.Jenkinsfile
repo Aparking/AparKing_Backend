@@ -26,13 +26,7 @@ pipeline {
         stage('Initialize App Engine') {
             steps {
                 script {
-                    // Intenta crear la aplicación de App Engine y captura cualquier error
-                    def output = sh(script: "gcloud app create --region=europe-west --project=${PROJECT} || true", returnStdout: true).trim()
-                    if (output.contains("already exists")) {
-                        echo "App Engine application already exists."
-                    } else {
-                        echo "App Engine application created or checked successfully."
-                    }
+                    sh "gcloud app create --region=${ZONE} --project=${PROJECT}"
                 }
             }
         }
