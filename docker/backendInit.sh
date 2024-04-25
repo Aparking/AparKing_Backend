@@ -15,6 +15,9 @@ while ! nc -z localhost 5432; do
 done
 echo 'Database is available.'
 
+# Desactivar Transparent Huge Pages para Redis
+echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/enabled
+
 # Iniciar Redis sin contraseña
 sudo redis-server --port 6379 --protected-mode no &
 

@@ -10,7 +10,7 @@ automatic_scaling:
 
 resources:
   cpu: 2
-  memory_gb: 2
+  memory_gb: 4
   disk_size_gb: 10  # Configura el tamaño del disco según tus necesidades
 
 env_variables:  # Define aquí las variables de entorno necesarias para tu aplicación

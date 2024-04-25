@@ -54,9 +54,6 @@ RUN python3 -m venv ./venv && \
     . venv/bin/activate && \
     pip3 install --no-cache-dir -r requirements.txt
 
-# Desactivar Transparent Huge Pages para Redis
-RUN echo madvise > /sys/kernel/mm/transparent_hugepage/enabled
-
 EXPOSE 80
 
 # Configurar el comando por defecto para ejecutar el script de inicio
