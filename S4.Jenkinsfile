@@ -22,18 +22,7 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to App Engine') {
-            steps {
-                script {
-                    cp ./docker/backend.Dockerfile ./Dockerfile
-                    // Configura el proyecto de GCP
-                    sh "gcloud config set project ${PROJECT}"
-                    // Despliega la aplicación
-                    sh "gcloud app deploy app.yaml --quiet"
-                    rm ./Dockerfile
-                }
-            }
-        }
+        
     }
     post {
         always {
