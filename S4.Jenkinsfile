@@ -5,7 +5,7 @@ pipeline {
         PROJECT = "aparking-g11-s3"
         GIT_REPO = "https://github.com/Aparking/AparKing_Backend.git"
         GIT_BRANCH = "deploy/s4"
-        ZONE = "europe-southwest1-a"
+        ZONE = "europe-southwest1"
     }
     stages {
         stage('Clone Repository') {
