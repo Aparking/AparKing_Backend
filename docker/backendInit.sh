@@ -7,10 +7,10 @@ source venv/bin/activate
 pip3 install --no-cache-dir -r requirements.txt
 
 # Configurar PostgreSQL y Redis
-sudo service postgresql start
-sudo su - postgres -c "psql -c \"CREATE USER aparking WITH PASSWORD 'aparking';\""
-sudo su - postgres -c "psql -c \"CREATE DATABASE aparking_db OWNER aparking;\""
-sudo su - postgres -c "psql -d aparking_db -c \"CREATE EXTENSION postgis;\""
+service postgresql start
+su - postgres -c "psql -c \"CREATE USER aparking WITH PASSWORD 'aparking';\""
+su - postgres -c "psql -c \"CREATE DATABASE aparking_db OWNER aparking;\""
+su - postgres -c "psql -d aparking_db -c \"CREATE EXTENSION postgis;\""
 
 # Esperar hasta que PostgreSQL esté disponible
 echo 'Waiting for PostgreSQL database to become available...'
@@ -20,10 +20,10 @@ done
 echo 'Database is available.'
 
 # Desactivar Transparent Huge Pages para Redis
-echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/enabled
+echo madvise | tee /sys/kernel/mm/transparent_hugepage/enabled
 
 # Iniciar Redis sin contraseña
-sudo redis-server --port 6379 --protected-mode no &
+redis-server --port 6379 --protected-mode no &
 
 # Esperar hasta que Redis esté disponible
 echo 'Waiting for Redis to become available...'

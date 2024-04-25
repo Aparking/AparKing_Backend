@@ -49,5 +49,7 @@ COPY . .
 COPY docker/backendInit.sh .
 RUN chmod +x backendInit.sh
 
+EXPOSE 80
+
 # Configurar el comando por defecto para ejecutar el script de inicio
 CMD ["sh", "docker/backendInit.sh"]
