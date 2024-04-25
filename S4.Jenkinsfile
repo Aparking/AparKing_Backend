@@ -9,8 +9,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/${GIT_BRANCH}']],
-                         userRemoteConfigs: [[url: '${GIT_REPO}']]])
+                checkout([$class: 'GitSCM', branches: [[name: '*/${GIT_BRANCH}']], userRemoteConfigs: [[url: '${GIT_REPO}']]])
             }
         }
         stage('Prepare Environment') {
