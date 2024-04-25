@@ -5,7 +5,6 @@ pipeline {
         PROJECT = "aparking-g11-s3"
         GIT_REPO = "https://github.com/Aparking/AparKing_Backend.git"
         GIT_BRANCH = "deploy/s4"
-        ZONE = "europe-west6"
     }
     stages {
         stage('Clone Repository') {
@@ -20,13 +19,6 @@ pipeline {
                     echo "EMAIL_HOST_USER=aparking.g11@gmail.com" > .env
                     echo "EMAIL_HOST_PASSWORD=${env.EMAIL_HOST_PASSWORD}" >> .env
                     """
-                }
-            }
-        }
-        stage('Initialize App Engine') {
-            steps {
-                script {
-                    sh "gcloud app create --region=${ZONE} --project=${PROJECT}"
                 }
             }
         }
