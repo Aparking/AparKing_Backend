@@ -276,13 +276,8 @@ def list_cesion_parking(request: HttpRequest):
     user=request.user
     cesiones=[]
     for parking in parkings:
-        '''fechaCreate = datetime.fromisoformat(parking.created_at)
-        fechaCreateFormateada = fechaCreate.strftime('%Y-%m-%d %H:%M:%S')
-        parking.created_at=fechaCreateFormateada'''
         if parking.booked_by != None:
-            parkingBooked=Parking.objects.get(id=parking.id)
-            #vehicle=Vehicle()
-            vehicle= Vehicle.objects.get(owner=parkingBooked.booked_by)
+            vehicle= Vehicle.objects.get(owner=parking.booked_by)
             cesiones.append((parking,vehicle))
         else:
             vehicle=Vehicle()
@@ -294,18 +289,16 @@ def list_cesion_parking(request: HttpRequest):
     return res
 
 
-@api_view(['POST'])
+@api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def postParkingCesion(request: HttpRequest): 
     try:
-        print("holasss")
         user=request.user
         data = json.loads(request.body.decode('utf-8'))
         parking=Parking.objects.get(id=data)
         parking.booked_by=user
         parking.save()
-        print("holasss4")
-        return Response(data, status=status.HTTP_200_OK)
+        return Response({'id': parking.id}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     

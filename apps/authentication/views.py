@@ -112,13 +112,12 @@ def auth_logout(request) -> Response:
 def registerVehicle(request) -> Response:
     datos = request.data.copy()
     datos['owner'] = request.user.id
-    print(datos)
     serializer = RegisterVehicleSerializer(data=datos)
-    print(serializer)
     if serializer.is_valid():
         vehicle = serializer.save() 
         vehicle.save()
         return Response(status=200)
     else:
         return Response(serializer.errors, status=400)
+
 
