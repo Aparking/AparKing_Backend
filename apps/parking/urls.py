@@ -14,7 +14,7 @@ urlpatterns = [
     path("get_cities/<str:search_term>/", views.get_cities, name="get_cities"),
     path("getParkingCesion/", views.list_cesion_parking, name="get_cesion_parking"),
     path("getVehicles/", views.getVehicles, name="getVehicles"),
-    path("postParkingCesion/", views.postParkingCesion, name="postParkingCesion"),
+    path("updateParkingCesion/", views.postParkingCesion, name="postParkingCesion"),
     path("<str:room_name>/", views.room, name="room"),
     
 ]
