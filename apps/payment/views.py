@@ -26,7 +26,7 @@ def create_checkout_session(request):
     try:
         customUser = request.user
         credit =Credit.objects.get(user=customUser.id)
-        memberShip =MemberShip.objects.get(user=customUser)
+        memberShip =MemberShip.objects.filter(user=customUser).latest('start_date')
         subscription_plan_id=MemberId.FREE
         if data.get('planId')== 'NOBLE':
             credit.value = 300
@@ -82,7 +82,7 @@ def getMembership(request):
                     credit.value = 1000
                     subscription_plan_id=MemberId.KING
                     member=MemberType.KING
-                if(session.payment_status != "unpaid"):
+                if(session.payment_status != "unpaid" and customUser.stripe_subscription_id != None):
                     customUser.stripe_subscription_id = subscription_plan_id
                     now = timezone.now()
                     oneMonthLater = now + relativedelta(months=1)
@@ -91,6 +91,8 @@ def getMembership(request):
                     memberShip.start_date=formattedNow
                     memberShip.end_date=formattedOneMonthLater
                     memberShip.type = member
+                    memberShip.stripe_subscription_id=customUser.stripe_subscription_id
+                    customUser.stripe_subscription_id=None
                     credit.save()
                     memberShip.save()
                     customUser.save()
