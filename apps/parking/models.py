@@ -22,6 +22,7 @@ class Parking(models.Model):
     parking_type = EnumChoiceField(ParkingType, default=ParkingType.FREE, null=False, blank=False) 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Creation date")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Update date")
+    cesion_parking = models.DateTimeField(null=True, blank=True, verbose_name="Cesion parking")
     
     class Meta:
         verbose_name = "Aparcamiento"
@@ -36,6 +37,7 @@ class Parking(models.Model):
         return str(self.location.x) +" " + str(self.location.y)
 
     def to_json(self):
+        
         return {
             'id': self.id,
             'notified_by': self.notified_by_id,  
@@ -47,7 +49,8 @@ class Parking(models.Model):
             'is_transfer': self.is_transfer,
             'parking_type': self.parking_type.label,  
             'created_at': self.created_at.isoformat(), 
-            'updated_at': self.updated_at.isoformat(), 
+            'updated_at': self.updated_at.isoformat(),
+            'cesion_parking': self.cesion_parking.isoformat(),
         }
     
 
