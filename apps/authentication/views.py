@@ -6,6 +6,7 @@ from apps.mailer import generic_sender as Mailer
 from apps.utils import code_generator
 import stripe
 from apps.payment.models import MemberShip, CustomUser, Credit
+from apps.authentication.models import Vehicle
 from apps.payment.enums import MemberType
 from django.utils import timezone
 from dateutil.relativedelta import relativedelta
@@ -112,9 +113,14 @@ def auth_logout(request) -> Response:
 def registerVehicle(request) -> Response:
     datos = request.data.copy()
     datos['owner'] = request.user.id
+    for vehiculo in Vehicle.objects.filter(owner=request.user.id):
+        vehiculo.principalCar=False
+        vehiculo.save()
     serializer = RegisterVehicleSerializer(data=datos)
+    
     if serializer.is_valid():
         vehicle = serializer.save() 
+        vehicle.principalCar= True
         vehicle.save()
         return Response(status=200)
     else:

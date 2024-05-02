@@ -92,6 +92,7 @@ class Vehicle(models.Model):
     width = models.DecimalField(max_digits=6, decimal_places=2)
     length = models.DecimalField(max_digits=6, decimal_places=2)
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=False, null=False)
+    principalCar = models.BooleanField(default=True)
     def to_json(self):
         return {
             'id': self.id,

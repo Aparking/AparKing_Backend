@@ -279,7 +279,8 @@ def list_cesion_parking(request: HttpRequest):
     cesiones=[]
     for parking in parkings:
         if parking.booked_by != None:
-            vehicle= Vehicle.objects.get(owner=parking.booked_by)
+            vehicle= Vehicle.objects.get(owner=parking.booked_by,principalCar=True)
+            
             cesiones.append((parking,vehicle))
         else:
             vehicle=Vehicle()
