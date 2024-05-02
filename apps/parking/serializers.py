@@ -8,6 +8,7 @@ from apps.parking.enums import ParkingType
 class ParkingSerializer(serializers.ModelSerializer):
     latitude = serializers.FloatField(write_only=True)
     longitude = serializers.FloatField(write_only=True)
+    cesion_parking = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S', required=False, allow_null=True)
 
     class Meta:
         model = Parking

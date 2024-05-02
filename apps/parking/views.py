@@ -128,6 +128,8 @@ def create_parking(request: HttpRequest):
     serializer = ParkingSerializer(data=data)
     if serializer.is_valid():
         parking = serializer.save()
+        parking.cesion_parking=data['appointmentDateTime']
+        parking.save()
         manage_send_parking_created(NoticationsSocket.PARKING_NOTIFIED.value, ParkingSerializer(parking).data, parking.location)
         return JsonResponse({'id': parking.id}, status=status.HTTP_201_CREATED)
     else:
