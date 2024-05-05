@@ -101,5 +101,6 @@ class Vehicle(models.Model):
             'color': self.color,
             'height': str(self.height),
             'width': str(self.width),
-            'length': str(self.length)
+            'length': str(self.length),
+            'principalCar': self.principalCar
         }

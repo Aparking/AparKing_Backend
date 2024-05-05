@@ -1,7 +1,7 @@
 from django.contrib.gis.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator 
 from enumchoicefield import EnumChoiceField
-from apps.authentication.models import CustomUser
+from apps.authentication.models import CustomUser,Vehicle
 from apps.parking.enums import Size, ParkingType
 
 class City(models.Model):
@@ -23,6 +23,7 @@ class Parking(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Creation date")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Update date")
     cesion_parking = models.DateTimeField(null=True, blank=True, verbose_name="Cesion parking")
+    vehiculo=models.ForeignKey(Vehicle, on_delete=models.CASCADE, null=True, blank=True, related_name="parking_vehicle")
     
     class Meta:
         verbose_name = "Aparcamiento"
