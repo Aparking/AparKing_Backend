@@ -7,6 +7,7 @@ class Credit(models.Model):
     value = models.IntegerField(blank=False, null=False)
     creation_date = models.DateField(auto_now_add=True, blank=False, null=False)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=False, null=False)
+    stripe_credit_id = models.CharField(max_length=255, blank=True, null=True)
 
     def to_json(self):
         return {
