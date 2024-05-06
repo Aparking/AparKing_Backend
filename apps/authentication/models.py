@@ -11,7 +11,7 @@ from django.core.validators import RegexValidator
 from phonenumber_field.modelfields import PhoneNumberField
 from apps.payment.enums import MemberId
 from apps.authentication.enums import Gender
-
+import stripe
 
 class CustomUser(AbstractUser):
     username = models.CharField(max_length=255, unique=False, blank=False, null=False)
@@ -32,7 +32,8 @@ class CustomUser(AbstractUser):
     photo = models.URLField(blank=True, null=True)
     phone = PhoneNumberField(blank=False, null=False)
     stripe_customer_id = models.CharField(max_length=255,null = True)
-    stripe_subscription_id = models.CharField(max_length=255, choices=MemberId.choices(), default=MemberId.FREE, blank=False, null=False)
+    stripe_subscription_id = models.CharField(max_length=255, choices=MemberId.choices(), default=MemberId.FREE, blank=True, null=True)
+    stripe_credit_id = models.CharField(max_length=255, blank=True, null=True)
     stripe_session_id=models.CharField(max_length=255,null = True)
     code = models.CharField(max_length=10, blank=True)
     def validate_iban(iban):
@@ -92,3 +93,14 @@ class Vehicle(models.Model):
     width = models.DecimalField(max_digits=6, decimal_places=2)
     length = models.DecimalField(max_digits=6, decimal_places=2)
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=False, null=False)
+    principalCar = models.BooleanField(default=True)
+    def to_json(self):
+        return {
+            'id': self.id,
+            'carModel': self.carModel,
+            'color': self.color,
+            'height': str(self.height),
+            'width': str(self.width),
+            'length': str(self.length),
+            'principalCar': self.principalCar
+        }

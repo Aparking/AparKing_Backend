@@ -5,7 +5,10 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-
+from apps.booking.models import Book, Availability
+from apps.garagement.enums import GarageStatus
+from apps.booking.enums import BookingStatus,PaymentMethod
+import stripe
 #  Garages views
 
 
@@ -129,6 +132,23 @@ def list_garages(request):
             garages = garages.filter(address__postal_code__iexact=postal_code)
 
         garages = garages.order_by("price", "creation_date")
+        bookings = Book.objects.filter(user=user)
+        for booking in bookings:
+            if(booking.stripe_session_id!= None):
+                session = stripe.checkout.Session.retrieve(booking.stripe_session_id,expand=['line_items'])
+                if(session.payment_status != "unpaid"):
+                    bookingStatus=BookingStatus.CONFIRMED.value,
+                    booking.status=bookingStatus
+                    booking.availability.status = GarageStatus.RESERVED.value
+                    booking.availability.save()
+                    booking.save()
+                    if(booking.status == BookingStatus.CONFIRMED and booking.availability.garage.owner.iban is not None):
+                        # Realiza una transferencia a la cuenta conectada
+                        stripe.Transfer.create(
+                            amount=booking.calculate_total_price()*100,
+                            currency='eur',
+                            destination=booking.availability.garage.owner.get_stripe_id(),
+                        )
         if garages.exists():
             serializer = GarageSerializer(garages, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)

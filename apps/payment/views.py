@@ -26,7 +26,7 @@ def create_checkout_session(request):
     try:
         customUser = request.user
         credit =Credit.objects.get(user=customUser.id)
-        memberShip =MemberShip.objects.get(user=customUser)
+        memberShip =MemberShip.objects.filter(user=customUser).latest('start_date')
         subscription_plan_id=MemberId.FREE
         if data.get('planId')== 'NOBLE':
             credit.value = 300
@@ -71,18 +71,24 @@ def getMembership(request):
         memberShip =MemberShip.objects.get(user=customUser)
         subscription_plan_id=MemberId.FREE
         member=MemberType.FREE
+        print("xxxxxxxx")
+        print(credit.value)
+        print(memberShip.type)
         if(customUser.stripe_session_id!= None):
             session = stripe.checkout.Session.retrieve(customUser.stripe_session_id,expand=['line_items'])
             for item in session.line_items.data:
+                credit.value = 0
                 if (item.price.id == str(MemberId.NOBLE)):
-                    credit.value = 300
+                    credit.value += 300
                     subscription_plan_id=MemberType.NOBLE
                     member=MemberType.NOBLE
                 elif (item.price.id ==str(MemberId.KING)):
-                    credit.value = 1000
+                    credit.value += 1000
                     subscription_plan_id=MemberId.KING
                     member=MemberType.KING
-                if(session.payment_status != "unpaid"):
+                else:
+                    credit.value +=50
+                if(session.payment_status != "unpaid" and session.status=="complete" and customUser.stripe_session_id != None):
                     customUser.stripe_subscription_id = subscription_plan_id
                     now = timezone.now()
                     oneMonthLater = now + relativedelta(months=1)
@@ -91,9 +97,24 @@ def getMembership(request):
                     memberShip.start_date=formattedNow
                     memberShip.end_date=formattedOneMonthLater
                     memberShip.type = member
+                    memberShip.stripe_subscription_id=customUser.stripe_session_id
+                    customUser.stripe_session_id=None
                     credit.save()
                     memberShip.save()
                     customUser.save()
+
+        if(customUser.stripe_credit_id!= None):
+            session = stripe.checkout.Session.retrieve(customUser.stripe_credit_id,expand=['line_items'])
+            for item in session.line_items.data:
+                if(session.payment_status != "unpaid" and session.status=="complete" and customUser.stripe_credit_id != None):
+                    credit.value += item.quantity
+                    credit.stripe_credit_id=customUser.stripe_credit_id
+                    customUser.stripe_credit_id=None
+                    credit.save()
+                    customUser.save()
+        credit.save()
+        memberShip.save()
+        customUser.save()
         userInfo={
             'user':customUser.to_json(),
             'membership':memberShip.to_json(),
@@ -105,3 +126,44 @@ def getMembership(request):
         return JsonResponse(response_data)
     except stripe.error.StripeError as e:
         return JsonResponse({'error': str(e)}, status=403)
+
+
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_checkout_session_credit(request):
+    data = json.loads(request.body.decode('utf-8'))
+    user = request.user
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'eur',
+                    'product_data': {
+                        'name': 'Créditos',
+                    },
+                    'unit_amount': int(0.05 * 100),
+                },
+                'quantity':int(data['credit']) ,
+            }],
+            mode='payment',
+            success_url=data['url'],
+            cancel_url=data['url'],
+        )
+        user.stripe_credit_id = checkout_session.id
+        user.save()
+
+        response_data = {
+            'url': checkout_session.url,
+            'user_info': {
+                'username': user.username,
+                'email': user.email,
+                'id': user.id,
+            }
+        }
+
+        return JsonResponse(response_data)
+    except stripe.error.StripeError as e:
+        return JsonResponse({'error': str(e)}, status=403)
+

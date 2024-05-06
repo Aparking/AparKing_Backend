@@ -3,18 +3,22 @@
         "model": "authentication.customUser",
         "pk":1,
         "fields":{
-            "username": "sosimomari",
-            "email": "domitilaroca@yahoo.com",
+            "username": "pepa",
+            "email": "pepa16032002@gmail.com",
             "dni":"47859612T",
             "password": "pbkdf2_sha256$720000$88mK55HZbJBAX58XgRGfNB$c1mdSSY4l0Abd2hrp8FE/4yh1ckySu5E79oU1Nv7rxM=",
-            "first_name": "Dani",
-            "last_name": "Correa",
+            "first_name": "Josefa",
+            "last_name": "chulian",
             "gender": "M",
             "is_active": false,
             "is_staff": false,
             "date_joined": "2023-01-1T16:46:52.327Z",
             "birth_date": "2024-02-27",
-            "phone": "+1612348729"
+            "phone": "+1612348729",
+            "stripe_customer_id": null,
+            "stripe_subscription_id":"price_1OzRzqC4xI44aLdHxKkbcfko",
+            "code": "valor",
+            "iban": "ES7921000813610123456789"
 
         }
     },
@@ -33,25 +37,34 @@
             "is_staff": false,
             "date_joined": "2023-10-19T16:46:52.327Z",
             "birth_date": "2023-03-29",
-            "phone": "+1678954120"
+            "phone": "+1678954120",
+            "stripe_customer_id": null,
+            "stripe_subscription_id":"price_1OzRzqC4xI44aLdHxKkbcfko",
+            "code": "valor",
+            "iban": "ES5520800197621234567891"
+
         }
     },
     {
         "model": "authentication.customUser",
         "pk":3,
         "fields":{
-            "username": "candelariaramirez",
-            "email": "carrillojulian@hotmail.com",
+            "username": "admin",
+            "email": "admin@admin.com",
             "dni":"74859632G",
             "password": "pbkdf2_sha256$720000$88mK55HZbJBAX58XgRGfNB$c1mdSSY4l0Abd2hrp8FE/4yh1ckySu5E79oU1Nv7rxM=",
-            "first_name": "Benita",
-            "last_name": "Ibañez",
+            "first_name": "Admin",
+            "last_name": "Admin",
             "gender": "O",
-            "is_active": false,
+            "is_active": true,
             "is_staff": true,
             "date_joined": "2023-01-24T16:46:52.327Z",
             "birth_date": "2022-04-29",
-            "phone": "+16044011234"
+            "phone": "+16044011234",
+            "stripe_customer_id": null,
+            "stripe_subscription_id":"price_1OzRzqC4xI44aLdHxKkbcfko",
+            "code": "valor",
+            "iban": "ES3420800197621234567891"
         }
     },
     {
@@ -69,26 +82,10 @@
             "is_staff": false,
             "date_joined": "2022-04-17T16:46:52.327Z",
             "birth_date": "2023-03-27",
-            "phone": "+1608796413"
-        }
-    },
-    {
-        "model": "authentication.customUser",
-        "pk":5,
-        "fields":{
-            "username": "admin",
-            "email": "admin@admin.com",
-            "dni":"52614398Z",
-            "password": "pbkdf2_sha256$720000$88mK55HZbJBAX58XgRGfNB$c1mdSSY4l0Abd2hrp8FE/4yh1ckySu5E79oU1Nv7rxM=",
-            "first_name": "Admin",
-            "last_name": "Admin",
-            "gender": "M",
-            "is_active": true,
-            "is_staff": true,
-            "is_superuser": true,
-            "date_joined": "2022-04-17T16:46:52.327Z",
-            "birth_date": "2023-03-27",
-            "phone": "+1608796414"
+            "phone": "+1608796413",
+            "stripe_customer_id": null,
+            "stripe_subscription_id":"price_1OzRzqC4xI44aLdHxKkbcfko",
+            "code": "valor"
         }
     },
 
@@ -218,7 +215,7 @@
             "size": "BERLINA",
             "is_assignment": true,
             "is_transfer": true,
-            "parking_type": "FREE",
+            "parking_type": "Cesión",
             "created_at": "2022-11-26T00:00:00Z",
             "updated_at": "2022-11-27T00:00:00Z"
         }
@@ -233,7 +230,7 @@
             "size": "BERLINA",
             "is_assignment": false,
             "is_transfer": true,
-            "parking_type": "FREE",
+            "parking_type": "Cesión",
             "created_at": "2023-08-12T00:00:00Z",
             "updated_at": "2023-08-13T00:00:00Z"
         }

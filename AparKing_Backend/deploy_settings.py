@@ -24,4 +24,4 @@ SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-ALLOWED_HOSTS = ['aparking-g11-s3.oa.r.appspot.com']
+ALLOWED_HOSTS = ['aparking-g11-s4.oa.r.appspot.com']
