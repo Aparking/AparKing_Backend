@@ -143,7 +143,7 @@ def create_checkout_session_credit(request):
                     'product_data': {
                         'name': 'Créditos',
                     },
-                    'unit_amount': int(data['credit'] * 0.05 * 100),
+                    'unit_amount': int(0.05 * 100),
                 },
                 'quantity':int(data['credit']) ,
             }],
