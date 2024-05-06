@@ -21,6 +21,7 @@ from apps.parking.enums import ParkingType, NoticationsSocket, Size
 from apps.parking.serializers import ParkingSerializer, CitySerializer
 from apps.parking.filters import ParkingFilter
 from apps.parking.coordenates import Coordenates
+from apps.payment.models import Credit
 
 from django.contrib.auth.decorators import login_required
 from rest_framework.permissions import IsAuthenticated
@@ -130,6 +131,10 @@ def create_parking(request: HttpRequest):
         parking = serializer.save()
         parking.cesion_parking=data['appointmentDateTime']
         parking.save()
+        if parking.parking_type==ParkingType.ASSIGNMENT:
+            credit=Credit.objects.get(user=request.user.id)
+            credit.value+=5
+            credit.save()
         manage_send_parking_created(NoticationsSocket.PARKING_NOTIFIED.value, ParkingSerializer(parking).data, parking.location)
         return JsonResponse({'id': parking.id}, status=status.HTTP_201_CREATED)
     else:
