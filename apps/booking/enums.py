@@ -29,7 +29,7 @@ class BookingStatus(Enum):
 class PaymentMethod(Enum):
 
     CASH = 'Efectivo'
-    CARD = 'Tarjeta'
+    CARD = 'CARD'
 
     def __str__(self):
         return self.value

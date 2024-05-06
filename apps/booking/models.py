@@ -64,7 +64,7 @@ class Book(models.Model):
     status = models.CharField(max_length=16, choices=BookingStatus.choices(), default=BookingStatus.PENDING, blank=False, null=False)
     user=models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
     availability=models.ForeignKey(Availability,on_delete=models.CASCADE, blank=False, null=False)
-    
+    stripe_session_id=models.CharField(max_length=255,null = True)
     class Meta:
         verbose_name = "Reserva"
         verbose_name_plural = "Reservas"

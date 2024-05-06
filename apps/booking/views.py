@@ -9,7 +9,7 @@ from .models import Book, Availability
 from .serializers import BookSerializer, CommentSerializer
 from django.shortcuts import get_object_or_404
 from apps.garagement.enums import GarageStatus
-from apps.booking.enums import BookingStatus
+from apps.booking.enums import BookingStatus,PaymentMethod
 from rest_framework.exceptions import ValidationError
 
 
@@ -54,7 +54,7 @@ def list_my_bookings(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     else:
         return Response({'message': 'No se encontraron reservas de garajes.'}, status=status.HTTP_404_NOT_FOUND)
-
+    
 @api_view(["GET", "DELETE"])
 @permission_classes([IsAuthenticated])
 def booking_details(request, pk):
@@ -104,12 +104,11 @@ def create_checkout_session(request):
     data = request.data
     user = request.user
     availability = get_object_or_404(Availability, id=data['availability'])
-    availability.status = GarageStatus.RESERVED.value
-    availability.save()
+    
 
     book = Book.objects.create(
         payment_method=data.get('payment_method'),
-        status=BookingStatus.CONFIRMED.value,
+        status=BookingStatus.PENDING.value,
         user=user,
         availability=availability
     )  
@@ -117,33 +116,33 @@ def create_checkout_session(request):
         succes='/garages'
         cancel= '/garages'
         amount = book.calculate_total_price()
-        
-        session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-                line_items=[{
-                    'price_data': {
-                        'currency': 'eur',
-                        'product_data': {
-                            'name': f'Reserva de garaje {book.availability.garage.name}',
+        if(book.payment_method==str(PaymentMethod.CARD)):
+            session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                    line_items=[{
+                        'price_data': {
+                            'currency': 'eur',
+                            'product_data': {
+                                'name': f'Reserva de garaje {book.availability.garage.name}',
+                            },
+                            'unit_amount': int(amount*100),  
                         },
-                        'unit_amount': int(amount*100),  
-                    },
-                    'quantity': 1,
-                }],
-                mode='payment',
-                success_url=data['url']+ succes,
-                cancel_url=data['url']+ cancel,
-            )
-        
-        if(book.status == BookingStatus.CONFIRMED and book.availability.garage.owner.iban is not None):
-            # Realiza una transferencia a la cuenta conectada
-            stripe.Transfer.create(
-                amount=amount*100,
-                currency='eur',
-                destination=book.availability.garage.owner.get_stripe_id(),
-            )
-        
-        return JsonResponse({'url': session.url, 'confirmacion': True})
+                        'quantity': 1,
+                    }],
+                    mode='payment',
+                    success_url=data['url']+ succes,
+                    cancel_url=data['url']+ cancel,
+                )
+            book.stripe_session_id= session.id
+            book.save()        
+            return JsonResponse({'url': session.url, 'confirmacion': True})
+        else:
+            bookingStatus=BookingStatus.CONFIRMED.value,
+            book.status=bookingStatus
+            book.availability.status = GarageStatus.RESERVED.value
+            book.availability.save()
+            book.save()
+            return JsonResponse({'url': data['url'], 'confirmacion': True})
 
     except stripe.error.StripeError as e:
         return JsonResponse({'error': str(e), 'confirmacion': False}, status=403)
