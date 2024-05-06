@@ -54,7 +54,7 @@ def create_checkout_session(request):
             'url': checkout_session.url,
             'user_info':userInfo
         }
-        customUser.stripe_subscription_id = checkout_session.id
+        customUser.stripe_session_id = checkout_session.id
         customUser.save()
 
         return JsonResponse(response_data)
@@ -71,8 +71,11 @@ def getMembership(request):
         memberShip =MemberShip.objects.get(user=customUser)
         subscription_plan_id=MemberId.FREE
         member=MemberType.FREE
-        if(customUser.stripe_subscription_id!= None):
-            session = stripe.checkout.Session.retrieve(customUser.stripe_subscription_id,expand=['line_items'])
+        print("xxxxxxxx")
+        print(credit.value)
+        print(memberShip.type)
+        if(customUser.stripe_session_id!= None):
+            session = stripe.checkout.Session.retrieve(customUser.stripe_session_id,expand=['line_items'])
             for item in session.line_items.data:
                 credit.value = 0
                 if (item.price.id == str(MemberId.NOBLE)):
@@ -84,8 +87,8 @@ def getMembership(request):
                     subscription_plan_id=MemberId.KING
                     member=MemberType.KING
                 else:
-                    credit+=50
-                if(session.payment_status != "unpaid" and session.status=="complete" and customUser.stripe_subscription_id != None):
+                    credit.value +=50
+                if(session.payment_status != "unpaid" and session.status=="complete" and customUser.stripe_session_id != None):
                     customUser.stripe_subscription_id = subscription_plan_id
                     now = timezone.now()
                     oneMonthLater = now + relativedelta(months=1)
@@ -94,8 +97,8 @@ def getMembership(request):
                     memberShip.start_date=formattedNow
                     memberShip.end_date=formattedOneMonthLater
                     memberShip.type = member
-                    memberShip.stripe_subscription_id=customUser.stripe_subscription_id
-                    customUser.stripe_subscription_id=None
+                    memberShip.stripe_subscription_id=customUser.stripe_session_id
+                    customUser.stripe_session_id=None
                     credit.save()
                     memberShip.save()
                     customUser.save()
@@ -109,6 +112,9 @@ def getMembership(request):
                     customUser.stripe_credit_id=None
                     credit.save()
                     customUser.save()
+        credit.save()
+        memberShip.save()
+        customUser.save()
         userInfo={
             'user':customUser.to_json(),
             'membership':memberShip.to_json(),

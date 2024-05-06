@@ -279,7 +279,8 @@ def list_cesion_parking(request: HttpRequest):
     cesiones=[]
     for parking in parkings:
         if parking.booked_by != None:
-            vehicle= Vehicle.objects.get(owner=parking.booked_by)
+            vehicle= parking.vehiculo
+            
             cesiones.append((parking,vehicle))
         else:
             vehicle=Vehicle()
@@ -298,7 +299,9 @@ def postParkingCesion(request: HttpRequest):
         user=request.user
         data = json.loads(request.body.decode('utf-8'))
         parking=Parking.objects.get(id=data)
+        vehicle= Vehicle.objects.get(owner=user.id,principalCar=True)
         parking.booked_by=user
+        parking.vehiculo=vehicle
         parking.save()
         return Response({'id': parking.id}, status=status.HTTP_200_OK)
     except Exception as e:
@@ -308,7 +311,7 @@ def postParkingCesion(request: HttpRequest):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def getVehicles(request: HttpRequest):
-    vehiculos=Vehicle.objects.filter(id=request.user.id)
+    vehiculos=Vehicle.objects.filter(owner=request.user.id)
     res = JsonResponse({
         "vehicles": [vehiculo.to_json() for vehiculo in vehiculos],
         

@@ -6,9 +6,11 @@ from apps.mailer import generic_sender as Mailer
 from apps.utils import code_generator
 import stripe
 from apps.payment.models import MemberShip, CustomUser, Credit
+from apps.authentication.models import Vehicle
 from apps.payment.enums import MemberType
 from django.utils import timezone
 from dateutil.relativedelta import relativedelta
+from rest_framework import status
 
 @api_view(["POST"])
 def auth_login(request) -> Response:
@@ -112,12 +114,33 @@ def auth_logout(request) -> Response:
 def registerVehicle(request) -> Response:
     datos = request.data.copy()
     datos['owner'] = request.user.id
+    for vehiculo in Vehicle.objects.filter(owner=request.user.id):
+        vehiculo.principalCar=False
+        vehiculo.save()
     serializer = RegisterVehicleSerializer(data=datos)
+    
     if serializer.is_valid():
         vehicle = serializer.save() 
+        vehicle.principalCar= True
         vehicle.save()
         return Response(status=200)
     else:
         return Response(serializer.errors, status=400)
+    
+@api_view(["PUT"])
+def updateVehicle(request) -> Response:
+    try:
+        for vehiculo in Vehicle.objects.filter(owner=request.user.id):
+            if vehiculo.id==request.data:
+                vehicle= Vehicle.objects.get(id=vehiculo.id)
+                vehicle.principalCar=True
+                vehicle.save()
+            else:
+                vehicle= Vehicle.objects.get(id=vehiculo.id)
+                vehicle.principalCar=False
+                vehicle.save()
+        return Response({'id': vehicle.id}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST) 
 
 
