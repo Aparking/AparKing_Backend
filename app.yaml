@@ -9,7 +9,7 @@ automatic_scaling:
     target_utilization: 0.9  # Escala cuando la utilización de CPU alcanza el 60%
 
 resources:
-  cpu: 1.5
+  cpu: 2
   memory_gb: 3
   disk_size_gb: 10  # Configura el tamaño del disco según tus necesidades
 
