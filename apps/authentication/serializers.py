@@ -52,3 +52,8 @@ class RegisterVehicleSerializer(serializers.ModelSerializer):
             owner=validated_data["owner"],
         )
         return vehicle
+    
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ("birth_date","dni","email", "phone", "username")

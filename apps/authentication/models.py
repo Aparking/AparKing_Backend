@@ -31,11 +31,11 @@ class CustomUser(AbstractUser):
     gender = models.CharField(max_length=16, choices=Gender.choices())
     photo = models.URLField(blank=True, null=True)
     phone = PhoneNumberField(blank=False, null=False)
-    stripe_customer_id = models.CharField(max_length=255,null = True)
+    stripe_customer_id = models.CharField(max_length=255,null = True,blank=True)
     stripe_subscription_id = models.CharField(max_length=255, choices=MemberId.choices(), default=MemberId.FREE, blank=True, null=True)
     stripe_credit_id = models.CharField(max_length=255, blank=True, null=True)
     stripe_session_id=models.CharField(max_length=255,null = True)
-    code = models.CharField(max_length=10, blank=True)
+    code = models.CharField(max_length=10, blank=True,null = True)
     def validate_iban(iban):
         iban = iban.replace(' ','').replace('\t','').replace('\n','')
         
@@ -92,7 +92,7 @@ class Vehicle(models.Model):
     height = models.DecimalField(max_digits=6, decimal_places=2)
     width = models.DecimalField(max_digits=6, decimal_places=2)
     length = models.DecimalField(max_digits=6, decimal_places=2)
-    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=False, null=False)
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
     principalCar = models.BooleanField(default=True)
     def to_json(self):
         return {
