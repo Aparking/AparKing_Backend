@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from .serializers import CustomUserSerializer, LoginSerializer, RegisterSerializer,RegisterVehicleSerializer
+from .serializers import CustomUserSerializer, LoginSerializer, RegisterSerializer,RegisterVehicleSerializer, ProfileSerializer
 from apps.mailer import generic_sender as Mailer
 from apps.utils import code_generator
 import stripe
@@ -140,6 +140,32 @@ def updateVehicle(request) -> Response:
                 vehicle.principalCar=False
                 vehicle.save()
         return Response({'id': vehicle.id}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST) 
+    
+@api_view(["GET", "PUT", "DELETE"])
+def user_profile(request):
+    try:
+        user = request.user
+
+        if request.method == "GET":
+            serializer = ProfileSerializer(user)
+            return Response(serializer.data)
+
+        elif request.method == "PUT":
+            serializer = ProfileSerializer(user, data=request.data)
+            print(serializer)
+            if serializer.is_valid():
+                print("funciona")
+                serializer.save()
+                return Response(serializer.data)
+            else:
+                print("hola")
+                return Response(serializer.errors, status=400)
+        elif request.method == "DELETE":
+            user.delete()
+            return Response(status=204)
+        
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST) 
 
