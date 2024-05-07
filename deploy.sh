@@ -29,7 +29,6 @@ sudo apt-get install -y \
     wget \
     gnupg \
     python3 \
-    python3-pip \
     redis-server \
     netcat-traditional \
     binutils \
@@ -48,7 +47,7 @@ python3 -m venv ./venv
 source venv/bin/activate
 
 # Instalar las dependencias de Python
-pip3 install --no-cache-dir -r requirements.txt
+python3 -m pip install --no-cache-dir -r requirements.txt
 
 # Configurar PostgreSQL y Redis
 sudo service postgresql start
@@ -75,6 +74,15 @@ while ! nc -z localhost 6379; do
     sleep 1
 done
 echo 'Redis is available.'
+
+echo 'Verifying Redis functionality...'
+redis-cli set testkey "testvalue"
+if [ "$(redis-cli get testkey)" = "testvalue" ]; then
+    echo "Redis is functioning properly."
+else
+    echo "Failed to verify Redis functionality."
+    exit 1
+fi
 
 # Ejecutar migraciones y otros comandos de inicio de Django
 python3 manage.py makemigrations
