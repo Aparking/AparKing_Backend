@@ -3,29 +3,6 @@
         "model": "authentication.customUser",
         "pk":1,
         "fields":{
-            "username": "pepa",
-            "email": "pepa16032002@gmail.com",
-            "dni":"47859612T",
-            "password": "pbkdf2_sha256$720000$88mK55HZbJBAX58XgRGfNB$c1mdSSY4l0Abd2hrp8FE/4yh1ckySu5E79oU1Nv7rxM=",
-            "first_name": "Josefa",
-            "last_name": "chulian",
-            "gender": "M",
-            "is_active": false,
-            "is_staff": false,
-            "date_joined": "2023-01-1T16:46:52.327Z",
-            "birth_date": "2024-02-27",
-            "phone": "+1612348729",
-            "stripe_customer_id": null,
-            "stripe_subscription_id":"price_1OzRzqC4xI44aLdHxKkbcfko",
-            "code": "valor",
-            "iban": "ES7921000813610123456789"
-
-        }
-    },
-    {
-        "model": "authentication.customUser",
-        "pk":2,
-        "fields":{
             "username": "maria-jesusrobles",
             "email": "jose-miguelsantana@yahoo.com",
             "dni":"15243678P",
@@ -47,7 +24,7 @@
     },
     {
         "model": "authentication.customUser",
-        "pk":3,
+        "pk":2,
         "fields":{
             "username": "admin",
             "email": "admin@admin.com",
@@ -69,7 +46,7 @@
     },
     {
         "model": "authentication.customUser",
-        "pk":4,
+        "pk":3,
         "fields":{
             "username": "lorenzo82",
             "email": "reigfabiana@quintanilla.es",
@@ -88,7 +65,6 @@
             "code": "valor"
         }
     },
-
     {
         "model": "garagement.address",
         "pk":1,
@@ -153,7 +129,7 @@
             "length": 418,
             "owner": 2
         }
-    }, 
+    },
     {
         "model": "authentication.vehicle",
         "pk":2,
@@ -187,7 +163,7 @@
             "height": 141,
             "width": 163,
             "length": 393,
-            "owner": 4
+            "owner": 2
         }
     },
     {
@@ -215,7 +191,7 @@
             "size": "BERLINA",
             "is_assignment": true,
             "is_transfer": true,
-            "parking_type": "Cesión",
+            "parking_type": "ASSIGNMENT",
             "created_at": "2022-11-26T00:00:00Z",
             "updated_at": "2022-11-27T00:00:00Z"
         }
@@ -230,7 +206,7 @@
             "size": "BERLINA",
             "is_assignment": false,
             "is_transfer": true,
-            "parking_type": "Cesión",
+            "parking_type": "ASSIGNMENT",
             "created_at": "2023-08-12T00:00:00Z",
             "updated_at": "2023-08-13T00:00:00Z"
         }
@@ -283,7 +259,7 @@
         "fields":{ 
             "value": 1323,
             "creation_date": "2023-02-08",
-            "user":4
+            "user":2
         }
     },
     {
@@ -350,7 +326,7 @@
             "height": 296,
             "width": 209,
             "length": 567,
-            "owner":4,
+            "owner":2,
             "address":4
         }
     },
@@ -390,7 +366,7 @@
         "fields":{ 
             "payment_method": "Efectivo",
             "status": "Confirmada",
-            "user":4,
+            "user":1,
             "availability":4
         }
     },
@@ -438,7 +414,7 @@
             "description": "Iniciativa para ofrecer descuentos y promociones en el alquiler de plazas de garaje a los residentes de Triana.",
             "publication_date": "2022-06-21",
             "status": "Rechazada",
-            "user":4,
+            "user":2,
             "garage":4
         }
     },
@@ -486,7 +462,7 @@
             "description": "El acceso al garaje cerca de la Plaza de España es muy cómodo. Siempre encuentro plaza cuando la necesito, y el proceso es muy ágil.",
             "publication_date": "2023-12-02",
             "rating": 3,
-            "user":4,
+            "user":3,
             "garage":4
         }
     },
