@@ -35,7 +35,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ("id", "email", "dni", "birth_date", "gender", "phone", "username")
+        fields = ("id", "email", "dni", "birth_date", "gender", "phone", "username","iban")
 
 class RegisterVehicleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -56,4 +56,4 @@ class RegisterVehicleSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ("birth_date","dni","email", "phone", "username")
+        fields = ("birth_date","dni","email", "phone", "username","iban")
