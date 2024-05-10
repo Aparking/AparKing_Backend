@@ -1,5 +1,4 @@
 from enum import Enum
-
 class Size(Enum):
 
     BERLINA = 'Berlina'
@@ -10,7 +9,24 @@ class Size(Enum):
 
     def __str__(self):
         return self.value
+    @property
+    def label(self):
+        return self.value 
 
     @classmethod
     def choices(cls):
         return tuple((i.name, i.value) for i in cls)
+    
+class ParkingType(Enum):
+    ASSIGNMENT = "Cesión"
+    FREE = "Libre"
+    PRIVATE = "Privado"
+
+    @property
+    def label(self):
+        return self.value 
+    
+class NoticationsSocket(Enum):
+    PARKING_DELETED = "notify.parking.deleted"
+    PARKING_BOOKED = "notify.parking.booked"
+    PARKING_NOTIFIED = "notify.parking.created"
