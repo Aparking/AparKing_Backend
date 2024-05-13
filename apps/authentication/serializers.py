@@ -1,3 +1,4 @@
+import re
 from apps.authentication.models import CustomUser,Vehicle
 from django.contrib.auth import authenticate
 from rest_framework import serializers
@@ -38,10 +39,34 @@ class CustomUserSerializer(serializers.ModelSerializer):
         fields = ("id", "email", "dni", "birth_date", "gender", "phone", "username")
 
 class RegisterVehicleSerializer(serializers.ModelSerializer):
+    SPANISH_COLORS = [
+        "rojo", "verde", "azul", "amarillo", "naranja", 
+        "violeta", "rosa", "blanco", "negro", "gris"
+    ]
     class Meta:
         model = Vehicle
         fields = ("carModel", "color", "height", "width", "length","owner")
 
+    def validate_color(self, value):
+        if value.lower() not in self.SPANISH_COLORS:
+            raise serializers.ValidationError("El color ingresado no es válido.")
+        return value
+    
+    def validate_height(self, value):
+        if value < 0:
+            raise serializers.ValidationError("La altura no puede ser negativa.")
+        return value
+
+    def validate_width(self, value):
+        if value < 0:
+            raise serializers.ValidationError("La anchura no puede ser negativa.")
+        return value
+
+    def validate_length(self, value):
+        if value < 0:
+            raise serializers.ValidationError("La longitud no puede ser negativa.")
+        return value
+    
     def create(self, validated_data):
         vehicle = Vehicle.objects.create(
             carModel=validated_data["carModel"],
