@@ -180,7 +180,8 @@
             "is_transfer": true,
             "parking_type": "FREE",
             "created_at": "2022-04-09T00:00:00Z",
-            "updated_at": "2022-04-10T00:00:00Z"
+            "updated_at": "2022-04-10T00:00:00Z",
+            "cesion_parking": "2025-04-10T00:00:00Z"
         }
     },
     {
@@ -195,7 +196,8 @@
             "is_transfer": true,
             "parking_type": "ASSIGNMENT",
             "created_at": "2022-11-26T00:00:00Z",
-            "updated_at": "2022-11-27T00:00:00Z"
+            "updated_at": "2022-11-27T00:00:00Z",
+            "cesion_parking": "2025-07-10T00:00:00Z"
         }
     },
     {
@@ -210,7 +212,8 @@
             "is_transfer": true,
             "parking_type": "ASSIGNMENT",
             "created_at": "2023-08-12T00:00:00Z",
-            "updated_at": "2023-08-13T00:00:00Z"
+            "updated_at": "2023-08-13T00:00:00Z",
+            "cesion_parking": "2025-02-10T00:00:00Z"
         }
     },
     {
@@ -225,7 +228,8 @@
             "is_transfer": true,
             "parking_type": "FREE",
             "created_at": "2022-05-13T00:00:00Z",
-            "updated_at": "2022-05-14T00:00:00Z"
+            "updated_at": "2022-05-14T00:00:00Z",
+            "cesion_parking": "2025-01-10T00:00:00Z"
         }
     },
     {
