@@ -55,8 +55,6 @@ INSTALLED_APPS = [
     "apps.mailer",
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
-
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -68,8 +66,18 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'AparKing_Backend.urls'
+ROOT_URLCONF = "AparKing_Backend.urls"
+
+CORS_ALLOW_ORIGINS = [
+    "http://localhost:8100",
+    "http://127.0.0.1:8100",
+    "http://127.0.0.1:8000",
+]
 CORS_ALLOW_ALL_ORIGINS = True
+
+REST_FRAMEWORK = {
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"]
+}
 
 TEMPLATES = [
     {
@@ -181,7 +189,27 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-try:
-    from .local_settings import *
-except ImportError:
-    pass
+
+# Obtén el nombre del archivo de configuración desde una variable de entorno
+SETTINGS_OVERRIDE = os.environ.get("DJANGO_SETTINGS_OVERRIDE")
+
+if SETTINGS_OVERRIDE:
+    try:
+        module = __import__(SETTINGS_OVERRIDE, globals(), locals(), ["*"])
+        for setting in dir(module):
+            if setting.isupper():
+                locals()[setting] = getattr(module, setting)
+    except ModuleNotFoundError as e:
+        raise ImportError(
+            f"No se pudo importar las configuraciones desde '{SETTINGS_OVERRIDE}'. {e}"
+        )
+
+# Intenta cargar desde local_settings.py
+else:
+    try:
+        from .local_settings import *
+    except ImportError:
+        pass
+
+
+STRIPE_SECRET_KEY = 'sk_test_51OzOxfC4xI44aLdHrHMxFSttQxBCZtdSGDzkopUk316v17bCEr0Ld2KcveikYe0j7a4YJh1Ad03J07dFFH4555bU00IRS2ETpF'

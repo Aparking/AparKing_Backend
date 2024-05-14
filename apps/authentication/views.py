@@ -5,12 +5,11 @@ from apps.payment.models import MemberShip, CustomUser, Credit
 from apps.payment.enums import MemberType
 from rest_framework import status
 from django.contrib.auth.decorators import user_passes_test
-from rest_framework.decorators import api_view
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 from django.contrib.auth import login, logout
-from .serializers import LoginSerializer, RegisterSerializer, UserSerializer, RegisterVehicleSerializer, ProfileSerializer
+from .serializers import LoginSerializer, RegisterSerializer, RegisterVehicleSerializer, ProfileSerializer
 from apps.mailer import generic_sender as Mailer
 from apps.utils import code_generator
 import stripe
