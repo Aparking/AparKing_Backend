@@ -2,11 +2,9 @@ from rest_framework.authtoken.models import Token
 from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import AnonymousUser
 from apps.authentication.models import CustomUser
-from apps.authentication.views import users_list
 from rest_framework.test import APIClient, APITestCase
 from apps.authentication.enums import Gender
 from django.urls import reverse
-from datetime import date
 
 
 class AuthTestCase(APITestCase):
@@ -17,11 +15,11 @@ class AuthTestCase(APITestCase):
     def setUp(self):
         super().setUp()
         self.user = CustomUser.objects.create_user(
-            username='admin', 
-            email=self.email, 
-            password=self.password, 
-            dni='12345678Z', 
-            phone='+34600000000', 
+            username='admin',
+            email=self.email,
+            password=self.password,
+            dni='12345678Z',
+            phone='+34600000000',
             birth_date='1990-01-01')
 
     def tearDown(self):
