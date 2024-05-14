@@ -9,7 +9,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 from django.contrib.auth import login, logout
-from .serializers import LoginSerializer, RegisterSerializer, RegisterVehicleSerializer, ProfileSerializer
+from .serializers import LoginSerializer, RegisterSerializer, RegisterVehicleSerializer, ProfileSerializer, UserSerializer, CustomUserSerializer
 from apps.mailer import generic_sender as Mailer
 from apps.utils import code_generator
 import stripe
@@ -221,11 +221,9 @@ def user_profile(request):
             serializer = ProfileSerializer(user, data=request.data)
             print(serializer)
             if serializer.is_valid():
-                print("funciona")
                 serializer.save()
                 return Response(serializer.data)
             else:
-                print("hola")
                 return Response(serializer.errors, status=400)
         elif request.method == "DELETE":
             user.delete()

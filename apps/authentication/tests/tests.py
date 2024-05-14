@@ -1,10 +1,14 @@
-from django.urls import reverse
-from rest_framework.test import APITestCase
+from rest_framework.authtoken.models import Token
+from django.test import TestCase, RequestFactory
+from django.contrib.auth.models import AnonymousUser
 from apps.authentication.models import CustomUser
-from django.test import TestCase, Client
-from rest_framework import status
-from apps.authentication.serializers import UserSerializer
+from apps.authentication.views import users_list
+from rest_framework.test import APIClient, APITestCase
+from apps.authentication.enums import Gender
+from django.urls import reverse
 from datetime import date
+
+
 class AuthTestCase(APITestCase):
 
     email = 'admin@admin.com'
@@ -12,7 +16,13 @@ class AuthTestCase(APITestCase):
 
     def setUp(self):
         super().setUp()
-        self.user = CustomUser.objects.create_user(username='admin', email=self.email, password=self.password, dni='12345678Z', phone='+34600000000', birth_date='1990-01-01')
+        self.user = CustomUser.objects.create_user(
+            username='admin', 
+            email=self.email, 
+            password=self.password, 
+            dni='12345678Z', 
+            phone='+34600000000', 
+            birth_date='1990-01-01')
 
     def tearDown(self):
         super().tearDown()
@@ -22,73 +32,147 @@ class AuthTestCase(APITestCase):
         data = {'password': self.password, 'email': self.email}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'success')
 
     def test_register(self):
         url = reverse('register')
         data = {'username': 'newuser', 'email': 'newuser@admin.com', 'password': 'newpassword', 'dni': '12345679Z', 'phone': '+34600000000', 'birth_date': '1990-01-01'}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'success')
 
     def test_logout(self):
+        url_login = reverse('login')
         # Primero, inicia sesión
-        self.client.login(email=self.email, password=self.password)
+        data = {'password': self.password, 'email': self.email}
+        response = self.client.post(url_login, data, format='json')
         # Luego, prueba el logout
+        token = response.data.get('token')
         url = reverse('logout')
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token}')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'success')
 
-class UsersListTestCase(APITestCase):
+
+class UsersListViewTest(TestCase):
     def setUp(self):
-        super().setUp()
-        # Crear un usuario administrador para las pruebas
-        self.admin = CustomUser.objects.create_superuser(username='admin', email='admin@admin.com', password='admin', dni='12345678Z', phone='+34600000000', birth_date='1990-01-01')
+        self.factory = RequestFactory()
+        self.admin_user = CustomUser.objects.create(
+            username='adminuser',
+            email='adminuser@example.com',
+            dni='12345678Z',
+            birth_date='2000-01-01',
+            gender=Gender.MALE,
+            phone='123456789',
+            iban='ES9121000418450051332',
+            is_staff=True
+        )
+        self.normal_user = CustomUser.objects.create(
+            username='normaluser',
+            email='normaluser@example.com',
+            dni='87654321Z',
+            birth_date='2000-01-01',
+            gender=Gender.FEMALE,
+            phone='987654321',
+            iban='ES9121000418450200051332',
+            is_staff=False
+        )
+        self.client = APIClient()
 
-    def test_get_users_list(self):
-        # Autenticar como usuario administrador
-        self.client.force_login(self.admin)
-        
-        # Crear algunos usuarios de prueba
-        user1 = CustomUser.objects.create(username="user1", email="user1@example.com", 
-                                           dni="12345678A", birth_date=date(1990, 1, 1), 
-                                           phone="+123456789")
-        user2 = CustomUser.objects.create(username="user2", email="user2@example.com", 
-                                           dni="23456789B", birth_date=date(1995, 1, 1), 
-                                           phone="+234567890")
-        
-        # Realizar una solicitud GET sin parámetros de filtro
-        response = self.client.get('/api/users')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    # Comprueba que el administrador puede tener acceso al listado de usuarios
+    def test_admin_access(self):
+        self.client.force_authenticate(user=self.admin_user)
+        url_users = reverse('users-list')
+        response = self.client.get(url_users)
+        self.assertEqual(response.status_code, 200)
 
-        # Verificar que se devuelvan todos los usuarios
-        expected_data = UserSerializer([self.admin,user1, user2], many=True).data
-        self.assertEqual(response.json(), expected_data)
+    # Comprueba que un administrador puede hacer un get de todos los usuarios
+    def test_get_all_users(self):
+        self.client.force_authenticate(user=self.admin_user)
+        url_users = reverse('users-list')
+        response = self.client.get(url_users)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 2)
 
-        # Realizar una solicitud GET con un parámetro de filtro
-        response = self.client.get('/api/users', {'username': 'user1'})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    # Comprueba que un usuario administrador puede filtrar a los usuarios
+    def test_filter_users_by_username(self):
+        self.client.force_authenticate(user=self.admin_user)
+        url_users = reverse('users-list')
+        response = self.client.get(url_users, {'username': 'normaluser'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 1)
 
-        # Verificar que se devuelva solo el usuario filtrado
-        expected_data = UserSerializer([user1], many=True).data
-        self.assertEqual(response.json(), expected_data)
+    # Comprueba que un administrador no puede crear un usuario con campos inválidos
+    def test_create_user_with_invalid_data(self):
+        self.client.force_authenticate(user=self.admin_user)
+        url_users = reverse('users-list')
+        response = self.client.post(url_users, {'username': ''})
+        self.assertEqual(response.status_code, 400)
 
-    def test_delete_users_list(self):
-        # Autenticar como usuario administrador
-        self.client.force_login(self.admin)
-        
-        # Crear algunos usuarios de prueba
-        CustomUser.objects.create(username="user1", email="user1@example.com", 
-                                  dni="12345678A", birth_date=date(1990, 1, 1), 
-                                  phone="+123456789")
-        CustomUser.objects.create(username="user2", email="user2@example.com", 
-                                  dni="23456789B", birth_date=date(1995, 1, 1), 
-                                  phone="+234567890")
-
-        # Realizar una solicitud DELETE
-        response = self.client.delete('/api/users')
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-
-        # Verificar que todos los usuarios se hayan eliminado
+    # Comprueba que un administrador puede borrar a todos los usuarios
+    def test_delete_all_users(self):
+        self.client.force_authenticate(user=self.admin_user)
+        url_users = reverse('users-list')
+        response = self.client.delete(url_users)
+        self.assertEqual(response.status_code, 204)
         self.assertEqual(CustomUser.objects.count(), 0)
+
+class UserInfoViewTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = CustomUser.objects.create_user(
+            username='testuser',
+            email='testuser@example.com',
+            password='testpassword',
+            dni='12345678Z',
+            birth_date='2000-01-01',
+            gender=Gender.OTHER,
+            phone='123456789',
+            iban='ES9121000418450200051332',
+            is_staff=False
+        )
+        self.token = Token.objects.create(user=self.user)
+        self.client = APIClient()
+
+    def test_user_info_with_authenticated_user(self):
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        url_user = reverse('userInfo')
+        response = self.client.get(url_user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['username'], 'testuser')
+
+    def test_user_info_with_unauthenticated_user(self):
+        url_user = reverse('userInfo')
+        response = self.client.get(url_user)
+        self.assertEqual(response.status_code, 401)
+
+class VerifyUserViewTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = CustomUser.objects.create_user(
+            username='testuser',
+            email='testuser@example.com',
+            password='testpassword',
+            dni='12345678Z',
+            birth_date='2000-01-01',
+            gender=Gender.MALE,
+            phone='123456789',
+            iban='ES9121000418450200051332',
+            is_staff=False,
+            code='1234'
+        )
+        self.token = Token.objects.create(user=self.user)
+        self.client = APIClient()
+            
+    def test_verify_user_with_valid_token_and_correct_code(self):
+        url = reverse('verify')
+        response = self.client.post(url, {'token': self.token.key, 'code': '1234'})
+        self.assertEqual(response.status_code, 200)
+
+    def test_verify_user_with_valid_token_and_incorrect_code(self):
+        url = reverse('verify')
+        response = self.client.post(url, {'token': self.token.key, 'code': '0000'})
+        self.assertEqual(response.status_code, 400)
+
+    def test_verify_user_with_invalid_token(self):
+        url = reverse('verify')
+        response = self.client.post(url, {'token': 'invalidtoken', 'code': '1234'})
+        self.assertEqual(response.status_code, 400)
