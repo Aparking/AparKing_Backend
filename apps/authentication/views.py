@@ -1,15 +1,21 @@
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
-from apps.authentication.models import CustomUser
+from apps.authentication.models import CustomUser, Vehicle
+from apps.payment.models import MemberShip, CustomUser, Credit
+from apps.payment.enums import MemberType
 from rest_framework import status
 from django.contrib.auth.decorators import user_passes_test
 from rest_framework.decorators import api_view
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-<<<<<<< HEAD
 from rest_framework.parsers import JSONParser
 from django.contrib.auth import login, logout
-from .serializers import LoginSerializer, RegisterSerializer,UserSerializer
+from .serializers import LoginSerializer, RegisterSerializer, UserSerializer, RegisterVehicleSerializer, ProfileSerializer
+from apps.mailer import generic_sender as Mailer
+from apps.utils import code_generator
+import stripe
+from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 
 # Función auxiliar para verificar si el usuario es un administrador
 def is_admin(user):
@@ -71,18 +77,6 @@ def users_detail(request, pk):
     elif request.method == 'DELETE': 
         user.delete() 
         return JsonResponse({'message': 'User was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
-=======
-from .serializers import CustomUserSerializer, LoginSerializer, RegisterSerializer,RegisterVehicleSerializer, ProfileSerializer
-from apps.mailer import generic_sender as Mailer
-from apps.utils import code_generator
-import stripe
-from apps.payment.models import MemberShip, CustomUser, Credit
-from apps.authentication.models import Vehicle
-from apps.payment.enums import MemberType
-from django.utils import timezone
-from dateutil.relativedelta import relativedelta
-from rest_framework import status
->>>>>>> f293d260ec4089ef07c2cc253cf94d8acfe4bc48
 
 @api_view(["POST"])
 def auth_login(request) -> Response:
@@ -240,5 +234,3 @@ def user_profile(request):
         
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST) 
-
-
