@@ -36,19 +36,14 @@ class CustomUser(AbstractUser):
     stripe_credit_id = models.CharField(max_length=255, blank=True, null=True)
     stripe_session_id=models.CharField(max_length=255,null = True)
     code = models.CharField(max_length=10, blank=True,null = True)
-    # def validate_iban(iban):
-    #     iban = iban.replace(' ','').replace('\t','').replace('\n','')
-        
-    #     if len(iban) != 34:
-    #         return False
 
-    #     iban = iban[4:] + iban[0:4]
-    #     iban = ''.join(str(10 + ord(c) - ord('A')) if c.isalpha() else c for c in iban)
-    #     return int(iban) % 97 == 1
     def validate_iban(iban):
         iban = iban.replace(' ','').replace('\t','').replace('\n','')
         
-        if len(iban) != 24 or not re.match(r'^ES\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}$', iban):
+        if len(iban) < 15 or len(iban) > 34:
+            return False
+
+        if not re.match(r'^[A-Z]{2}\d{2}\s?(\d{4}\s?){2,7}$', iban):
             return False
 
         iban = iban[4:] + iban[0:4]
