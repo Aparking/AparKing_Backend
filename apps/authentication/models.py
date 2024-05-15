@@ -2,13 +2,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from phonenumber_field.modelfields import PhoneNumberField
-from .enums import Gender
-
-# Create your models here.
-from django.db import models
-from django.contrib.auth.models import AbstractUser
-from django.core.validators import RegexValidator
-from phonenumber_field.modelfields import PhoneNumberField
 from apps.payment.enums import MemberId
 from apps.authentication.enums import Gender
 import stripe
