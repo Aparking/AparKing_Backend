@@ -159,7 +159,6 @@ class VerifyUserViewTest(TestCase):
         )
         self.token = Token.objects.create(user=self.user)
         self.client = APIClient()
-        
     def test_verify_user_with_valid_token_and_correct_code(self):
         url = reverse('verify')
         response = self.client.post(url, {'token': self.token.key, 'code': '1234'})
