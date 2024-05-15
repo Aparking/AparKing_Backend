@@ -45,3 +45,37 @@ class CustomUserModelTest(TestCase):
         self.user.save()
         updated_user = CustomUser.objects.get(email="test@example.com")
         self.assertEqual(updated_user.stripe_customer_id, "cus_test")
+
+class VehicleModelTest(TestCase):
+    def setUp(self):
+        # Crear un usuario para ser el propietario del vehículo
+        self.user = CustomUser.objects.create(
+            username="testuser",
+            email="test@example.com",
+            dni="12345678A",
+            birth_date="2000-01-01",
+            gender=Gender.MALE,
+            phone="+34123456789",
+        )
+        # Crear un vehículo
+        self.vehicle = Vehicle.objects.create(
+            carModel="Test Model",
+            color="Red",
+            height=1.50,
+            width=2.00,
+            length=4.00,
+            owner=self.user,
+            principalCar=True
+        )
+
+    def test_vehicle_creation(self):
+        self.assertEqual(self.vehicle.carModel, "Test Model")
+        self.assertEqual(self.vehicle.color, "Red")
+        self.assertTrue(self.vehicle.principalCar)
+
+    def test_vehicle_owner_assignment(self):
+        self.assertEqual(self.vehicle.owner, self.user)
+
+    def test_vehicle_required_fields(self):
+        with self.assertRaises(Exception):  # Django raises different exceptions for different databases
+            Vehicle.objects.create()
