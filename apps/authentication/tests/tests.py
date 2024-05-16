@@ -209,3 +209,27 @@ class UserEditionTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         with self.assertRaises(CustomUser.DoesNotExist):
             CustomUser.objects.get(pk=self.user.pk)
+
+class AccountTests(APITestCase):
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            username='testuser',
+            email='testuser@example.com',
+            password='testpassword',
+            dni='12345678Z',
+            birth_date='2000-01-01',
+            gender=Gender.MALE,
+            phone='123456789',
+            iban='ES9121000418450200051332',
+            is_staff=False,
+            code='1234'
+        )
+        self.token = Token.objects.create(user=self.user)
+
+    def test_delete_account(self):
+        url = reverse('deleteAccount')
+        data = {'token': self.token.key}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        with self.assertRaises(CustomUser.DoesNotExist):
+            CustomUser.objects.get(pk=self.user.pk)
