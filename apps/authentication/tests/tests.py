@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from rest_framework.authtoken.models import Token
 from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import AnonymousUser
@@ -5,6 +6,10 @@ from apps.authentication.models import CustomUser
 from rest_framework.test import APIClient, APITestCase
 from apps.authentication.enums import Gender
 from django.urls import reverse
+from rest_framework import status
+from rest_framework.authtoken.models import Token
+
+from apps.authentication.serializers import UserSerializer
 
 
 class AuthTestCase(APITestCase):
@@ -173,3 +178,34 @@ class VerifyUserViewTest(TestCase):
         url = reverse('verify')
         response = self.client.post(url, {'token': 'invalidtoken', 'code': '1234'})
         self.assertEqual(response.status_code, 400)
+
+class UserEditionTests(APITestCase):
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            username='testuser',
+            email='testuser@example.com',
+            password='testpassword',
+            dni='12345678Z',
+            birth_date='2000-01-01',
+            gender=Gender.MALE,
+            phone='123456789',
+            iban='ES9121000418450200051332',
+            is_staff=False,
+            code='1234'
+        )
+        self.token = Token.objects.create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+
+    def test_get_user_details(self):
+        url = reverse('users_detail', kwargs={'pk': self.user.pk})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_data = response.json()
+        self.assertEqual(response_data['username'], self.user.username)
+
+    def test_delete_user(self):
+        url = reverse('users_detail', kwargs={'pk': self.user.pk})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        with self.assertRaises(CustomUser.DoesNotExist):
+            CustomUser.objects.get(pk=self.user.pk)
