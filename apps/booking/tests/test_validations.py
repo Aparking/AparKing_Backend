@@ -1,4 +1,3 @@
-'''
 import datetime
 from decimal import Decimal
 from django.test import TestCase
@@ -15,7 +14,7 @@ class ValidateAvailabilityDataTests(TestCase):
         self.valid_data = {
             'start_date': datetime.datetime.now() + datetime.timedelta(days=1),
             'end_date': datetime.datetime.now() + datetime.timedelta(days=2),
-            'status': GarageStatus.AVAILABLE.name,
+            'status': GarageStatus.AVAILABLE.value,
         }
 
     def test_valid_data(self):
@@ -108,4 +107,3 @@ class ValidateBookingDataTests(TestCase):
         data['status'] = 'INVALID_STATUS'
         with self.assertRaises(serializers.ValidationError):
             validate_booking_data(data)
-'''
