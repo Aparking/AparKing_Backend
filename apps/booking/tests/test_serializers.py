@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 from django.test import TestCase
 from django.urls import reverse
-from apps.booking.serializers import AvailabilitySerializer
+from apps.booking.serializers import AvailabilitySerializer, CommentSerializer
 from phonenumber_field.phonenumber import PhoneNumber
 from apps.authentication.enums import Gender
 from apps.authentication.models import CustomUser
@@ -63,3 +63,53 @@ class AvailabilitySerializerTestCase(TestCase):
     def test_status_field_content(self):
         data = self.serializer.data
         self.assertEqual(data['status'], self.availability.status)
+
+class CommentSerializerTestCase(TestCase):
+    def setUp(self):
+        self.owner = CustomUser.objects.create(
+            username="Test User",
+            email="testuser@example.com",
+            dni="12345678Z",
+            birth_date=date.today(),
+            gender=Gender.MALE,
+            phone=PhoneNumber.from_string(phone_number="+34123456789", region="ES")
+        )
+        self.address = Address.objects.create(
+            street_number="123",
+            address_line="Test Street",
+            city="Test City",
+            region="Test Region",
+            country="ES",
+            postal_code="12345"
+        )
+        self.garage = Garage.objects.create(
+            name="Test Garage",
+            description="Test Description",
+            height=2.5,
+            width=2.5,
+            length=5.0,
+            price=100.0,
+            owner=self.owner,
+            address=self.address
+        )
+        self.comment = Comment.objects.create(
+            title="Test Comment",
+            description="Test Description",
+            publication_date=datetime.now(),
+            rating=5,
+            user=self.owner,
+            garage=self.garage
+        )
+        self.serializer = CommentSerializer(instance=self.comment)
+
+    def test_contains_expected_fields(self):
+        data = self.serializer.data
+        self.assertCountEqual(data.keys(), ['id', 'title', 'description', 'publication_date', 'rating', 'user', 'garage'])
+
+    def test_garage_field_content(self):
+        data = self.serializer.data
+        self.assertEqual(data['garage'], self.garage.id)
+
+    def test_user_field_content(self):
+        data = self.serializer.data
+        self.assertEqual(data['user'], self.owner.id)
