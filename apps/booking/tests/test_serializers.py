@@ -113,3 +113,58 @@ class CommentSerializerTestCase(TestCase):
     def test_user_field_content(self):
         data = self.serializer.data
         self.assertEqual(data['user'], self.owner.id)
+
+class BookSerializerTestCase(TestCase):
+    def setUp(self):
+        self.owner = CustomUser.objects.create(
+            username="Test User",
+            email="testuser@example.com",
+            dni="12345678Z",
+            birth_date=date.today(),
+            gender=Gender.MALE,
+            phone=PhoneNumber.from_string(phone_number="+34123456789", region="ES")
+        )
+        self.address = Address.objects.create(
+            street_number="123",
+            address_line="Test Street",
+            city="Test City",
+            region="Test Region",
+            country="ES",
+            postal_code="12345"
+        )
+        self.garage = Garage.objects.create(
+            name="Test Garage",
+            description="Test Description",
+            height=2.5,
+            width=2.5,
+            length=5.0,
+            price=100.0,
+            owner=self.owner,
+            address=self.address
+        )
+        self.availability = Availability.objects.create(
+            start_date=datetime.now(),
+            end_date=datetime.now() + timedelta(days=1),
+            status=GarageStatus.AVAILABLE,
+            garage=self.garage
+        )
+        self.book = Book.objects.create(
+            payment_method=PaymentMethod.CARD,
+            status=BookingStatus.PENDING,
+            user=self.owner,
+            availability=self.availability,
+            stripe_session_id="test_stripe_session_id"
+        )
+        self.serializer = BookSerializer(instance=self.book)
+
+    def test_contains_expected_fields(self):
+        data = self.serializer.data
+        self.assertCountEqual(data.keys(), ['id', 'payment_method', 'status', 'user', 'availability', 'stripe_session_id'])
+
+    def test_availability_field_content(self):
+        data = self.serializer.data
+        self.assertEqual(data['availability'], self.availability.id)
+
+    def test_status_field_content(self):
+        data = self.serializer.data
+        self.assertEqual(data['status'], self.book.status)
