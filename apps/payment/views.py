@@ -71,9 +71,6 @@ def getMembership(request):
         memberShip =MemberShip.objects.get(user=customUser)
         subscription_plan_id=MemberId.FREE
         member=MemberType.FREE
-        print("xxxxxxxx")
-        print(credit.value)
-        print(memberShip.type)
         if(customUser.stripe_session_id!= None):
             session = stripe.checkout.Session.retrieve(customUser.stripe_session_id,expand=['line_items'])
             for item in session.line_items.data:
