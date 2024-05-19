@@ -1,9 +1,13 @@
+import datetime
+from decimal import Decimal
 from django.urls import reverse
+from apps.garagement.enums import GarageStatus
+from apps.garagement.serializers import AvailabilitySerializer, GarageSerializer
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 from apps.authentication.models import CustomUser
-from apps.garagement.models import Address, Garage
+from apps.garagement.models import Address, Availability, Garage
 from django_countries.fields import Country
 from datetime import date
 
@@ -290,27 +294,253 @@ class ListMyGaragesTest(APITestCase):
             owner=self.user,
             address=self.address
         )
-        self.garage2 = Garage.objects.create(
-            name="Imaginary Garage",
-            description="Imaginary Description",
-            height=5.0,
-            width=5.0,
-            length=10.0,
-            price=300.00,
+        
+    def test_list_my_garages(self):
+        url = reverse('my_garages')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_no_garages_found(self):
+        self.garage.delete()
+        url = reverse('my_garages')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+class GarageDetailTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="testuser",
+            email="testuser@example.com",
+            password="testpass",
+            birth_date=date(1990, 1, 1),
+        )
+        self.client.force_authenticate(user=self.user)
+        self.client.login( username='testuser', password='testpass')
+        self.address = Address.objects.create(
+            street_number="123",
+            address_line="Fake Street",
+            city="Testville",
+            region="Test Region",
+             country=Country("US"),
+            postal_code="12345"
+        )
+        self.garage = Garage.objects.create(
+            name="Test Garage",
+            description="Test Description",
+            height=3.0,
+            width=3.0,
+            length=6.0,
+            price=100.00,
             is_active=True,
             owner=self.user,
             address=self.address
         )
 
-    # def test_list_my_garages(self):
-    #     url = reverse('my_garages')
-    #     response = self.client.get(url)
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(len(response.data), 2)
+    def test_get_garage(self):
+        url = reverse('garage', args=[self.garage.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, GarageSerializer(self.garage).data)
 
-    # def test_list_my_garages_no_garages(self):
-    #     Garage.objects.all().delete()
-    #     url = reverse('my_garages')
-    #     response = self.client.get(url)
-    #     self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-    #     self.assertEqual(response.data['message'], 'No se encontraron garajes.')
+    '''
+    def test_update_garage(self):
+        self.url = reverse('garage', args=[self.garage.id])
+        self.data = {'name': 'Updated Garage', 'price': 150.0}
+        response = self.client.put(self.url, self.data, format='json')
+        self.garage.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.garage.name, 'Updated Garage')
+        self.assertEqual(self.garage.price, 150)
+    '''
+
+    def test_delete_garage(self):
+        url = reverse('garage', args=[self.garage.id])
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Garage.objects.filter(id=self.garage.id).exists())
+
+    def test_garage_not_found(self):
+        url = reverse('garage', args=[999])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        
+class CreateGarageTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="testuser",
+            email="testuser@example.com",
+            password="testpass",
+            birth_date=date(1990, 1, 1),
+        )
+        self.client.force_authenticate(user=self.user)
+        self.client.login( username='testuser', password='testpass')
+        self.address = Address.objects.create(
+            street_number="123",
+            address_line="Fake Street",
+            city="Testville",
+            region="Test Region",
+             country=Country("US"),
+            postal_code="12345"
+        )
+
+    '''
+    def test_create_garage(self):
+        url = reverse('create_garage')
+        data = {'owner': self.user.id, 'name': 'New Garage', 'price': 200.0, 
+                'description': 'New Description', 'height': 4.0, 'width': 4.0, 'length': 8.0, 
+                'is_active': True, 'address': self.address.id}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Garage.objects.count(), 1)
+        self.assertEqual(Garage.objects.get().name, 'New Garage')
+    '''
+
+    def test_create_garage_invalid_data(self):
+        url = reverse('create_garage')
+        data = {'name': ''}
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        
+class AvailabilityDetailTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="testuser",
+            email="testuser@example.com",
+            password="testpass",
+            birth_date=date(1990, 1, 1),
+        )
+        self.client.force_authenticate(user=self.user)
+        self.client.login( username='testuser', password='testpass')
+        self.address = Address.objects.create(
+            street_number="123",
+            address_line="Fake Street",
+            city="Testville",
+            region="Test Region",
+             country=Country("US"),
+            postal_code="12345"
+        )
+        self.garage = Garage.objects.create(
+            name="Test Garage",
+            description="Test Description",
+            height=3.0,
+            width=3.0,
+            length=6.0,
+            price=100.00,
+            is_active=True,
+            owner=self.user,
+            address=self.address
+        )
+        self.availability = Availability.objects.create(
+            garage=self.garage,
+            start_date=datetime.datetime.now() + datetime.timedelta(days=1),
+            end_date=datetime.datetime.now() + datetime.timedelta(days=2),
+            status=GarageStatus.AVAILABLE.value
+        )
+
+    def test_get_availability(self):
+        url = reverse('get_availabilities_by_garage_id', args=[self.availability.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_availability(self):
+        url = reverse('update_availability', args=[self.availability.id])
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Availability.objects.filter(id=self.availability.id).exists())
+
+    def test_availability_not_found(self):
+        url = reverse('get_availabilities_by_garage_id', args=[999])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+class CreateAvailabilityTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="testuser",
+            email="testuser@example.com",
+            password="testpass",
+            birth_date=date(1990, 1, 1),
+        )
+        self.client.force_authenticate(user=self.user)
+        self.client.login( username='testuser', password='testpass')
+        self.address = Address.objects.create(
+            street_number="123",
+            address_line="Fake Street",
+            city="Testville",
+            region="Test Region",
+             country=Country("US"),
+            postal_code="12345"
+        )
+        self.garage = Garage.objects.create(
+            name="Test Garage",
+            description="Test Description",
+            height=3.0,
+            width=3.0,
+            length=6.0,
+            price=100.00,
+            is_active=True,
+            owner=self.user,
+            address=self.address
+        )
+
+    '''
+    def test_create_availability(self):
+        url = reverse('create_availability')
+        data = {'garage': self.garage.id, 'start_date': datetime.datetime.now() + datetime.timedelta(days=1),
+                'end_date': datetime.datetime.now() + datetime.timedelta(days=2), 'status': GarageStatus.AVAILABLE.value}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Availability.objects.count(), 1)
+        self.assertEqual(Availability.objects.get().start_date, datetime.datetime.now() + datetime.timedelta(days=1))
+    '''
+
+    def test_create_availability_invalid_data(self):
+        url = reverse('create_availability')
+        data = {'stat_date': ''}
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+class ListAvailabilitiesTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="testuser",
+            email="testuser@example.com",
+            password="testpass",
+            birth_date=date(1990, 1, 1),
+        )
+        self.client.force_authenticate(user=self.user)
+        self.client.login( username='testuser', password='testpass')
+        self.address = Address.objects.create(
+            street_number="123",
+            address_line="Fake Street",
+            city="Testville",
+            region="Test Region",
+             country=Country("US"),
+            postal_code="12345"
+        )
+        self.garage = Garage.objects.create(
+            name="Test Garage",
+            description="Test Description",
+            height=3.0,
+            width=3.0,
+            length=6.0,
+            price=100.00,
+            is_active=True,
+            owner=self.user,
+            address=self.address
+        )
+        self.availability = Availability.objects.create(
+            garage=self.garage,
+            start_date=datetime.datetime.now() + datetime.timedelta(days=1),
+            end_date=datetime.datetime.now() + datetime.timedelta(days=2),
+            status=GarageStatus.AVAILABLE.value
+        )
+
+    def test_list_availabilities(self):
+        url = reverse('list_availabilities')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+
