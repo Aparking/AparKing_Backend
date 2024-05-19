@@ -25,22 +25,62 @@ class ValidateAddressDataTests(TestCase):
         self.assertEqual(validated_data, adress_data)
 
     def test_invalid_street_number(self):
-        address_data = {"street_number": "123"}
+        address_data = {"street_number": "",
+            "address_line": "Fake Street",
+            "city": "Testville",
+            "region": "Test Region",
+            "country": Country("US"),
+            "postal_code": "12345"}
         with self.assertRaises(serializers.ValidationError):
             validate_address_data(address_data)
 
     def test_invalid_city(self):
-        address_data = {"city": "C" * 257}
+        address_data = {"street_number": "123",
+            "address_line": "Fake Street",
+            "city": "",
+            "region": "Test Region",
+            "country": Country("US"),
+            "postal_code": "12345"}
+        with self.assertRaises(serializers.ValidationError):
+            validate_address_data(address_data)
+            
+    def test_invalid_adress(self):
+        address_data = {"street_number": "123",
+            "address_line": "",
+            "city": "TestVille",
+            "region": "Test Region",
+            "country": Country("US"),
+            "postal_code": "12345"}
         with self.assertRaises(serializers.ValidationError):
             validate_address_data(address_data)
 
     def test_invalid_country(self):
-        address_data = {"country": "XX"}
+        address_data = {"street_number": "123",
+            "address_line": "Fake Street",
+            "city": "Testville",
+            "region": "Test Region",
+            "country": "ERROR",
+            "postal_code": "12345"}
+        with self.assertRaises(serializers.ValidationError):
+            validate_address_data(address_data)
+    
+    def test_invalid_region(self):
+        address_data = {"street_number": "123",
+            "address_line": "Fake Street",
+            "city": "Testville",
+            "region": "",
+            "country": Country("US"),
+            "postal_code": "12345"}
         with self.assertRaises(serializers.ValidationError):
             validate_address_data(address_data)
 
     def test_invalid_postal_code(self):
-        address_data = {"postal_code": "X" * 17}
+        address_data = {"street_number": "123",
+            "address_line": "Fake Street",
+            "city": "Testville",
+            "region": "Test Region",
+            "country": Country("US"),
+            "postal_code": ""}
         with self.assertRaises(serializers.ValidationError):
             validate_address_data(address_data)
             
@@ -60,22 +100,57 @@ class ValidateGarageDataTests(TestCase):
         self.assertEqual(validated_data, garage_data)
 
     def test_invalid_name(self):
-        garage_data = {"name": ""}
+        garage_data = {"name": "",
+            "description": "Descripción del garage",
+            "height": Decimal("2.5"),
+            "width": Decimal("2.0"),
+            "length": Decimal("5.0"),
+            "price": Decimal("100.0"),
+            "is_active": True}
         with self.assertRaises(serializers.ValidationError):
             validate_garage_data(garage_data)
 
     def test_invalid_height(self):
-        garage_data = {"height": Decimal("-1.0")}
+        garage_data = {"name": "Garage",
+            "description": "Descripción del garage",
+            "height": Decimal("-2.5"),
+            "width": Decimal("2.0"),
+            "length": Decimal("5.0"),
+            "price": Decimal("100.0"),
+            "is_active": True}
         with self.assertRaises(serializers.ValidationError):
             validate_garage_data(garage_data)
 
     def test_invalid_price(self):
-        garage_data = {"price": Decimal("-1.0")}
+        garage_data = {"name": "Garage",
+            "description": "Descripción del garage",
+            "height": Decimal("2.5"),
+            "width": Decimal("2.0"),
+            "length": Decimal("5.0"),
+            "price": Decimal("-100.0"),
+            "is_active": True}
         with self.assertRaises(serializers.ValidationError):
             validate_garage_data(garage_data)
 
     def test_invalid_is_active(self):
-        garage_data = {"is_active": "yes"}
+        garage_data = {"name": "Garage",
+            "description": "Descripción del garage",
+            "height": Decimal("2.5"),
+            "width": Decimal("2.0"),
+            "length": Decimal("5.0"),
+            "price": Decimal("100.0"),
+            "is_active": "yes"}
+        with self.assertRaises(serializers.ValidationError):
+            validate_garage_data(garage_data)
+    
+    def test_invalid_description(self):
+        garage_data = {"name": "Garage",
+            "description": "",
+            "height": Decimal("2.5"),
+            "width": Decimal("2.0"),
+            "length": Decimal("5.0"),
+            "price": Decimal("100.0"),
+            "is_active": True}
         with self.assertRaises(serializers.ValidationError):
             validate_garage_data(garage_data)
             
@@ -111,30 +186,34 @@ class ValidateAvailabilityDataTests(TestCase):
         self.assertEqual(validated_data, availability_data)
 
     def test_invalid_start_date(self):
-        availability_data = {"start_date": "invalid date"}
+        availability_data = {"start_date": "",
+                             "end_date": datetime.datetime.now() + datetime.timedelta(days=2),
+                             "status": GarageStatus.AVAILABLE.value}
         with self.assertRaises(serializers.ValidationError):
             validate_availability_data(availability_data)
 
     def test_invalid_end_date(self):
         availability_data = {
-            "start_date": datetime.datetime(2024, 5, 18, 10, 0),
-            "end_date": "invalid date"
+            "start_date": datetime.datetime.now() + datetime.timedelta(days=1),
+            "end_date": "",
+            "status": GarageStatus.AVAILABLE.value
         }
         with self.assertRaises(serializers.ValidationError):
             validate_availability_data(availability_data)
 
     def test_end_date_before_start_date(self):
         availability_data = {
-            "start_date": datetime.datetime(2024, 5, 18, 12, 0),
-            "end_date": datetime.datetime(2024, 5, 18, 10, 0)
+            "start_date": datetime.datetime.now() + datetime.timedelta(days=2),
+            "end_date":datetime.datetime.now() + datetime.timedelta(days=1),
+            "status": GarageStatus.AVAILABLE.value
         }
         with self.assertRaises(serializers.ValidationError):
             validate_availability_data(availability_data)
 
     def test_invalid_status(self):
         availability_data = {
-            "start_date": datetime.datetime(2024, 5, 18, 10, 0),
-            "end_date": datetime.datetime(2024, 5, 18, 12, 0),
+            "start_date": datetime.datetime.now() + datetime.timedelta(days=2),
+            "end_date": datetime.datetime.now() + datetime.timedelta(days=3),
             "status": "invalid status"
         }
         with self.assertRaises(serializers.ValidationError):
