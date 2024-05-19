@@ -2,7 +2,7 @@ import datetime
 from decimal import Decimal
 from django.urls import reverse
 from apps.garagement.enums import GarageStatus
-from apps.garagement.serializers import AvailabilitySerializer, GarageSerializer
+from apps.garagement.serializers import AvailabilitySerializer, GarageSerializer, ImageSerializer
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
@@ -634,3 +634,41 @@ class CreateImageTests(APITestCase):
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+class ListImageTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="testuser",
+            email="testuser@example.com",
+            password="testpass",
+            birth_date=date(1990, 1, 1),
+        )
+        self.client.force_authenticate(user=self.user)
+        self.client.login( username='testuser', password='testpass')
+        self.address = Address.objects.create(
+            street_number="123",
+            address_line="Fake Street",
+            city="Testville",
+            region="Test Region",
+             country=Country("US"),
+            postal_code="12345"
+        )
+        self.garage = Garage.objects.create(
+            name="Test Garage",
+            description="Test Description",
+            height=3.0,
+            width=3.0,
+            length=6.0,
+            price=100.00,
+            is_active=True,
+            owner=self.user,
+            address=self.address
+        )
+        self.image = Image.objects.create(garage=self.garage,
+                                          image="\images\test_images_garagement\garaje_test.jpg", 
+                                          alt="Foto del garaje")
+
+    def test_list_images(self):
+        url = reverse('list_image')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
