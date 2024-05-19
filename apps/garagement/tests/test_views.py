@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 from apps.authentication.models import CustomUser
-from apps.garagement.models import Address, Availability, Garage
+from apps.garagement.models import Address, Availability, Garage, Image
 from django_countries.fields import Country
 from datetime import date
 
@@ -543,4 +543,94 @@ class ListAvailabilitiesTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
 
+class GetImagesByGarageIdTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="testuser",
+            email="testuser@example.com",
+            password="testpass",
+            birth_date=date(1990, 1, 1),
+        )
+        self.client.force_authenticate(user=self.user)
+        self.client.login( username='testuser', password='testpass')
+        self.address = Address.objects.create(
+            street_number="123",
+            address_line="Fake Street",
+            city="Testville",
+            region="Test Region",
+             country=Country("US"),
+            postal_code="12345"
+        )
+        self.garage = Garage.objects.create(
+            name="Test Garage",
+            description="Test Description",
+            height=3.0,
+            width=3.0,
+            length=6.0,
+            price=100.00,
+            is_active=True,
+            owner=self.user,
+            address=self.address
+        )
+        self.image = Image.objects.create(garage=self.garage,
+                                          image="\images\test_images_garagement\garaje_test.jpg", 
+                                          alt="Foto del garaje")
+
+    def test_get_images_by_garage_id(self):
+        url = reverse('get_images_by_garage_id', args=[self.garage.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_garage_not_found(self):
+        url = reverse('get_images_by_garage_id', args=[999])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        
+class CreateImageTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="testuser",
+            email="testuser@example.com",
+            password="testpass",
+            birth_date=date(1990, 1, 1),
+        )
+        self.client.force_authenticate(user=self.user)
+        self.client.login( username='testuser', password='testpass')
+        self.address = Address.objects.create(
+            street_number="123",
+            address_line="Fake Street",
+            city="Testville",
+            region="Test Region",
+             country=Country("US"),
+            postal_code="12345"
+        )
+        self.garage = Garage.objects.create(
+            name="Test Garage",
+            description="Test Description",
+            height=3.0,
+            width=3.0,
+            length=6.0,
+            price=100.00,
+            is_active=True,
+            owner=self.user,
+            address=self.address
+        )
+    '''
+    def test_create_image(self):
+        url = reverse('create_image')
+        data = {'garage': self.garage.id, 
+                'image': '\images\test_images_garagement\garaje_test.jpg', 
+                'alt': 'Foto del garaje'}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Image.objects.count(), 1)
+        self.assertEqual(Image.objects.get().image, '\images\test_images_garagement\garaje_test.jpg')
+    '''
+
+    def test_create_image_invalid_data(self):
+        url = reverse('create_image')
+        data = {'url': ''}
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
