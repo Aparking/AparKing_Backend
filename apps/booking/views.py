@@ -55,6 +55,16 @@ def list_my_bookings(request):
     else:
         return Response({'message': 'No se encontraron reservas de garajes.'}, status=status.HTTP_404_NOT_FOUND)
     
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def list_all_bookings(request):
+    bookings = Book.objects
+    if bookings.exists():
+        serializer = BookSerializer(bookings, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        return Response({'message': 'No se encontraron reservas de garajes.'}, status=status.HTTP_404_NOT_FOUND)
+    
 @api_view(["GET", "DELETE"])
 @permission_classes([IsAuthenticated])
 def booking_details(request, pk):

@@ -1,3 +1,4 @@
+import datetime
 from django.contrib.gis.geos import Point
 from rest_framework import serializers
 from apps.parking.models import Parking, City
@@ -9,6 +10,19 @@ class ParkingSerializer(serializers.ModelSerializer):
     latitude = serializers.FloatField(write_only=True)
     longitude = serializers.FloatField(write_only=True)
     cesion_parking = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S', required=False, allow_null=True)
+    
+    def validate_cesion_parking(self, value):
+        """
+        Valida que la fecha de cesion_parking no sea una fecha pasada
+        y que el año sea el actual.
+        """
+        if value:
+            now = datetime.now()
+            if value < now:
+                raise serializers.ValidationError("La fecha de cesión no puede ser en el pasado.")
+            elif value.year != now.year:
+                raise serializers.ValidationError("La fecha de cesión debe ser del año actual.")
+        return value
 
     class Meta:
         model = Parking

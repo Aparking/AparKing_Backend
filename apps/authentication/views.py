@@ -1,16 +1,80 @@
+from django.http import JsonResponse
 from rest_framework.decorators import api_view
+from apps.authentication.models import CustomUser, Vehicle
+from apps.payment.models import MemberShip, Credit
+from apps.payment.enums import MemberType
+from rest_framework import status
+from django.contrib.auth.decorators import user_passes_test
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from .serializers import CustomUserSerializer, LoginSerializer, RegisterSerializer,RegisterVehicleSerializer, ProfileSerializer
+from rest_framework.parsers import JSONParser
+from .serializers import LoginSerializer, RegisterSerializer, RegisterVehicleSerializer, ProfileSerializer, UserSerializer, CustomUserSerializer
 from apps.mailer import generic_sender as Mailer
 from apps.utils import code_generator
 import stripe
-from apps.payment.models import MemberShip, CustomUser, Credit
-from apps.authentication.models import Vehicle
-from apps.payment.enums import MemberType
 from django.utils import timezone
 from dateutil.relativedelta import relativedelta
-from rest_framework import status
+
+# Función auxiliar para verificar si el usuario es un administrador
+def is_admin(user):
+    # Verifica si el usuario está autenticado y si es un administrador (is_staff)
+    return user.is_authenticated and user.is_staff
+
+# Vista para listar y, opcionalmente, borrar usuarios
+@api_view(['GET', 'POST', 'DELETE'])
+# Decorador que restringe el acceso solo a los administradores
+@user_passes_test(is_admin)
+def users_list(request):
+    if request.method == 'GET':
+        # Obtiene todos los usuarios de la base de datos
+        users = CustomUser.objects.all()
+        
+        # Filtra los usuarios por el nombre de usuario si se proporciona en la consulta
+        username = request.GET.get('username', None)
+        if username is not None:
+            users = users.filter(username__icontains=username)
+        
+        # Serializa los usuarios encontrados
+        users_serializer = UserSerializer(users, many=True)
+        # Devuelve los datos de los usuarios serializados en forma de respuesta JSON
+        return JsonResponse(users_serializer.data, safe=False)
+
+    elif request.method == 'POST':
+        user_data = JSONParser().parse(request)
+        user_serializer = UserSerializer(data=user_data)
+        if user_serializer.is_valid():
+            user_serializer.save()
+            return JsonResponse(user_serializer.data, status=status.HTTP_201_CREATED)
+        return JsonResponse(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    elif request.method == 'DELETE':
+        # Elimina todos los usuarios de la base de datos
+        count = CustomUser.objects.all().delete()
+        # Devuelve un mensaje indicando cuántos usuarios se eliminaron con éxito
+        return JsonResponse({'message': '{} Users were deleted successfully!'.format(count[0])}, status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def users_detail(request, pk):
+    try:
+        user = CustomUser.objects.get(pk=pk)
+    except CustomUser.DoesNotExist:
+        return JsonResponse({'message': 'The user does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        user_serializer = UserSerializer(user)
+        return JsonResponse(user_serializer.data)
+
+    elif request.method == 'PUT':
+        user_data = JSONParser().parse(request)
+        user_serializer = UserSerializer(user, data=user_data)
+        if user_serializer.is_valid():
+            user_serializer.save()
+            return JsonResponse(user_serializer.data)
+        return JsonResponse(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    elif request.method == 'DELETE':
+        user.delete()
+        return JsonResponse({'message': 'User was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
 
 @api_view(["POST"])
 def auth_login(request) -> Response:
@@ -37,7 +101,6 @@ def delete_account(request) -> Response:
     except Exception:
         return Response(status=400)
 
-
 @api_view(["POST"])
 def verify_user(request) -> Response:
     try:
@@ -56,7 +119,6 @@ def verify_user(request) -> Response:
             return Response(status=400)
     except Exception:
         return Response({"error": "Token not found"}, status=400)
-
 
 @api_view(["GET"])
 def user_info(request) -> Response:
@@ -100,7 +162,6 @@ def register(request) -> Response:
     else:
         return Response(serializer.errors, status=400)
 
-
 @api_view(["GET"])
 def auth_logout(request) -> Response:
     user = request.user
@@ -120,8 +181,8 @@ def registerVehicle(request) -> Response:
     serializer = RegisterVehicleSerializer(data=datos)
     
     if serializer.is_valid():
-        vehicle = serializer.save() 
-        vehicle.principalCar= True
+        vehicle = serializer.save()
+        vehicle.principalCar=True
         vehicle.save()
         return Response(status=200)
     else:
@@ -141,7 +202,7 @@ def updateVehicle(request) -> Response:
                 vehicle.save()
         return Response({'id': vehicle.id}, status=status.HTTP_200_OK)
     except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST) 
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(["GET", "PUT", "DELETE"])
 def user_profile(request):
@@ -156,17 +217,13 @@ def user_profile(request):
             serializer = ProfileSerializer(user, data=request.data)
             print(serializer)
             if serializer.is_valid():
-                print("funciona")
                 serializer.save()
                 return Response(serializer.data)
             else:
-                print("hola")
                 return Response(serializer.errors, status=400)
         elif request.method == "DELETE":
             user.delete()
             return Response(status=204)
         
     except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST) 
-
-
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
