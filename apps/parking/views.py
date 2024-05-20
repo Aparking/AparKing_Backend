@@ -307,6 +307,7 @@ def postParkingCesion(request: HttpRequest):
         vehicle= Vehicle.objects.get(owner=user.id,principalCar=True)
         parking.booked_by=user
         parking.vehiculo=vehicle
+        parking.is_assignment=True
         parking.save()
         return Response({'id': parking.id}, status=status.HTTP_200_OK)
     except Exception as e:

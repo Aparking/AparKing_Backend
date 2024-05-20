@@ -2,17 +2,10 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from phonenumber_field.modelfields import PhoneNumberField
-from .enums import Gender
-
-# Create your models here.
-from django.db import models
-from django.contrib.auth.models import AbstractUser
-from django.core.validators import RegexValidator
-from phonenumber_field.modelfields import PhoneNumberField
 from apps.payment.enums import MemberId
 from apps.authentication.enums import Gender
 import stripe
-
+import re
 class CustomUser(AbstractUser):
     username = models.CharField(max_length=255, unique=False, blank=False, null=False)
     email = models.EmailField(unique=True, blank=False, null=False)
@@ -36,10 +29,14 @@ class CustomUser(AbstractUser):
     stripe_credit_id = models.CharField(max_length=255, blank=True, null=True)
     stripe_session_id=models.CharField(max_length=255,null = True)
     code = models.CharField(max_length=10, blank=True,null = True)
+
     def validate_iban(iban):
         iban = iban.replace(' ','').replace('\t','').replace('\n','')
         
-        if len(iban) != 34:
+        if len(iban) < 15 or len(iban) > 34:
+            return False
+
+        if not re.match(r'^[A-Z]{2}\d{2}\s?(\d{4}\s?){2,7}$', iban):
             return False
 
         iban = iban[4:] + iban[0:4]
